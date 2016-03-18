@@ -1,0 +1,26 @@
+//
+//  SilyTabBar.h
+//  BaseDemo
+//
+//  Created by 张娇娇 on 15/7/1.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+@class SilyTabBar;
+
+@protocol SilyTabBarDelegate  <NSObject>
+
+@optional
+- (void)tabBar:(SilyTabBar *)tabBar didSelectedButtonFrom:(int)from to:(int)to;
+- (void)tabBarDidClickedPlusButton:(SilyTabBar *)tabBar;
+
+@end
+
+@interface SilyTabBar : UIView
+
+- (void)addTabBarButtonWithItem:(UITabBarItem *)item;
+
+@property (weak, nonatomic) id<SilyTabBarDelegate> delegate;
+
+@end

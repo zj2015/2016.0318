@@ -1,0 +1,19 @@
+//
+//  TrainResultThreeViewController.h
+//  MRobot
+//
+//  Created by mac on 15/8/22.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import "BaseViewController.h"
+#import "SubmitBySkillModel.h"
+#import "QuestionDataModel.h"
+
+@interface TrainResultThreeViewController : BaseViewController
+
+@property (strong, nonatomic) SubmitBySkillModel *skillModel;
+
+@property (strong, nonatomic) QuestionDataModel *questionModel;
+
+@end

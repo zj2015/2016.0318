@@ -1,0 +1,112 @@
+//
+//  AnalyticalKnowledgeViewController.m
+//  ERobot
+//
+//  Created by BaiYu on 15/6/30.
+//  Copyright (c) 2015年 BaiYu. All rights reserved.
+//
+
+#import "AnalyticalKnowledgeViewController.h"
+#import "AnalyticalKnowledgeTableViewCell.h"
+#import "KVideoViewController.h"
+#import "AnalyticalKnowledgeModel.h"
+#import "KnowledgeModel.h"
+
+@interface AnalyticalKnowledgeViewController ()
+
+@end
+
+@implementation AnalyticalKnowledgeViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    [self base_changeNavigationTitleWithString:@"知识点解析"];
+    self.view.backgroundColor = [UIColor colorWithRed: 0.9 green:0.9 blue:0.9 alpha:1];
+    
+}
+
+-(void)_prepareUI
+{
+    analyticalTableView = [[UITableView alloc] initWithFrame:CGRectMake(5, 5, MainScreenSize_W-10, MainScreenSize_H - 5) style:UITableViewStylePlain];
+    analyticalTableView.delegate = self;
+    analyticalTableView.dataSource = self;
+    analyticalTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+    analyticalTableView.backgroundColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1];
+    [self.view addSubview:analyticalTableView];
+}
+
+-(void)_prepareData
+{
+    //1.4.3 知识点解析
+    [self showAlertHUD:@"正在加载..."];
+    LearningPlanRequest *analyticalRequest = [[LearningPlanRequest alloc] init];
+    [analyticalRequest userKnowledgeAnalysisListWithWeekId:self.weekId success:^(id obj) {
+        InfoResult *infoResult = (InfoResult *)obj;
+        if ([infoResult.code isEqualToString:@"0"]) {
+            AnalyticalKnowledgeModel *analyticalKnowledgeModel = [[AnalyticalKnowledgeModel alloc] init];
+            analyticalKnowledgeModel = (AnalyticalKnowledgeModel *)[infoResult extraObj];
+            kDataArr = analyticalKnowledgeModel.analyticalKnowledgeArr;
+        }
+
+        [analyticalTableView reloadData];
+
+    } failed:^(id obj) {
+        [MBProgressHUD hideHUDForView:self.view animated:YES];
+    }];
+}
+
+#pragma make -UITableViewDataSource
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return [kDataArr count];
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    static NSString * cellIndentifier = @"analyticalCell";
+    AnalyticalKnowledgeTableViewCell * cell = [tableView dequeueReusableCellWithIdentifier:cellIndentifier];
+    if (cell == nil) {
+        cell = [[AnalyticalKnowledgeTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellIndentifier];
+        cell.selectionStyle = UITableViewCellSelectionStyleNone;
+        }
+  
+        if (kDataArr) {
+            KnowledgeModel *kModel = [kDataArr objectAtIndex:indexPath.row];
+            CGFloat rowHeight = [BaseAPIManager base_getHeightByContent:kModel.KContent andFontSize:15 andFixedWidth:MainScreenSize_W-10];
+            
+            cell.kNameLab.text = kModel.kName;
+            cell.kContentLab.text = kModel.KContent;
+            cell.kContentLab.frame = CGRectMake(5, 55 *SIZE_TIMES, MainScreenSize_W-10,rowHeight);
+            cell.bottomLab.frame = CGRectMake(0, 60 *SIZE_TIMES + rowHeight, MainScreenSize_W-10, 10);
+            cell.videoBtn.tag = indexPath.row;
+            [cell.videoBtn addTarget:self action:@selector(showSmallVideo:) forControlEvents:UIControlEventTouchUpInside];
+        }
+    
+    return cell;
+}
+
+#pragma make -UITableViewDelegate
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+ 
+    KnowledgeModel *kModel = [kDataArr objectAtIndex:indexPath.row];
+    
+    CGFloat rowHeight = [BaseAPIManager base_getHeightByContent:kModel.KContent andFontSize:15 andFixedWidth:MainScreenSize_W-10];
+    
+    return rowHeight *SIZE_TIMES + 70;
+}
+
+#pragma make -展示知识点视频
+- (void)showSmallVideo:(UIButton *)btn
+{
+    KnowledgeModel *kModel = [kDataArr objectAtIndex:btn.tag];
+    KVideoViewController *kVideoVC = [[KVideoViewController alloc] init];
+    kVideoVC.kId = kModel.kId;
+    kVideoVC.kName = kModel.kName;
+    [self.navigationController pushViewController:kVideoVC animated:YES];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+}
+
+@end

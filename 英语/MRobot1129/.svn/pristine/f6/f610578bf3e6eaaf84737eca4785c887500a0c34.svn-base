@@ -1,0 +1,32 @@
+//
+//  SVideoView.h
+//  MRobot
+//
+//  Created by BaiYu on 15/8/26.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+@protocol PassSkillBtnTagDelegate <NSObject>
+
+-(void)passSVideoTag:(NSInteger)btnTag;
+-(void)passSkillTrainTag:(NSInteger)btnTag;
+
+@end
+
+@interface SVideoView : UIView
+
+@property (weak, nonatomic) id<PassSkillBtnTagDelegate>delegate;
+@property (strong, nonatomic) UIButton *skillVideoBtn;
+@property (strong, nonatomic) UIButton *skillTrainBtn;
+
+/**
+ *  创建知识点视频
+ *
+ *  @param frame           一列视频frame
+ *  @param listIndex       列表Index
+ *
+ *  @return 一列View
+ */
+-(id)initWithFrame:(CGRect)frame listIndex:(NSInteger)listIndex coverImgStr:(NSString *)coverImgStr videoName:(NSString *)videoNameStr;
+@end

@@ -1,0 +1,82 @@
+//
+//  ErrorShowViewController.m
+//  ERobot
+//
+//  Created by BaiYu on 15/7/1.
+//  Copyright (c) 2015年 BaiYu. All rights reserved.
+//
+
+#import "ErrorShowViewController.h"
+#define COLUMN 3
+#define ROWHEIGHT 100
+
+@interface ErrorShowViewController ()
+
+@end
+
+@implementation ErrorShowViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    self.view.backgroundColor = [UIColor whiteColor];
+    NSArray *imgNameArr = @[@"zhishidian",@"cuotiji",@"retest"];
+    NSArray *markNameArr = @[@"知识点解析",@"我的错题集",@"重新训练"];
+    
+    UILabel *lineLab = [[UILabel alloc] initWithFrame:CGRectMake(0, 0.5, MainScreenSize_W, 0.5)];
+    lineLab.backgroundColor = [UIColor lightGrayColor];
+    [self.view addSubview:lineLab];
+    
+    for (int i=0; i<3; i++) {
+        int row = i / COLUMN;
+        int column = i % COLUMN;
+        
+        UIView *view = [[UIView alloc] initWithFrame:CGRectMake(MainScreenSize_W/3*column, ROWHEIGHT*row, MainScreenSize_W/3, ROWHEIGHT)];
+        view.backgroundColor = [UIColor clearColor];
+        
+        UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
+        btn.frame = CGRectMake((MainScreenSize_W/3-40)/2, 15, 40, 40);
+        btn.tag = i;
+        [btn addTarget:self.errorKnowledgeVC
+                action:@selector(chooseBtnClick:)
+      forControlEvents:UIControlEventTouchUpInside];
+        [btn setBackgroundImage:[UIImage imageNamed:[imgNameArr objectAtIndex:i]]
+                       forState:UIControlStateNormal];
+        [view addSubview:btn];
+        
+        UILabel *lbl = [[UILabel alloc] initWithFrame:CGRectMake(0, 60, MainScreenSize_W/3, 20)];
+        lbl.textAlignment = NSTextAlignmentCenter;
+        lbl.font = [UIFont systemFontOfSize:13.0f];
+        lbl.backgroundColor = [UIColor clearColor];
+        lbl.text = [markNameArr objectAtIndex:i];
+        [view addSubview:lbl];
+        
+        [self.view addSubview:view];
+    }
+    
+    CGRect viewFrame = self.view.frame;
+    viewFrame.size.height = ROWHEIGHT*SIZE_TIMES;
+    self.view.frame = viewFrame;
+}
+
+-(void)chooseBtnClick:(UIButton *)sender
+{
+    
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+
+@end

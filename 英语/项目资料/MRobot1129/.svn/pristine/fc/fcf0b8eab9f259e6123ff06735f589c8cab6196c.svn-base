@@ -1,0 +1,25 @@
+//
+//  VideoExplanationViewController.h
+//  MRobot
+//
+//  Created by BaiYu on 15/8/22.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import "BaseViewController.h"
+#import "UIFolderTableView.h"
+#import "CustomAlertView.h"
+
+@interface VideoExplanationViewController : BaseViewController<UITableViewDelegate,UITableViewDataSource,UIFolderTableViewDelegate>
+{
+    UIButton *knowledgeBtn;
+    UIButton *solveBtn;
+    UIFolderTableView *knowledgeTable;
+    UIFolderTableView *solveTable;
+    BOOL isClick;//单元格被点击
+    NSInteger selectRow;//当前点击的单元格
+    
+    NSArray *videosArr;
+}
+@property (assign, nonatomic) NSInteger fromVC;//(0 代表视频讲解 1 代表通用解题技巧 2 代表知识点解析视频)
+@end

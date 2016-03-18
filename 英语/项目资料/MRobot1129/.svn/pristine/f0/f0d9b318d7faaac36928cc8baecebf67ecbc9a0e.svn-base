@@ -1,0 +1,25 @@
+//
+//  UserLoginModel.m
+//  MRobot
+//
+//  Created by mac on 15/8/20.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import "UserLoginModel.h"
+
+@implementation UserLoginModel
+
+@synthesize uId;
+@synthesize uAvatar;
+@synthesize uName;
+@synthesize uCampus;
+@synthesize uClass;
+@synthesize token;
+@synthesize expiresIn;
+@synthesize sTime;
+@synthesize ccAmount;
+@synthesize vipEndDate;
+@synthesize vipStatus;
+
+@end

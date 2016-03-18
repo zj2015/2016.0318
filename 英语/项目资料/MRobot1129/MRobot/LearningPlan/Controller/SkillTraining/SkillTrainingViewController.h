@@ -1,0 +1,40 @@
+//
+//  SkillTrainingViewController.h
+//  MRobot
+//
+//  Created by BaiYu on 15/8/25.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "CustomAlertView.h"
+//#import "SkillInfoModel.h"
+#import "SkillTrainView.h"
+#import "SkillDataModel.h"
+#import "SkillListModel.h"
+@interface SkillTrainingViewController : BaseViewController<UITableViewDelegate,UITableViewDataSource,SkillTrainPassTagDelegate>
+{
+    UITableView *skillTrainTable;
+    BOOL isClick;//单元格被点击
+    NSInteger selectRow;//当前点击的单元格
+    BOOL isOtherClick;
+    
+    UIView *alertBgView;
+    CustomAlertView *customAlertView;//自定义alert
+    
+    NSArray *skillArr;//技巧列表
+    
+    SkillListModel *skillInfoModel;
+    
+    NSMutableArray *openedInSectionArr;
+    NSInteger preHeaderIndex;//上一个被点击的区头
+    
+    NSString *_videoId;//视频Id
+    NSString *_videoTitle;//视频名称
+    NSString *_imgUrlstring;//视频封面地址
+    NSString *_videoURL;//视频分享地址
+}
+@property (assign, nonatomic) NSInteger fromVC;//(0 代表技巧训练  1 代表Lecture on answer to question Repeat和Videos中的进入技巧训练)
+@property (strong, nonatomic) NSString *weekId;//周Id
+@property (strong, nonatomic) NSString *sId;//技巧Id
+@end

@@ -1,0 +1,181 @@
+//
+//  TopicVideoViewController.m
+//  MRobot
+//
+//  Created by BaiYu on 15/9/6.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import "TopicVideoViewController.h"
+#import "TypeQListModel.h"
+#import "DWCustomPlayerViewController.h"
+
+@interface TopicVideoViewController ()
+
+@end
+
+@implementation TopicVideoViewController
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    self.tabBarController.tabBar.hidden = YES;
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    [self base_changeNavigationTitleWithString:self.tName];
+    
+}
+
+- (void)loadUIWithqListCount:(NSInteger)qlistCount coverImgStr:(NSString *)coverImgStr
+{
+    UIScrollView *scrollView = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 64, MainScreenSize_W, MainScreenSize_H)];
+    scrollView.backgroundColor = PView_BGColor;
+    [self.view addSubview:scrollView];
+    
+    UIImageView *tVideoCoverImg = [[UIImageView alloc] initWithFrame: CGRectMake((MainScreenSize_W - 200*SIZE_TIMES)/2, 15, 200*SIZE_TIMES, 120*SIZE_TIMES)];
+    tVideoCoverImg.userInteractionEnabled = YES;
+    [tVideoCoverImg setImageWithURL:[NSURL URLWithString:coverImgStr] placeholderImage:[UIImage imageNamed:@"video"]];
+    [scrollView addSubview:tVideoCoverImg];
+    
+    UIButton *tVideoBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    tVideoBtn.frame = CGRectMake((tVideoCoverImg.size.width - 40*SIZE_TIMES)/2 , (tVideoCoverImg.size.height - 40*SIZE_TIMES)/2, 40*SIZE_TIMES, 40*SIZE_TIMES);
+    tVideoBtn.tag = 0;
+    [tVideoBtn setBackgroundImage:[UIImage imageNamed:@"PLAY"] forState:UIControlStateNormal];
+    [tVideoBtn addTarget:self action:@selector(videoBtnClick:) forControlEvents:UIControlEventTouchUpInside];
+    [tVideoCoverImg addSubview:tVideoBtn];
+    
+    UILabel * kNameLab = [[UILabel alloc]initWithFrame:CGRectMake(0, 15 + 120*SIZE_TIMES, MainScreenSize_W, 30*SIZE_TIMES)];
+    kNameLab.font = [UIFont systemFontOfSize:15];
+    kNameLab.textAlignment = NSTextAlignmentCenter;
+    kNameLab.text = @"通用解题技巧";
+    [scrollView addSubview:kNameLab];
+    
+    for (int i = 0; i < qlistCount; i ++) {
+        if (i < qlistCount - 1) {
+            UIView *leftView = [[UIView alloc] initWithFrame:CGRectMake(0, 16 + 150*SIZE_TIMES + 101*SIZE_TIMES*i, MainScreenSize_W/2, 100*SIZE_TIMES)];
+            leftView.backgroundColor = [UIColor whiteColor];
+            [scrollView addSubview:leftView];
+            
+            UIView *rightView = [[UIView alloc] initWithFrame:CGRectMake(MainScreenSize_W/2 + 1, 16 + 150*SIZE_TIMES + 101*SIZE_TIMES*i, MainScreenSize_W/2 - 1, 100*SIZE_TIMES)];
+            rightView.backgroundColor = [UIColor whiteColor];
+            [scrollView addSubview:rightView];
+            
+            UIButton *focusTitleBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+            focusTitleBtn.frame = CGRectMake((MainScreenSize_W/2 - 100*SIZE_TIMES)/2, (100-30*SIZE_TIMES)/2, 100*SIZE_TIMES, 30*SIZE_TIMES);
+            focusTitleBtn.tag = i;
+            [focusTitleBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+            [focusTitleBtn setTitle:[NSString stringWithFormat:@"重点例题%d",i + 1] forState:UIControlStateNormal];
+            focusTitleBtn.titleLabel.font = [UIFont systemFontOfSize:15];
+            [focusTitleBtn setBackgroundImage:[UIImage imageNamed:@"btn01_hover"] forState:UIControlStateNormal];
+            [focusTitleBtn addTarget:self action:@selector(focusTitleBtnClick:) forControlEvents:UIControlEventTouchUpInside];
+            [leftView addSubview:focusTitleBtn];
+            
+            UIImageView *qVideoCoverImg = [[UIImageView alloc] initWithFrame: CGRectMake((MainScreenSize_W/2 - 120*SIZE_TIMES)/2, 5, 120*SIZE_TIMES, 72*SIZE_TIMES)];
+            qVideoCoverImg.userInteractionEnabled = YES;
+            [qVideoCoverImg setImageWithURL:[NSURL URLWithString:coverImgStr] placeholderImage:[UIImage imageNamed:@"video"]];
+            [rightView addSubview:qVideoCoverImg];
+            
+            UIButton *qVideoBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+            qVideoBtn.frame = CGRectMake((qVideoCoverImg.size.width - 30*SIZE_TIMES)/2 , (qVideoCoverImg.size.height - 30*SIZE_TIMES)/2, 30*SIZE_TIMES, 30*SIZE_TIMES);
+            qVideoBtn.tag = i+1;
+            [qVideoBtn setBackgroundImage:[UIImage imageNamed:@"PLAY"] forState:UIControlStateNormal];
+            [qVideoBtn addTarget:self action:@selector(videoBtnClick:) forControlEvents:UIControlEventTouchUpInside];
+            [qVideoCoverImg addSubview:qVideoBtn];
+            
+            UILabel * sNameLab = [[UILabel alloc]initWithFrame:CGRectMake(0, 5 + 72*SIZE_TIMES, MainScreenSize_W/2-1, 20*SIZE_TIMES)];
+            sNameLab.font = [UIFont systemFontOfSize:15];
+            sNameLab.textAlignment = NSTextAlignmentCenter;
+            sNameLab.text = @"重点解题技巧";
+            [rightView addSubview:sNameLab];
+        }else{
+            UIView *bottomView = [[UIView alloc] initWithFrame:CGRectMake(0, 16 + 150*SIZE_TIMES + 101*SIZE_TIMES*i, MainScreenSize_W, 50*SIZE_TIMES)];
+            bottomView.backgroundColor = [UIColor whiteColor];
+            [scrollView addSubview:bottomView];
+            
+            UIButton *skillTrainBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+            skillTrainBtn.frame = CGRectMake(10, 15/2*SIZE_TIMES, MainScreenSize_W - 20, 35*SIZE_TIMES);
+            [skillTrainBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+            [skillTrainBtn setTitle:@"技巧训练" forState:UIControlStateNormal];
+            skillTrainBtn.titleLabel.font = [UIFont systemFontOfSize:16];
+            [skillTrainBtn setBackgroundImage:[UIImage imageNamed:@"btn01_hover"] forState:UIControlStateNormal];
+            [skillTrainBtn addTarget:self action:@selector(skillTrainBtnClick:) forControlEvents:UIControlEventTouchUpInside];
+            [bottomView addSubview:skillTrainBtn];
+        }
+    }
+    
+    [scrollView setContentSize:CGSizeMake(MainScreenSize_W, 15+150*SIZE_TIMES+100*SIZE_TIMES*2+50*SIZE_TIMES)];
+}
+
+- (void)_prepareData
+{
+    [self showAlertHUD:@"正在加载..."];
+    LearningPlanRequest *topQListRequest = [[LearningPlanRequest alloc] init];
+    [topQListRequest userTypeQuestionListWithTId:self.tId success:^(id obj) {
+        InfoResult *infoResult = (InfoResult *)obj;
+        if ([infoResult.code isEqualToString:@"0"]) {
+            typeQListModel = [[TypeQuestionListModel alloc]init];
+            typeQListModel = (TypeQuestionListModel *)[infoResult extraObj];
+
+            qListArr = typeQListModel.questionListArray;
+            
+            [self loadUIWithqListCount:qListArr.count coverImgStr:typeQListModel.tVideoCoverUrl];
+            
+        }else{
+            [aCommon iToast:@"加载失败!"];
+        }
+    } failed:^(id obj) {
+        [aCommon iToast:@"系统未知错误!"];
+    }];
+}
+
+#pragma mark- 视频按钮被点击
+- (void)videoBtnClick:(UIButton *)btn
+{
+    DWCustomPlayerViewController *player = [[DWCustomPlayerViewController alloc] init];
+    if (btn.tag == 0) {//最上方大视频
+        player.videoId = typeQListModel.tVideoCCId;
+        player.videoTitle = typeQListModel.tVideoCCId;
+        player.imgUrlstring = typeQListModel.tVideoCoverUrl;
+        player.videoURL = typeQListModel.tVideoUrl;
+    }else{
+        TypeQListModel *qListModel = [qListArr objectAtIndex:btn.tag - 1];
+        player.videoId = qListModel.qVideoCCId;
+        player.videoTitle = qListModel.qVideoCCId;
+        player.imgUrlstring = qListModel.qVideoCoverUrl;
+        player.videoURL = qListModel.qVideoUrl;
+    }
+    player.hidesBottomBarWhenPushed = YES;
+    [self.navigationController pushViewController:player animated:NO];
+}
+
+#pragma mark- 重点例题按钮被点击
+- (void)focusTitleBtnClick:(UIButton *)btn
+{
+    
+}
+
+#pragma mark- 技巧训练按钮被点击
+- (void)skillTrainBtnClick:(UIButton *)btn
+{
+    
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+
+@end

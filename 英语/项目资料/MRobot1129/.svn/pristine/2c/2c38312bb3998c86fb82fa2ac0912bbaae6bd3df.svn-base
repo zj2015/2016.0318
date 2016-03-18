@@ -1,0 +1,29 @@
+//
+//  TheRadioView.h
+//  ERobot
+//
+//  Created by mac on 15/7/3.
+//  Copyright (c) 2015年 BaiYu. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@protocol TheRadioViewDelegate <NSObject>
+
+- (void)theRadioViewDelegateWithTag:(UIView *)tap;
+
+- (void)theRadioViewDelegateWithBigImage:(UIView *)tapView;
+
+@end
+
+@interface TheRadioView : UIView
+
+@property (strong, nonatomic) UILabel *chooseBtn;
+
+@property (strong, nonatomic) UIImageView *chooseImageView;
+
+@property (strong, nonatomic) UILabel *chooseLabel;
+
+@property (weak, nonatomic)id<TheRadioViewDelegate>delegate;
+
+@end

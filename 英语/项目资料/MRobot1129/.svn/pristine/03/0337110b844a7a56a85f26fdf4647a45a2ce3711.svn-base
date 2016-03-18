@@ -1,0 +1,400 @@
+//
+//  LearningPlanRequest.h
+//  MRobot
+//
+//  Created by mac on 15/8/20.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import "BaseHandler.h"
+
+@interface LearningPlanRequest : NSObject
+
+/**
+ *  1.4.1 学习进度
+ *
+ *  @param success 回调函数成功
+ *  @param failed 回调函数失败
+ */
+- (void)userExamProgressListSuccess:(SuccessBlock)success failed:(FailedBlock)failed;
+
+/**
+ *  1.4.2 教学内容
+ *
+ *  @param weekId  周id
+ *  @param cType   教学类型
+ *  @param classCatagory  班类
+ *  @param success 回调函数成功
+ *  @param failed  回调函数失败
+ */
+- (void)userCourseContentWithWeekId:(NSString *)weekId andCType:(NSString *)cType andClassCatagory:(NSString *)classCatagory success:(SuccessBlock)success failed:(FailedBlock)failed;
+
+/**
+ *  1.4.3 知识点解析
+ *
+ *  @param weekId  周id
+ *  @param success 回调函数成功
+ *  @param failed  回调函数失败
+ */
+- (void)userKnowledgeAnalysisListWithWeekId:(NSString *)weekId success:(SuccessBlock)success failed:(FailedBlock)failed;
+
+/**
+ *  1.4.4 知识点视频列表
+ *
+ *  @param kId     知识点id
+ *  @param success 回调函数成功
+ *  @param failed  回调函数失败
+ */
+- (void)userKnowledgeVideoListWithKId:(NSString *)kId success:(SuccessBlock)success failed:(FailedBlock)failed;
+
+/**
+ *  1.4.5 技巧训练-知识点
+ *
+ *  @param sId     技巧编号
+ *  @param success 回调函数成功
+ *  @param failed  回调函数失败
+ */
+- (void)userSkillInfoWithSId:(NSString *)sId success:(SuccessBlock)success failed:(FailedBlock)failed;
+
+/**
+ *  1.4.6 题目列表-技巧训练
+ *
+ *  @param sId     技巧编号
+ *  @param sType   技巧类型
+ *  @param success 回调函数成功
+ *  @param failed  回调函数失败
+ */
+- (void)userSkillQuestionListWithSId:(NSString *)sId andSType:(NSString *)sType success:(SuccessBlock)success failed:(FailedBlock)failed;
+
+/**
+ *  1.4.7 题目列表-习题训练
+ *
+ *  @param weekId  周编号
+ *  @param success 回调函数成功
+ *  @param failed  回调函数失败
+ */
+- (void)userQuestinListWithWeekId:(NSString *)weekId success:(SuccessBlock)success failed:(FailedBlock)failed;
+
+/**
+ *  1.4.8 讲解视频
+ *
+ *  @param weekId  周编号
+ *  @param success 回调函数成功
+ *  @param failed  回调函数失败
+ */
+- (void)userWeekVideoListWithWeekId:(NSString *)weekId success:(SuccessBlock)success failed:(FailedBlock)failed;
+
+/**
+ *  1.4.9 通用解题技巧
+ *
+ *  @param kId     知识点id
+ *  @param success 回调函数成功
+ *  @param failed  回调函数失败
+ */
+- (void)userCommonSkillListWithWeekId:(NSString *)weekId success:(SuccessBlock)success failed:(FailedBlock)failed;
+
+/**
+ *  1.4.10 技巧训练-综合训练
+ *
+ *  @param weekId  周编号
+ *  @param success 回调函数成功
+ *  @param failed  回调函数失败
+ */
+- (void)userSkillListWithWeekId:(NSString *)weekId success:(SuccessBlock)success failed:(FailedBlock)failed;
+
+/**
+ *  1.4.11 重点解析-综合训练
+ *
+ *  @param weekId  周编号
+ *  @param success 回调函数成功
+ *  @param failed  回调函数失败
+ */
+- (void)userImportantAnalysiWithWeekId:(NSString *)weekId success:(SuccessBlock)success failed:(FailedBlock)failed;
+
+/**
+ *  1.4.12 易错知识点
+ *
+ *  @param pageIndex 分页下标
+ *  @param pageSize  分页大小
+ *  @param success   回调函数成功
+ *  @param failed    回调函数失败
+ */
+- (void)userWrongKnowledgeListWithPageIndex:(NSString *)pageIndex andPageSize:(NSString *)pageSize success:(SuccessBlock)success failed:(FailedBlock)failed;
+
+/**
+ *  1.4.13 错题库（按月份返回最新的三个错题库）
+ *
+ *  @param success 回调函数成功
+ *  @param failed  回调函数失败
+ */
+- (void)userWrongLibraySuccess:(SuccessBlock)success failed:(FailedBlock)failed;
+
+/**
+ *  1.4.14 根据月份查询错题列表
+ *
+ *  @param monthTimeStamp 月份时间戳
+ *  @param success        回调函数成功
+ *  @param failed         回调函数失败
+ */
+- (void)userMonthWrongQuestinListWithMonthTimeStamp:(NSString *)monthTimeStamp success:(SuccessBlock)success failed:(FailedBlock)failed;
+
+/**
+ *  1.4.15 根据月份查询错题库
+ *
+ *  @param monthTimeStamp 月份时间戳
+ *  @param pageIndex      分页下标
+ *  @param pageSize       分页大小
+ *  @param success        回调函数成功
+ *  @param failed         回调函数失败
+ */
+- (void)userMonthWrongLibrayWithMonthTimeStamp:(NSString *)monthTimeStamp andPageIndex:(NSString *)pageIndex andPageSize:(NSString *)pageSize success:(SuccessBlock)success failed:(FailedBlock)failed;
+
+/**
+ *  1.4.16 模拟试卷列表
+ *
+ *  @param pageIndex 分页上标
+ *  @param pageSize  分页大小
+ *  @param success   回调函数成功
+ *  @param failed    回调函数失败
+ */
+- (void)userSimulationPaperListWithPageIndex:(NSString *)pageIndex andPageSize:(NSString *)pageSize success:(SuccessBlock)success failed:(FailedBlock)failed;
+
+
+/**
+ *  1.4.17 试卷题目列表
+ *
+ *  @param paperId 试卷id
+ *  @param success 回调函数成功
+ *  @param failed  回调函数失败
+ */
+- (void)userQuestionListByPaperWithPaperId:(NSString *)paperId success:(SuccessBlock)success failed:(FailedBlock)failed;
+
+/**
+ *  1.4.18 提交答案-试卷
+ *
+ *  @param paperId      试卷id
+ *  @param takeTime     考试时间 单位：毫秒
+ *  @param answerResult 答案结果
+ *  @param success      回调函数成功
+ *  @param failed       回调函数失败
+ */
+- (void)userSubmitAnswerByPaperWithPaperId:(NSString *)paperId andTakeTime:(NSString *)takeTime andAnswerResult:(NSString *)answerResult success:(SuccessBlock)success failed:(FailedBlock)failed;
+
+/**
+ *  1.4.19 提交答案-教材强化习题训练
+ *
+ *  @param weekId       周 id
+ *  @param takeTime     考试用时  单位：毫秒
+ *  @param answerResult 答题结果
+ *  @param success      回调函数成功
+ *  @param failed       回调函数失败
+ */
+- (void)userSubmitAnswerByWeekWithWeekId:(NSString *)weekId andTakeTime:(NSString *)takeTime andAnswerResult:(NSString *)answerResult success:(SuccessBlock)success failed:(FailedBlock)failed;
+
+/**
+ *  1.4.20 提交答案-综合训练技巧训练
+ *
+ *  @param sId          技巧id
+ *  @param takeTime     考试用时   单位：毫秒
+ *  @param answerResult 答题结果
+ *  @param success      回调函数成功
+ *  @param failed       回调函数失败
+ */
+- (void)userSubmitAnswerBySkillWithSId:(NSString *)sId andTakeTime:(NSString *)takeTime andAnswerResult:(NSString *)answerResult success:(SuccessBlock)success failed:(FailedBlock)failed;
+
+/**
+ *  1.4.21 提交答案-知识点习题训练
+ *
+ *  @param kId          知识点id
+ *  @param takeTime     考试用时  单位：毫秒
+ *  @param answerResult 答案结果
+ *  @param success      回调函数成功
+ *  @param failed       回调函数失败
+ */
+- (void)userKSubmitAnswerWithKid:(NSString *)kId andTakeTime:(NSString *)takeTime andAnswerResult:(NSString *)answerResult success:(SuccessBlock)success failed:(FailedBlock)failed;
+
+/**
+ *  1.4.22 提交答案-题型选择
+ *
+ *  @param tId          题型id
+ *  @param bigQId       答题id
+ *  @param takeTime     考试用时  单位：毫秒
+ *  @param answerResult 答案结果
+ *  @param success      回调函数成功
+ *  @param failed       回调函数失败
+ */
+- (void)userSubmitAnswerByQTypeWithTId:(NSString *)tId andBigQId:(NSString *)bigQId andTakeTime:(NSString *)takeTime andAnswerResult:(NSString *)answerResult success:(SuccessBlock)success failed:(FailedBlock)failed;
+
+/**
+ *  1.4.23 系统意见列表
+ *
+ *  @param success 回调函数成功
+ *  @param failed  回调函数失败
+ */
+- (void)userOpinionListSuccess:(SuccessBlock)success failed:(FailedBlock)failed;
+
+/**
+ *  1.4.24 反馈意见
+ *
+ *  @param opinionResult 意见Json数据
+ *  @param success       回调函数成功
+ *  @param failed        回调函数失败
+ */
+- (void)userSubmitOpinionWithOpinionResult:(NSString *)opinionResult success:(SuccessBlock)success failed:(FailedBlock)failed;
+
+/**
+ *  1.4.25 一级知识点列表
+ *
+ *  @param success 回调函数成功
+ *  @param failed  回调函数失败
+ */
+- (void)userTopLevelKnowledgeSuccess:(SuccessBlock)success failed:(FailedBlock)failed;
+
+/**
+ *  1.4.26 子级知识点列表
+ *
+ *  @param kId     上级知识点id
+ *  @param success 回调函数成功
+ *  @param failed  回调函数失败
+ */
+- (void)userChildLevelKnowledgeWithKId:(NSString *)kId success:(SuccessBlock)success failed:(FailedBlock)failed;
+
+/**
+ *  1.4.27 知识点题目列表
+ *
+ *  @param kId     知识点id
+ *  @param success 回调函数成功
+ *  @param failed  回调函数失败
+ */
+- (void)userKnowledgeQuestionListWithKId:(NSString *)kId success:(SuccessBlock)success failed:(FailedBlock)failed;
+
+/**
+ *  1.4.28 用户登录
+ *
+ *  @param account  账号
+ *  @param tel      手机号码
+ *  @param password 密码
+ *  @param success  回调函数成功
+ *  @param failed   回调函数失败
+ */
+- (void)userUserLoginWithAccount:(NSString *)account andTel:(NSString *)tel andPassword:(NSString *)password success:(SuccessBlock)success failed:(FailedBlock)failed;
+
+/**
+ *  1.4.29 题型列表
+ *
+ *  @param success 回调函数成功
+ *  @param failed  回调函数失败
+ */
+- (void)userTopQTypeListSuccess:(SuccessBlock)success failed:(FailedBlock)failed;
+
+/**
+ *  1.4.30 题型题目列表
+ *
+ *  @param tId     题型Id
+ *  @param success 回调函数成功
+ *  @param failed  回调函数失败
+ */
+- (void)userTypeQuestionListWithTId:(NSString *)tId success:(SuccessBlock)success failed:(FailedBlock)failed;
+
+/**
+ *  1.4.31 查询答题
+ *
+ *  @param qId     答题id
+ *  @param success 回调函数成功
+ *  @param failed  回调函数失败
+ */
+- (void)userQuestionInfoWithQId:(NSString *)qId success:(SuccessBlock)success failed:(FailedBlock)failed;
+
+/**
+ *  1.4.32 学习进度统计
+ *
+ *  @param weekId        学习周Id
+ *  @param weekIndex     学习周序号
+ *  @param thisWeekIndex 本周序号
+ *  @param success       回调函数成功
+ *  @param failed        回调函数失败
+ */
+- (void)userProgressStatisticsWithWeekId:(NSString *)weekId andWeekIndex:(NSString *)weekIndex andThisWeekIndex:(NSString *)thisWeekIndex success:(SuccessBlock)success failed:(FailedBlock)failed;
+
+/**
+ *  1.4.33 知识点错题集
+ *
+ *  @param kId     知识点id
+ *  @param success 回调函数成功
+ *  @param failed  回调函数失败
+ */
+- (void)userKnowledgeWrongQuestionListWithKId:(NSString *)kId success:(SuccessBlock)success failed:(FailedBlock)failed;
+
+/**
+ *  1.4.34 标记已掌握
+ *
+ *  @param qId     题目id
+ *  @param success 回调函数成功
+ *  @param failed  回调函数失败
+ */
+- (void)userMasterWrongWithQId:(NSString *)qId success:(SuccessBlock)success failed:(FailedBlock)failed;
+
+/**
+ *  1.4.35 模块统计
+ *
+ *  @param mId     模块Id 知识点Id、题型Id...
+ *  @param mType   模块类型 0：知识点   1：题型
+ *  @param success 回调函数成功
+ *  @param failed  回调函数失败
+ */
+- (void)userModuleStatisticsWithMId:(NSString *)mId WithMType:(NSString *)mType success:(SuccessBlock)success failed:(FailedBlock)failed;
+
+/**
+ *  1.4.36视频播放&再次训练 付费控制
+ *
+ *  @param videoId 视频Id
+ *  @param source  来源   0：视频付费控制  1：再次训练控制
+ *  @param success 回调函数成功
+ *  @param failed  回调函数失败
+ */
+- (void)userPayCCWithVideoId:(NSString *)videoId source:(NSString *)source success:(SuccessBlock)success failed:(FailedBlock)failed;
+
+/**
+ *  1.4.37 视频播放所需CC币查询
+ *
+ *  @param videoId 视频Id
+ *  @param success 回调函数成功
+ *  @param failed  回调函数失败
+ */
+- (void)userqueryVCCNumWithVideoId:(NSString *)videoId success:(SuccessBlock)success failed:(FailedBlock)failed;
+
+/**
+ *  1.5.1 用户注册
+ *
+ *  @param tel      手机号码
+ *  @param password 密码
+ *  @param nickName 昵称
+ *  @param pId      省份id
+ *  @param cId      城市id
+ *  @param dId      区id
+ *  @param level    级别
+ *  @param email    邮箱
+ *  @param success  回调函数成功
+ *  @param failed   回调函数失败
+ */
+- (void)userUserRegistWithTel:(NSString *)tel andPassword:(NSString *)password andNickName:(NSString *)nickName andPId:(NSString *)pId andCId:(NSString *)cId andDId:(NSString *)dId email:(NSString *)email success:(SuccessBlock)success failed:(FailedBlock)failed;
+
+/**
+ *  1.5.2 查询省市区
+ *
+ *  @param success 回调函数成功
+ *  @param failed  回调函数失败
+ */
+- (void)userRequestWithLocationSuccess:(SuccessBlock)success failed:(FailedBlock)failed;
+
+/**
+ *  1.5.3 更改学习计划
+ *
+ *  @param level   学习计划  0:中考普通班   1:中考进阶班
+ *  @param success 回调函数成功
+ *  @param failed  回调函数失败
+ */
+- (void)userRequestChangePlanWithlevel:(NSString *)level success:(SuccessBlock)success failed:(FailedBlock)failed;
+
+@end

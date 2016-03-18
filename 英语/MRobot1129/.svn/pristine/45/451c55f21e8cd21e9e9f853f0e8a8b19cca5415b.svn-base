@@ -1,0 +1,16 @@
+//
+//  ShowChildKnowledgeViewController.h
+//  MRobot
+//
+//  Created by BaiYu on 15/9/11.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "KnowledgeSelectViewController.h"
+
+@interface ShowChildKnowledgeViewController : UIViewController
+
+@property (nonatomic,strong)KnowledgeSelectViewController *knowledgeVC;
+@property (nonatomic,assign)NSInteger clickRow;
+@end

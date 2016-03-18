@@ -1,0 +1,63 @@
+//
+//  ExerciseTrainViewController.h
+//  MRobot
+//
+//  Created by mac on 15/8/22.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import "BaseViewController.h"
+#import <AVFoundation/AVFoundation.h>
+#import "QuestionAnswer.h"
+#import "TianQuestionView.h"
+#import "YueduQuestionView.h"
+#import "TingliQuestionView.h"
+#import "QuestionAnswer.h"
+
+@interface ExerciseTrainViewController : BaseViewController<QuestionAnswerDelegate,UIScrollViewDelegate,TingliQuestionViewDelegate,YueduQuestionViewDelegate,QuestionViewDelegate,TianQuestionViewDelegate,UIAlertViewDelegate>
+{
+    BOOL bsound;//语音是否播放
+    int myPage;
+    int j ;
+    int k ;
+    int m ;
+}
+@property (strong, nonatomic) QuestionAnswer *answerView;//答案对照
+@property (strong, nonatomic) NSMutableArray *answerArr;// 0 没写， 1正确   2错误
+@property (strong, nonatomic) NSMutableArray *choose;
+@property (strong, nonatomic) NSMutableArray *array;//提交答案
+@property (strong, nonatomic) NSMutableDictionary *answerDict;
+@property (assign, nonatomic) int numQuestionCount;//未答题目的个数；
+@property (strong, nonatomic) NSMutableArray *tianArray1;//填空题答案
+@property (strong, nonatomic) NSMutableArray *tianArray2;
+@property (strong, nonatomic) NSMutableArray *tianArray3;
+
+@property (strong, nonatomic) NSMutableArray *isPlay;
+@property (assign, nonatomic) int soundIndex;//听力第几题
+@property (copy, nonatomic) NSString *soundUrl;//听力地址
+@property (strong, nonatomic) AVAudioPlayer *soundplayer;//播放器
+@property (strong, nonatomic) UIScrollView *myScrollView;
+@property (assign, nonatomic)int page;
+@property (assign, nonatomic) int questionAccount;//题目数量
+@property (strong, nonatomic) UILabel *titleLabels;//试卷标题
+@property (strong, nonatomic) UILabel *topicLabel;//题型
+@property (strong, nonatomic) UILabel *timeLabel;//考试倒计时
+@property (strong, nonatomic) UIImageView *timeView;//时钟的图片
+@property (assign, nonatomic) long timeNumber;//总时间
+@property (assign, nonatomic) long time;
+
+@property (strong, nonatomic) NSArray *danArr;//单选题
+@property (strong, nonatomic) NSArray *tianArr;//填空题
+@property (strong, nonatomic) NSArray *yueArr;//阅读理解
+@property (strong, nonatomic) NSMutableArray *yuedanArr;
+
+@property (strong, nonatomic) NSArray *tingArr;//听力题
+@property (strong, nonatomic) NSMutableArray *tingdanArr;
+
+@property (copy, nonatomic) NSString *whichMV;
+@property (copy, nonatomic) NSString *weekId;//周编号
+@property (copy, nonatomic) NSString *sId;//技巧编号
+@property (assign, nonatomic) int setType;//习题类型 0： 习题训练 1：训练技巧
+@property (assign, nonatomic) int sType;//技巧训练的技巧类型  0：重点  1：其他   2：题型选择-技巧训练
+
+@end

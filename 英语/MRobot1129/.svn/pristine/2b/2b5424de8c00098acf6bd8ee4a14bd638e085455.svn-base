@@ -1,0 +1,149 @@
+//
+//  TopicParseViewController.m
+//  MRobot
+//
+//  Created by mac on 15/8/19.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import "TopicParseViewController.h"
+#import "TopicHeadView.h"
+#import "TopicParseTableViewCell.h"
+@interface TopicParseViewController ()
+
+@end
+
+@implementation TopicParseViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    [self base_changeNavigationTitleWithString:@"题型选择"];
+    [self base_ExtendedLayout];
+    
+}
+
+- (void)_prepareData
+{
+    openedInSectionArr = [NSMutableArray array];
+    for (int i=0; i< 3; i++) {
+        [openedInSectionArr addObject:@"0"];
+    }
+}
+
+- (void)_prepareUI
+{
+    CGRect rect = CGRectMake(0,0,MainScreenSize_W,MainScreenSize_H);
+    _myTableView = [[UIFolderTableView alloc] initWithFrame:rect style:UITableViewStylePlain];
+    _myTableView.delegate = self;
+    _myTableView.dataSource = self;
+    _myTableView.rowHeight = TopicParseCellHeight;
+    _myTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+    _myTableView.backgroundColor = [UIColor whiteColor];
+    [self.view addSubview:_myTableView];
+    
+    // 改变 tableView的背景色
+    _myTableView.backgroundView = [aCommon tableViewsBackGroundView];
+    
+    //去掉多余的分割线
+    _myTableView.tableFooterView = [aCommon tableViewsFooterView];
+    
+    CGRect viewFrame = self.view.frame;
+    viewFrame.size.height = rect.size.height;
+    self.view.frame = viewFrame;
+}
+
+#pragma mark ------
+#pragma mark ---UITableViewDataSource---
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    return 3;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    if ([[openedInSectionArr objectAtIndex:section] intValue] == 1) {
+//        if ([_parperListArr count] != 0) {
+//            PaperSecondModel *second = _parperListArr[section];
+//            return [second.attachList count]+1;
+//        }else{
+//            return 0;
+//        }
+        return 4;
+    }else{
+        return 0;
+    }
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    NSString *identifier = @"identifier";
+    TopicParseTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:identifier];
+    if (!cell) {
+        cell = [[TopicParseTableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
+        cell.selectionStyle = UITableViewCellSelectionStyleNone;//取消选中
+    }
+    cell.topicNameLab.text = @"任务型阅读完成表格题";
+    cell.signImgView.image = [UIImage imageNamed:@"hide"];
+    return cell;
+}
+
+#pragma mark ------
+#pragma mark ---UITableViewDelegate---
+
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
+{
+    TopicHeadView *headView = [TopicHeadView headViewWithTableView:tableView withBlock:^(NSInteger tag) {
+        if ([[openedInSectionArr objectAtIndex:tag] intValue] == 0) {
+            [openedInSectionArr replaceObjectAtIndex:tag withObject:@"1"];
+        }
+        else
+        {
+            [openedInSectionArr replaceObjectAtIndex:tag withObject:@"0"];
+        }
+        [_myTableView reloadSections:[NSIndexSet indexSetWithIndex:tag] withRowAnimation:UITableViewRowAnimationNone];
+    }];
+    NSLog(@"section === %ld",section);
+    headView.contentView.tag = section;
+    headView.topicNameLab.text = [NSString stringWithFormat:@"%ld.  任务型阅读题",section+1];
+    if ([[openedInSectionArr objectAtIndex:section] intValue] == 1){
+        headView.signImgView.image = [UIImage imageNamed:@"greenShow"];
+    }else{
+        headView.signImgView.image = [UIImage imageNamed:@"grayHide"];
+    }
+    return headView;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return TopicParseCellHeight;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
+{
+    return TopicParseCellHeight;
+}
+
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+
+@end

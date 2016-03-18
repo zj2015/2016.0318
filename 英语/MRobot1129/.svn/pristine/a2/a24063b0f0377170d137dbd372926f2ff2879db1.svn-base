@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="8191" systemVersion="14F27" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="8154"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="rHs-9L-5HH">
+            <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="lanchImg" translatesAutoresizingMaskIntoConstraints="NO" id="jMA-LE-nRy">
+                    <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="320" id="gUp-n8-7VO"/>
+                        <constraint firstAttribute="height" constant="568" id="sQl-24-4KW"/>
+                    </constraints>
+                </imageView>
+            </subviews>
+            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+            <constraints>
+                <constraint firstItem="jMA-LE-nRy" firstAttribute="leading" secondItem="rHs-9L-5HH" secondAttribute="leading" id="4zj-oJ-axJ"/>
+                <constraint firstAttribute="bottom" secondItem="jMA-LE-nRy" secondAttribute="bottom" id="IHn-0q-t3o"/>
+                <constraint firstItem="jMA-LE-nRy" firstAttribute="top" secondItem="rHs-9L-5HH" secondAttribute="top" id="a4d-vf-Ksa"/>
+                <constraint firstAttribute="trailing" secondItem="jMA-LE-nRy" secondAttribute="trailing" id="xWK-AM-AUM"/>
+            </constraints>
+            <nil key="simulatedStatusBarMetrics"/>
+            <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina4"/>
+            <point key="canvasLocation" x="806" y="395"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="lanchImg" width="640" height="960"/>
+    </resources>
+</document>

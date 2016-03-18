@@ -1,0 +1,300 @@
+//
+//  LearnPlanViewController.m
+//  MRobot
+//
+//  Created by mac on 15/8/19.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import "LearnPlanViewController.h"
+#import "ChooseKindView.h"
+#import "TeachContentViewController.h"
+#import "AnalyticalKnowledgeViewController.h"
+#import "VideoExplanationViewController.h"
+#import "WeekHeadView.h"
+#import "ExerciseTrainViewController.h"
+#import "FocusAnalysisViewController.h"
+#import "SkillTrainingViewController.h"
+
+#import "ExamProModel.h"
+#import "ExamProListModel.h"
+#import "MainViewController.h"
+@interface LearnPlanViewController ()
+
+@property (strong, nonatomic) WeekHeadView *headView;;
+
+@end
+
+@implementation LearnPlanViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    [self base_changeNavigationTitleWithString:@"我的学习进度"];
+    [self base_ExtendedLayout];
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    MainViewController *mainVC = (MainViewController *)self.tabBarController;
+    [mainVC showOrHiddenTabBarView:NO];
+
+}
+
+
+- (void)_prepareData
+{
+    //    [self showSucessHUD:@"正在加载..."];
+    LearningPlanRequest *request = [[LearningPlanRequest alloc]init];
+    [request userExamProgressListSuccess:^(id obj) {
+        InfoResult *infoResult = (InfoResult *)obj;
+        if ([infoResult.code isEqualToString:@"0"]) {
+            ExamProModel * examModel = [[ExamProModel alloc]init];
+            examModel = (ExamProModel *)[infoResult extraObj];
+            _proListArr = [[NSArray alloc]initWithArray:examModel.examProListArr];
+            
+            [self prepareUI];
+        
+        }
+    } failed:^(id obj) {
+        [self prepareUI];
+    }];
+    
+}
+
+- (void)prepareUI
+{
+    if (_proListArr) {
+        _headView = [[WeekHeadView alloc]initWithFrame:CGRectMake(0, 0, MainScreenSize_W, 110) withExamModel:nil withCount:_proListArr.count withBlock:^(int tag) {
+            switch (tag) {
+                case 1:
+                {
+                    if (page>0) {
+                        page = page - 1;
+                        ExamProListModel *listModel = _proListArr[page];
+                        [_myScrollView setContentOffset:CGPointMake(page*MainScreenSize_W, 0) animated:NO];
+                        [_headView headDataWithModel:listModel withCount:(int)_proListArr.count withPage:page+1];
+                    }
+                   
+                }
+                    break;
+                case 2:
+                {
+                    if (page<_proListArr.count-1) {
+                        page = page + 1;
+                        ExamProListModel *listModel = _proListArr[page];
+                        [_myScrollView setContentOffset:CGPointMake(page*MainScreenSize_W, 0) animated:NO];
+                        [_headView headDataWithModel:listModel withCount:(int)_proListArr.count withPage:page+1];
+                    }
+                    
+                }
+                    break;
+                default:
+                    break;
+            }
+        }];
+        
+        [self.view addSubview:_headView];
+        
+        CGRect rect = CGRectMake(0.0f, _headView.bottom, MainScreenSize_W, MainScreenSize_H-44.0f - _headView.bottom);
+        _myScrollView = [[UIScrollView alloc]initWithFrame:rect];
+        //题目的个数
+        _myScrollView.contentSize= CGSizeMake(MainScreenSize_W*(_proListArr.count), 0);
+        _myScrollView.pagingEnabled = YES;
+        _myScrollView.delegate = self;
+        _myScrollView.showsHorizontalScrollIndicator = NO;
+        _myScrollView.showsVerticalScrollIndicator = NO;
+        _myScrollView.backgroundColor = PView_BGColor;
+        [self.view addSubview:_myScrollView];
+        
+        for (int i = 0; i < _proListArr.count; i ++ ) {
+            
+            UIView *bgView = [[UIView alloc]initWithFrame:CGRectZero];
+            bgView.backgroundColor = [UIColor whiteColor];
+            bgView.frame = CGRectMake(MainScreenSize_W*i, 0, MainScreenSize_W, 0);
+            ExamProListModel *listModel = _proListArr[i];
+            if ([listModel.hasBookLearn isEqualToString:@"1"]) {
+                NSArray *titlesArr1 = [[NSArray alloc]initWithObjects:@"教学内容",@"知识点解析",@"习题训练",@"讲解视频", nil];
+                NSArray *imageArr1 = [[NSArray alloc]initWithObjects:@"jxnr",@"zsdjx",@"xtxl",@"jjsp", nil];
+                ChooseKindView *chooseView1= [[ChooseKindView alloc]initWithFrame:CGRectMake(5, 10, MainScreenSize_W - 10 , 118) withTitle:@"    教材强化" withImageArr:imageArr1 withTitleArr:titlesArr1 withBlock:^(int tag) {
+                    NSLog(@"%d",tag);
+                    if (tag == 1) {
+                        //教学内容
+                        TeachContentViewController *teachVC = [[TeachContentViewController alloc] init];
+                        teachVC.weekId = listModel.weekId;
+                        teachVC.cType = 0;
+                        [self.navigationController pushViewController:teachVC animated:YES];
+                        
+                    }else {
+                        //学习进度统计
+//                        LearningPlanRequest *request = [[LearningPlanRequest alloc]init];
+//                        [request userProgressStatisticsWithWeekId:listModel.weekId andWeekIndex:@"" andThisWeekIndex:@"" success:^(id obj) {
+//                            
+//                        } failed:^(id obj) {
+//                            
+//                        }];
+                        
+                        if (tag == 2){
+                            //知识点解析
+                            AnalyticalKnowledgeViewController *analyticalVC = [[AnalyticalKnowledgeViewController alloc] init];
+                            analyticalVC.weekId = listModel.weekId;
+                            [self.navigationController pushViewController:analyticalVC animated:YES];
+                            
+                        }else if (tag == 3){
+                            //习题训练
+                            ExerciseTrainViewController *exerciseVC = [[ExerciseTrainViewController alloc]init];
+                            exerciseVC.weekId = listModel.weekId;
+                            exerciseVC.setType = 0;
+                            [self.navigationController pushViewController:exerciseVC animated:YES];
+                        }else{
+                            //讲解视频
+                            VideoExplanationViewController *videoVC = [[VideoExplanationViewController alloc] init];
+                            videoVC.fromVC = 0;
+                            videoVC.weekId = listModel.weekId;
+                            [self.navigationController pushViewController:videoVC animated:YES];
+                        }
+                    }
+                }];
+                [bgView addSubview:chooseView1];
+                bgView.frame = CGRectMake(MainScreenSize_W*i, 0, MainScreenSize_W, chooseView1.bottom + 8);
+            }
+            
+            if ([listModel.hasTrain isEqualToString:@"1"]) {
+                NSArray *titlesArr2 = [[NSArray alloc]initWithObjects:@"教学内容",@"通用解题技巧",@"技巧训练",@"重点解析", nil];
+                NSArray *imageArr2 = [[NSArray alloc]initWithObjects:@"jxnr",@"tyjtjq",@"jqxl",@"zdjx", nil];
+                ChooseKindView *chooseView2 = [[ChooseKindView alloc]initWithFrame:CGRectMake(5, bgView.bottom + 10, MainScreenSize_W - 10 , 118) withTitle:@"    综合训练" withImageArr:imageArr2 withTitleArr:titlesArr2 withBlock:^(int tag) {
+                    NSLog(@"%d",tag);
+                    if (tag == 1) {
+                        //教学内容
+                        TeachContentViewController *teachVC = [[TeachContentViewController alloc] init];
+                        [self.navigationController pushViewController:teachVC animated:YES];
+                        
+                    }else {
+                        //学习进度统计
+//                        LearningPlanRequest *request = [[LearningPlanRequest alloc]init];
+//                        [request userProgressStatisticsWithWeekId:listModel.weekId andWeekIndex:@"" andThisWeekIndex:@"" success:^(id obj) {
+//                            
+//                        } failed:^(id obj) {
+//                            
+//                        }];
+                        
+                        if (tag == 2){
+                            //通用解题技巧
+                            VideoExplanationViewController *videoVC = [[VideoExplanationViewController alloc] init];
+                            videoVC.fromVC = 1;
+                            videoVC.weekId = listModel.weekId;
+                            [self.navigationController pushViewController:videoVC animated:YES];
+                            
+                        }else if (tag == 3){
+                            //技巧训练
+                            SkillTrainingViewController *skillVC = [[SkillTrainingViewController alloc] init];
+//                            skillVC.weekId = listModel.weekId;
+                            skillVC.weekId = @"5b434042-f0c3-45fc-b13f-8b11dff64c18";
+                            [self.navigationController pushViewController:skillVC animated:YES];
+                        }else{
+                            //重点解析
+                            FocusAnalysisViewController *focusVC = [[FocusAnalysisViewController alloc] init];
+                            focusVC.weekId = listModel.weekId;
+                            [self.navigationController pushViewController:focusVC animated:YES];
+                            
+                        }
+                    }
+                }];
+                [bgView addSubview:chooseView2];
+                bgView.frame = CGRectMake(MainScreenSize_W*i, 0, MainScreenSize_W, chooseView2.bottom + 8);
+            }
+            
+            [_myScrollView addSubview:bgView];
+            
+            if ([listModel.thisWeek isEqualToString:@"1"]) {
+                [_myScrollView setContentOffset:CGPointMake(i*MainScreenSize_W, 0) animated:NO];
+                [_headView headDataWithModel:listModel withCount:(int)_proListArr.count withPage:i+1];
+                page = i;
+            }
+        }
+    }else{
+        
+        CGRect rect = CGRectMake(0.0f,0.0f,MainScreenSize_W,MainScreenSize_H-44);
+        _myScrollView = [[UIScrollView alloc]initWithFrame:rect];
+        //题目的个数
+        _myScrollView.contentSize= CGSizeMake(MainScreenSize_W*(_proListArr.count+1), 0);
+        _myScrollView.pagingEnabled = YES;
+        _myScrollView.delegate = self;
+        _myScrollView.showsHorizontalScrollIndicator = NO;
+        _myScrollView.showsVerticalScrollIndicator = NO;
+        _myScrollView.backgroundColor = [UIColor clearColor];
+        [self.view addSubview:_myScrollView];
+        
+        UIView *bgView = [[UIView alloc]initWithFrame:CGRectZero];
+        bgView.backgroundColor = [UIColor whiteColor];
+        
+        WeekHeadView *headView = [[WeekHeadView alloc]initWithFrame:CGRectMake(0, 0, MainScreenSize_W, 110) withExamModel:nil withCount:0 withBlock:^(int tag) {
+            
+        }];
+        [bgView addSubview:headView];
+        
+        
+        NSArray *titlesArr1 = [[NSArray alloc]initWithObjects:@"教学内容",@"知识点解析",@"习题训练",@"讲解视频", nil];
+        NSArray *imageArr1 = [[NSArray alloc]initWithObjects:@"jxnr",@"zsdjx",@"xtxl",@"jjsp", nil];
+        ChooseKindView *chooseView1= [[ChooseKindView alloc]initWithFrame:CGRectMake(5, headView.bottom + 8, MainScreenSize_W - 10 , 118) withTitle:@"    教材强化" withImageArr:imageArr1 withTitleArr:titlesArr1 withBlock:^(int tag) {
+            NSLog(@"%d",tag);
+            [aCommon iToast:@"无数据显示~"];
+        }];
+        [bgView addSubview:chooseView1];
+        bgView.frame = CGRectMake(0, 0, MainScreenSize_W*(_proListArr.count+1), chooseView1.bottom + 8);
+
+        NSArray *titlesArr2 = [[NSArray alloc]initWithObjects:@"教学内容",@"通用解题技巧",@"技巧训练",@"重点解析", nil];
+        NSArray *imageArr2 = [[NSArray alloc]initWithObjects:@"jxnr",@"tyjtjq",@"jqxl",@"zdjx", nil];
+        ChooseKindView *chooseView2 = [[ChooseKindView alloc]initWithFrame:CGRectMake(5, bgView.bottom, MainScreenSize_W - 10 , 118) withTitle:@"    综合训练" withImageArr:imageArr2 withTitleArr:titlesArr2 withBlock:^(int tag) {
+            NSLog(@"%d",tag);
+            [aCommon iToast:@"无数据显示~"];
+        }];
+        [bgView addSubview:chooseView2];
+        bgView.frame = CGRectMake(0, 0, MainScreenSize_W*(_proListArr.count+1), chooseView2.bottom + 8);
+        
+        [_myScrollView addSubview:bgView];
+    }
+}
+
+#pragma mark --UIScrollViewDelegate--
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
+{
+    page = (scrollView.contentOffset.x+MainScreenSize_W*0.5)/MainScreenSize_W;
+    
+    ExamProListModel *listModel = _proListArr[page];
+    
+    [_headView headDataWithModel:listModel withCount:(int)_proListArr.count withPage:page+1];
+}
+
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+{
+//    if (scrollView.contentOffset.x <= 0)
+//    {
+//        CGPoint offset = scrollView.contentOffset;
+//        offset.x = 0;
+//        scrollView.contentOffset = offset;
+//    }else if (scrollView.contentOffset.x > (_proListArr.count-1)*MainScreenSize_W){
+//        CGPoint offset = scrollView.contentOffset;
+//        offset.x = (_proListArr.count-1)*MainScreenSize_W;
+//        scrollView.contentOffset = offset;
+//    }
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+
+@end

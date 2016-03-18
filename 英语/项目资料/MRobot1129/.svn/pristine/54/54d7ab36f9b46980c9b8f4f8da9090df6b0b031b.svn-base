@@ -1,0 +1,164 @@
+//
+//  LearnPlanViewController.m
+//  MRobot
+//
+//  Created by mac on 15/8/19.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import "LearnPlanViewController.h"
+#import "ChooseKindView.h"
+#import "TeachContentViewController.h"
+#import "AnalyticalKnowledgeViewController.h"
+#import "VideoExplanationViewController.h"
+#import "WeekHeadView.h"
+#import "ExerciseTrainViewController.h"
+#import "FocusAnalysisViewController.h"
+
+#import "ExamProModel.h"
+#import "ExamProListModel.h"
+
+@interface LearnPlanViewController ()
+
+@end
+
+@implementation LearnPlanViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    [self base_changeNavigationTitleWithString:@"我的学习进度"];
+    
+}
+
+- (void)refresh
+{
+    if ([self.tabBarItem.badgeValue intValue] != 0) {
+        //[self.header beginRefreshing];
+    }
+}
+
+
+- (void)_prepareData
+{
+//    [self showSucessHUD:@"正在加载..."];
+    LearningPlanRequest *request = [[LearningPlanRequest alloc]init];
+    [request userExamProgressListSuccess:^(id obj) {
+        InfoResult *infoResult = (InfoResult *)obj;
+        if ([infoResult.code isEqualToString:@"0"]) {
+            ExamProModel * examModel = [[ExamProModel alloc]init];
+            examModel = (ExamProModel *)[infoResult extraObj];
+            
+            _proListArr = [[NSArray alloc]initWithArray:examModel.examProListArr];
+            
+        }
+    } failed:^(id obj) {
+        
+    }];
+}
+
+- (void)_prepareUI
+{
+
+    CGRect rect = CGRectMake(0.0f,0.0f,MainScreenSize_W,MainScreenSize_H-44);
+    _myScrollView = [[UIScrollView alloc]initWithFrame:rect];
+    //题目的个数
+    _myScrollView.contentSize= CGSizeMake(MainScreenSize_W*3, 0);
+    _myScrollView.pagingEnabled = YES;
+    _myScrollView.delegate = self;
+    _myScrollView.showsHorizontalScrollIndicator = NO;
+    _myScrollView.showsVerticalScrollIndicator = NO;
+    _myScrollView.backgroundColor = [UIColor clearColor];
+    [self.view addSubview:_myScrollView];
+    
+    
+    UIView *bgView = [[UIView alloc]initWithFrame:CGRectZero];
+    bgView.backgroundColor = [UIColor whiteColor];
+
+    WeekHeadView *headView = [[WeekHeadView alloc]initWithFrame:CGRectMake(0, 0, MainScreenSize_W, 110) withBlock:^(int tag) {
+        NSLog(@"%d",tag);
+    }];
+    [bgView addSubview:headView];
+
+    NSArray *titlesArr1 = [[NSArray alloc]initWithObjects:@"教学内容",@"知识点解析",@"习题训练",@"讲解视频", nil];
+    NSArray *imageArr1 = [[NSArray alloc]initWithObjects:@"jxnr",@"zsdjx",@"xtxl",@"jjsp", nil];
+    ChooseKindView *chooseView1= [[ChooseKindView alloc]initWithFrame:CGRectMake(5, headView.bottom + 8, MainScreenSize_W - 10 , 118) withTitle:@"    教材强化" withImageArr:imageArr1 withTitleArr:titlesArr1 withBlock:^(int tag) {
+        NSLog(@"%d",tag);
+        if (tag == 1) {
+            //教学内容
+            TeachContentViewController *teachVC = [[TeachContentViewController alloc] init];
+            [self.navigationController pushViewController:teachVC animated:YES];
+            
+        }else if (tag == 2){
+            //知识点解析
+            AnalyticalKnowledgeViewController *analyticalVC = [[AnalyticalKnowledgeViewController alloc] init];
+            [self.navigationController pushViewController:analyticalVC animated:YES];
+            
+        }else if (tag == 3){
+            //习题训练
+            ExerciseTrainViewController *exerciseVC = [[ExerciseTrainViewController alloc]init];
+            [self.navigationController pushViewController:exerciseVC animated:YES];
+        }else{
+            //讲解视频
+            VideoExplanationViewController *videoVC = [[VideoExplanationViewController alloc] init];
+            videoVC.fromVC = 0;
+            [self.navigationController pushViewController:videoVC animated:YES];
+        }
+    }];
+    [bgView addSubview:chooseView1];
+    
+    
+    NSArray *titlesArr2 = [[NSArray alloc]initWithObjects:@"教学内容",@"通用解题技巧",@"技巧训练",@"重点解析", nil];
+    NSArray *imageArr2 = [[NSArray alloc]initWithObjects:@"jxnr",@"tyjtjq",@"jqxl",@"zdjx", nil];
+    ChooseKindView *chooseView2 = [[ChooseKindView alloc]initWithFrame:CGRectMake(5, chooseView1.bottom + 8, MainScreenSize_W - 10 , 118) withTitle:@"    综合训练" withImageArr:imageArr2 withTitleArr:titlesArr2 withBlock:^(int tag) {
+        NSLog(@"%d",tag);
+        if (tag == 1) {
+            //教学内容
+            TeachContentViewController *teachVC = [[TeachContentViewController alloc] init];
+            [self.navigationController pushViewController:teachVC animated:YES];
+            
+        }else if (tag == 2){
+            //通用解题技巧
+            VideoExplanationViewController *videoVC = [[VideoExplanationViewController alloc] init];
+            videoVC.fromVC = 1;
+            [self.navigationController pushViewController:videoVC animated:YES];
+            
+        }else if (tag == 3){
+            //技巧训练
+            
+        }else{
+            //重点解析
+            FocusAnalysisViewController *focusVC = [[FocusAnalysisViewController alloc] init];
+            [self.navigationController pushViewController:focusVC animated:YES];
+            
+        }
+    }];
+    [bgView addSubview:chooseView2];
+    
+    
+    bgView.frame = CGRectMake(0, 0, MainScreenSize_W, chooseView2.bottom + 8);
+    [_myScrollView addSubview:bgView];
+}
+
+#pragma mark --UIScrollViewDelegate--
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
+{
+    
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+
+@end

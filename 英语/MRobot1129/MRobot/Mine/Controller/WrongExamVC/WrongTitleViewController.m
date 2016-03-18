@@ -1,0 +1,93 @@
+//
+//  WrongTitleViewController.m
+//  ERobot
+//
+//  Created by BaiYu on 15/7/6.
+//  Copyright (c) 2015年 BaiYu. All rights reserved.
+//
+
+#import "WrongTitleViewController.h"
+#define ROWHEIGHT 50
+
+@interface WrongTitleViewController ()
+
+@end
+
+@implementation WrongTitleViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    _bgView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, MainScreenSize_W, ([_dataArr count] + 1)*50)];
+    _bgView.backgroundColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1];
+    [self.view addSubview:_bgView];
+    
+    [self loadWrongTitle:_dataArr];
+    
+    UIButton *moreBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    moreBtn.frame = CGRectMake(10, 7 + 50*[_dataArr count], MainScreenSize_W - 20, 35);
+    [moreBtn setBackgroundImage:[UIImage imageNamed:@"greenBg"] forState:UIControlStateNormal];
+    moreBtn.titleLabel.font = [UIFont systemFontOfSize:16];
+    [moreBtn setTitle:@"查看更多" forState:UIControlStateNormal];
+    [moreBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [moreBtn addTarget:self.wrongExamVC action:@selector(showMoreQuestion) forControlEvents:UIControlEventTouchUpInside];
+    [_bgView addSubview:moreBtn];
+    
+    CGRect viewFrame = self.view.frame;
+    viewFrame.size.height = _bgView.size.height;
+    self.view.frame = viewFrame;
+}
+
+-(void)loadWrongTitle:(NSArray *)dataArr
+{
+    for (int i = 0; i < [dataArr count]; i++) {
+        UIView *titleView = [[UIView alloc] initWithFrame:CGRectMake(5, 1 + 50*i, MainScreenSize_W-10, 48)];
+        titleView.backgroundColor = [UIColor whiteColor];
+        [_bgView addSubview:titleView];
+        
+        UILabel *leftSignLab = [[UILabel alloc] initWithFrame:CGRectMake(10, 10, 30, 30)];
+        leftSignLab.backgroundColor = [UIColor colorWithRed:35/255.0 green:174/255.0 blue:92/255.0 alpha:1];
+        leftSignLab.clipsToBounds = YES;
+        leftSignLab.layer.cornerRadius = 5;
+        [titleView addSubview:leftSignLab];
+        
+        UILabel *contentLab = [[UILabel alloc] initWithFrame:CGRectMake(50, 10, MainScreenSize_W - 70, 30)];
+        contentLab.text = @"Who are you?";
+        [titleView addSubview:contentLab];
+    }
+}
+
+-(void)showMoreQuestion
+{
+    PLog(@"showMoreWrongTitle");
+//    [bgView removeFromSuperview];
+//    
+//    UIView *newView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, UIScreenWidth, ([_dataArr count] + 1)*50)];
+//    newView.backgroundColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1];
+//    [self.view addSubview:newView];
+//    
+//    NSArray *newDataArr = @[@"教学内容",@"教学内容",@"教学内容",@"教学内容",@"教学内容",];
+//    [self loadWrongTitle:newDataArr];
+//    
+//    CGRect viewFrame = self.view.frame;
+//    viewFrame.size.height = newView.size.height;
+//    self.view.frame = viewFrame;
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+
+@end

@@ -1,0 +1,53 @@
+//
+//  ExamOutHeadView.m
+//  MRobot
+//
+//  Created by mac on 15/9/7.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import "ExamOutHeadView.h"
+
+@implementation ExamOutHeadView
+
+- (instancetype)initWithFrame:(CGRect)frame withBlock:(ExamOutHeadViewBlock)block
+{
+    self = [super initWithFrame:frame];
+    if (self) {
+ 
+        _block = block;
+        
+        _bgView = [[UIView alloc]initWithFrame:CGRectMake(10, 10, MainScreenSize_W - 20, ExamOutHeight)];
+        _bgView.backgroundColor = [UIColor whiteColor];
+        _bgView.layer.borderColor = [UIColor lightGrayColor].CGColor;
+        _bgView.layer.borderWidth = 0.5;
+        [self addSubview:_bgView];
+        
+        _leftLabel = [[UILabel alloc]initWithFrame:CGRectMake(10, 0, _bgView.width - 60, ExamOutHeight)];
+        _leftLabel.font = [UIFont systemFontOfSize:15];
+        [_bgView addSubview:_leftLabel];
+        
+        _rightImageView = [[UIImageView alloc]initWithFrame:CGRectMake(_bgView.right - 40, ExamOutHeight/2-10, 20, 20)];
+        _rightImageView.image = [UIImage imageNamed:@"grayHide"];
+        [_bgView addSubview:_rightImageView];
+        
+        [_bgView addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(clickTheExamOutHeadView:)]];
+        
+    }
+    return self;
+}
+
+- (void)clickTheExamOutHeadView:(UITapGestureRecognizer *)tap
+{
+    _block(self.tag);
+}
+
+/*
+// Only override drawRect: if you perform custom drawing.
+// An empty implementation adversely affects performance during animation.
+- (void)drawRect:(CGRect)rect {
+    // Drawing code
+}
+*/
+
+@end

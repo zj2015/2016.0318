@@ -1,0 +1,26 @@
+//
+//  KVideoView.h
+//  MRobot
+//
+//  Created by BaiYu on 15/8/26.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface KVideoView : UIView
+
+@property (strong, nonatomic) UIButton *kVideoBtn;
+@property (strong, nonatomic) UIButton *smallVideoBtn;
+
+/**
+ *  创建知识点视频
+ *
+ *  @param frame           一列视频frame
+ *  @param listCount       列表数量
+ *  @param smallVideoCount 小视频数量
+ *
+ *  @return 一列View
+ */
+-(id)initWithFrame:(CGRect)frame listIndex:(NSInteger)listIndex smallVideoCount:(NSInteger)smallVideoCount;
+@end

@@ -1,0 +1,188 @@
+//
+//  ErrorKnowledgeViewController.m
+//  ERobot
+//
+//  Created by BaiYu on 15/7/1.
+//  Copyright (c) 2015年 BaiYu. All rights reserved.
+//
+
+#import "ErrorKnowledgeViewController.h"
+#import "ErrorKnowledgeTableViewCell.h"
+#import "ErrorShowViewController.h"
+#import "AnalyticalKnowledgeViewController.h"
+#import "ExerciseTrainViewController.h"
+
+#import "ErrorTopicSetViewController.h"
+#import "WrongKnowledgeListModel.h"
+#import "WrongKnowledgeDataModel.h"
+@interface ErrorKnowledgeViewController ()
+@property (strong, nonatomic) NSArray *wrongDataArr;
+@end
+
+@implementation ErrorKnowledgeViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    self.title = @"我的易错知识点";
+    
+    errorTable = [[UIFolderTableView alloc] initWithFrame:CGRectMake(0, 64, MainScreenSize_W, MainScreenSize_H - 64) style:UITableViewStylePlain];
+    errorTable.separatorStyle = UITableViewCellSeparatorStyleNone;
+    errorTable.delegate = self;
+    errorTable.dataSource = self;
+    errorTable.folderDelegate = self;
+    errorTable.rowHeight = 40*MainScreenSize_H/568;
+    [self.view addSubview:errorTable];
+
+    _wrongDataArr = [[NSArray alloc]init];
+    
+//    [MBProgressHUD showMessage:@"正在加载..." toView:self.view];
+////5.易错知识点
+//    RequestHandler *wrongRequest = [[RequestHandler alloc] init];
+//    [wrongRequest wrongKnowledgeListWithToken:[UserDefaultsUtils valueWithKey:USER_TOKEN] andPageIndex:@"0" andPageSize:@"10" success:^(id obj) {
+//        [MBProgressHUD hideHUDForView:self.view animated:YES];
+//        
+//        InfoResult *infoResult = (InfoResult *)obj;
+//        if ([infoResult.code isEqualToString:@"0"]) {
+//            WrongKnowledgeListModel *wrongListModel = [[WrongKnowledgeListModel alloc] init];
+//            wrongListModel = (WrongKnowledgeListModel *)[infoResult extraObj];
+//            _wrongDataArr = wrongListModel.wrongListArr;
+//        }
+//        
+//        [errorTable reloadData];
+//        
+//    } failed:^(id obj) {
+//        [MBProgressHUD hideHUDForView:self.view animated:YES];
+//        
+//    }];
+}
+
+#pragma mark- UITableViewDataSourcer
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    return _wrongDataArr.count;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    static NSString *identifier = @"ErrorKnowledgeTableViewCell";
+    
+    if ([tableView respondsToSelector:@selector(setSeparatorInset:)]) {
+        [tableView setSeparatorInset:UIEdgeInsetsZero];
+    }
+    
+    ErrorKnowledgeTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:identifier];
+    if (cell == nil) {
+        cell = [[ErrorKnowledgeTableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:identifier];
+        cell.selectionStyle = UITableViewCellSelectionStyleNone;
+    }
+    WrongKnowledgeDataModel *wrongDataModel = [[WrongKnowledgeDataModel alloc] init];
+    if ([_wrongDataArr count] != 0) {
+        wrongDataModel = [_wrongDataArr objectAtIndex:indexPath.row];
+    }
+    
+    cell.knowledgeLab.text = wrongDataModel.kName;
+    cell.errorLab.text = [NSString stringWithFormat:@"错误率:%@%%",wrongDataModel.wrongPercent];
+    cell.signImgView.image = [UIImage imageNamed:@"hide"];
+    
+    return cell;
+}
+
+#pragma mark- UITableViewDelegate
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    ErrorKnowledgeTableViewCell *cell = (ErrorKnowledgeTableViewCell *)[tableView cellForRowAtIndexPath:indexPath];
+    _selectIndexPath = indexPath;
+    
+    if (isClick == NO) {
+        cell.knowledgeLab.textColor = [UIColor redColor];
+        cell.signImgView.image = [UIImage imageNamed:@"show"];
+        isClick = YES;
+    }
+    
+    ErrorShowViewController *errorShowVC = [[ErrorShowViewController alloc] init];
+    errorShowVC.errorKnowledgeVC = self;
+    
+    errorTable.scrollEnabled = NO;
+    UIFolderTableView *folderTableView = (UIFolderTableView *)tableView;
+    [folderTableView openFolderAtIndexPath:indexPath WithContentView:errorShowVC.view
+                                 openBlock:^(UIView *subClassView, CFTimeInterval duration, CAMediaTimingFunction *timingFunction){
+                                     // opening actions
+                                 }
+                                closeBlock:^(UIView *subClassView, CFTimeInterval duration, CAMediaTimingFunction *timingFunction){
+                                    // closing actions
+                                }
+                           completionBlock:^{
+                               // completed actions
+                               errorTable.scrollEnabled = YES;
+                               
+                               cell.knowledgeLab.textColor = [UIColor blackColor];
+                               cell.signImgView.image = [UIImage imageNamed:@"hide"];
+                               isClick = NO;
+                               
+                           }];
+}
+
+-(CGFloat)tableView:(UIFolderTableView *)tableView xForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return 40;
+}
+
+#pragma mark - 展开view上的btn点击事件
+-(void)chooseBtnClick:(UIButton *)btn
+{
+    WrongKnowledgeDataModel *dataModel = _wrongDataArr[_selectIndexPath.row];
+    
+    if (btn.tag == 0)
+    {
+        //知识点解析
+        AnalyticalKnowledgeViewController *analyticalVC = [[AnalyticalKnowledgeViewController alloc] init];
+        analyticalVC.fromType = 1;
+        analyticalVC.mainPage = 1;
+        analyticalVC.kId = dataModel.kId;
+        analyticalVC.kName = dataModel.kName;
+        analyticalVC.kContent = dataModel.kContent;
+        [self.navigationController pushViewController:analyticalVC animated:YES];
+    }
+    else if (btn.tag == 1)
+    {
+        //我的错题集
+        ErrorTopicSetViewController *topicSetVC = [[ErrorTopicSetViewController alloc]init];
+        topicSetVC.kId = dataModel.kId;
+        [self.navigationController pushViewController:topicSetVC animated:YES];
+    }
+    else if (btn.tag == 2)
+    {
+        //习题训练
+        ExerciseTrainViewController *trainExerciseVC = [[ExerciseTrainViewController alloc]init];
+//        trainExerciseVC.whichMV = @"再次训练";
+//        trainExerciseVC.kId = dataModel.kId;
+//        trainExerciseVC.unitName =  dataModel.kName;
+        [self.navigationController pushViewController:trainExerciseVC animated:YES];
+    }
+    else{
+        
+    }
+}
+
+-(void)leftBtnClick
+{
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+
+@end

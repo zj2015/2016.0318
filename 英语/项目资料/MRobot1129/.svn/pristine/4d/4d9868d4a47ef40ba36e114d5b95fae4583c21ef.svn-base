@@ -1,0 +1,17 @@
+//
+//  MainViewController.h
+//  BaseDemo
+//
+//  Created by 张娇娇 on 15/7/22.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "SilyTabBar.h"
+
+@interface MainViewController : UITabBarController<SilyTabBarDelegate>
+
+@property (strong, nonatomic) NSMutableArray *itemArr;
+
+- (void)showOrHiddenTabBarView:(BOOL)isHidden;
+@end

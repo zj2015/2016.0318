@@ -1,0 +1,55 @@
+//
+//  SubmitWrongTViewController.h
+//  MRobot
+//
+//  Created by mac on 15/9/21.
+//  Copyright © 2015年 silysolong. All rights reserved.
+//
+
+#import "BaseViewController.h"
+#import <AVFoundation/AVFoundation.h>
+#import "SubmitQuestionView.h"
+#import "SubmitTianQuestionView.h"
+#import "SubmitYueduQuestionView.h"
+#import "SubmitTingliQuestionView.h"
+#import "QuestionDataModel.h"
+#import "QuestionAnswer.h"
+@interface SubmitWrongTViewController : BaseViewController<AVAudioPlayerDelegate,UIAlertViewDelegate,TingliQuestionViewDelegate,ErrorQuestionViewDelegate,TianQuestionViewDelegate,YueduQuestionViewDelegate,UIScrollViewDelegate,QuestionAnswerDelegate>
+{
+    BOOL bsound;//语音是否播放
+}
+@property (copy, nonatomic) NSString * wrongId;
+@property (strong, nonatomic) QuestionAnswer *answerView;//答案对照
+@property (strong, nonatomic) NSMutableArray *answerArr;// 0 没写， 1正确   2错误
+@property (strong, nonatomic) NSArray * optionsArr;
+
+@property (assign, nonatomic) int questionAccount;//题目数量
+@property (strong, nonatomic) UILabel *titleLabels;//试卷标题
+@property (strong, nonatomic) UILabel *topicLabel;//题型
+
+@property (strong, nonatomic) NSArray *danArr;//选择题
+@property (strong, nonatomic) NSArray *tianArr;//填空题
+@property (strong, nonatomic) NSArray *yueArr;//阅读理解
+@property (strong, nonatomic) NSMutableArray *yuedanArr;
+
+@property (strong, nonatomic) NSArray *tingArr;//听力题
+@property (strong, nonatomic) NSMutableArray *tingdanArr;
+
+@property (strong, nonatomic) NSMutableArray *isPlay;
+@property (assign, nonatomic) int soundIndex;//听力第几题
+@property (copy, nonatomic) NSString *soundUrl;//听力地址
+@property (strong, nonatomic) AVAudioPlayer *soundplayer;//播放器
+
+@property (strong, nonatomic) QuestionDataModel *questionModel;
+@property (strong, nonatomic) UIScrollView *myScrollView;
+
+@property (assign, nonatomic) int page;
+
+@property (assign, nonatomic) int errorCount;
+
+@property (assign, nonatomic) int location;
+@property (strong, nonatomic) NSMutableArray * errorIdArray;
+
+@property (strong, nonatomic) NSMutableArray *titleArr;//标题
+
+@end

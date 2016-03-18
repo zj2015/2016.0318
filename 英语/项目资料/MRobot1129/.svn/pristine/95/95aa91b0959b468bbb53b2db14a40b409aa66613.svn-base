@@ -1,0 +1,194 @@
+//
+//  RegisterViewController.m
+//  MRobot
+//
+//  Created by mac on 15/8/27.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import "RegisterViewController.h"
+
+@interface RegisterViewController ()
+
+@end
+
+@implementation RegisterViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    [self base_changeNavigationTitleWithString:@"注册"];
+    [self base_ExtendedLayout];
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    self.navigationController.navigationBarHidden = NO;
+}
+
+- (void)_prepareUI
+{
+    
+    nameTextField = [[UITextField alloc]initWithFrame:CGRectMake(10, 20, MainScreenSize_W-20, 35*SIZE_TIMES)];
+    nameTextField.borderStyle = UITextBorderStyleRoundedRect;
+    nameTextField.delegate = self;
+    nameTextField.placeholder = @" 请输入用户名";
+    [self.view addSubview:nameTextField];
+    
+    numTextField = [[UITextField alloc]initWithFrame:CGRectMake(10, nameTextField.bottom + 10, MainScreenSize_W-20, 35*SIZE_TIMES)];
+    numTextField.borderStyle = UITextBorderStyleRoundedRect;
+    numTextField.keyboardType = UIKeyboardTypeNumberPad;
+    numTextField.delegate = self;
+    numTextField.placeholder = @" 请输入您的手机号";
+    [self.view addSubview:numTextField];
+    
+    verTextField = [[UITextField alloc]initWithFrame:CGRectMake(10, numTextField.bottom + 10, (MainScreenSize_W-30)*2/3, 35*SIZE_TIMES)];
+    verTextField.borderStyle = UITextBorderStyleRoundedRect;
+    verTextField.keyboardType = UIKeyboardTypeNumberPad;
+    verTextField.delegate = self;
+    verTextField.placeholder = @" 请输入手机验证码";
+    [self.view addSubview:verTextField];
+    
+    verBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    verBtn.frame = CGRectMake(verTextField.right+10, verTextField.top, (MainScreenSize_W-30)/3, 35*SIZE_TIMES);
+    verBtn.layer.cornerRadius = 4.0;
+    verBtn.layer.masksToBounds = YES;
+    verBtn.titleLabel.font = [UIFont boldSystemFontOfSize:16];
+    verBtn.backgroundColor = RgbColor(35, 173, 92);
+    [verBtn setTitle:@"发送验证码" forState:UIControlStateNormal];
+    [verBtn addTarget:self action:@selector(getVerificationCode:) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:verBtn];
+    
+    passWTextField = [[UITextField alloc]initWithFrame:CGRectMake(10, verTextField.bottom + 10, MainScreenSize_W-20, 35*SIZE_TIMES)];
+    passWTextField.borderStyle = UITextBorderStyleRoundedRect;
+    passWTextField.delegate = self;
+    passWTextField.secureTextEntry = YES;
+    passWTextField.placeholder = @" 请输入密码";
+    [self.view addSubview:passWTextField];
+    
+    provinceBtn = [[CustomButton alloc]initWithFrame:CGRectMake(10, passWTextField.bottom + 10, MainScreenSize_W - 20, 35*SIZE_TIMES)];
+    provinceBtn.leftLabel.text = @"请选择省份";
+    provinceBtn.delegate = self;
+    provinceBtn.tag = 101;
+    [self.view addSubview:provinceBtn];
+    
+    cityBtn = [[CustomButton alloc]initWithFrame:CGRectMake(10, provinceBtn.bottom + 10, (MainScreenSize_W-30)/2, 35*SIZE_TIMES)];
+    cityBtn.leftLabel.text = @"请选择市";
+    cityBtn.delegate = self;
+    cityBtn.tag = 102;
+    [self.view addSubview:cityBtn];
+    
+    areaBtn = [[CustomButton alloc]initWithFrame:CGRectMake(cityBtn.right + 10, cityBtn.top, (MainScreenSize_W-30)/2, 35*SIZE_TIMES)];
+    areaBtn.leftLabel.text = @"请选择区";
+    areaBtn.delegate = self;
+    areaBtn.tag = 103;
+    [self.view addSubview:areaBtn];
+    
+    kindBtn = [[CustomButton alloc]initWithFrame:CGRectMake(10, cityBtn.bottom + 10, MainScreenSize_W - 20, 35*SIZE_TIMES)];
+    kindBtn.leftLabel.text = @"请选择中考班级类型";
+    kindBtn.delegate = self;
+    kindBtn.tag = 104;
+    [self.view addSubview:kindBtn];
+    
+    registerBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    registerBtn.frame = CGRectMake(10, MainScreenSize_H - 45*SIZE_TIMES - 64, MainScreenSize_W - 20, 40*SIZE_TIMES);
+    registerBtn.layer.cornerRadius = 4.0;
+    registerBtn.layer.masksToBounds = YES;
+    registerBtn.titleLabel.font = [UIFont boldSystemFontOfSize:18];
+    registerBtn.backgroundColor = RgbColor(35, 173, 92);
+    [registerBtn setTitle:@"立即注册" forState:UIControlStateNormal];
+    [registerBtn addTarget:self action:@selector(registerButtonEvent:) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:registerBtn];}
+
+/**
+ *  验证码
+ */
+- (void)getVerificationCode:(UIButton *)btn
+{
+    NSLog(@"验证码按钮事件");
+}
+
+/**
+ *  注册按钮
+ */
+- (void)registerButtonEvent:(UIButton *)btn
+{
+    NSLog(@"注册按钮事件");
+}
+
+#pragma mark ====CustomButtonDelegate====
+/**
+ *  省市区的选择，以及等级的选择
+ *
+ *  @param btn tag值
+ */
+- (void)chooseDifferentCategoriesWithTag:(NSInteger)tag
+{
+    switch (tag) {
+        case 101:
+        {
+            NSArray * arr = @[@"江苏省",@"浙江省",@"安徽省",@"广东省",@"四川省"];
+            ZJAlertView *alert = [[ZJAlertView alloc]initWithTitle:@"请选择省份" andContent:arr WithBlock:^(NSString *why, int tag, BOOL isSelect) {
+                if (tag == 0) {
+                    provinceBtn.leftLabel.text = why;
+                }
+            }];
+            [self.view addSubview:alert];
+        }
+            break;
+        case 102:
+        {
+            NSArray * arr = @[@"江苏省",@"浙江省",@"安徽省",@"广东省",@"四川省"];
+            ZJAlertView *alert = [[ZJAlertView alloc]initWithTitle:@"请选择省份" andContent:arr WithBlock:^(NSString *why, int tag, BOOL isSelect) {
+                if (tag == 0) {
+                    cityBtn.leftLabel.text = why;
+                }
+            }];
+            [self.view addSubview:alert];
+        }
+            break;
+        case 103:
+        {
+            NSArray * arr = @[@"江苏省",@"浙江省",@"安徽省",@"广东省",@"四川省"];
+            ZJAlertView *alert = [[ZJAlertView alloc]initWithTitle:@"请选择省份" andContent:arr WithBlock:^(NSString *why, int tag, BOOL isSelect) {
+                if (tag == 0) {
+                    areaBtn.leftLabel.text = why;
+                }
+            }];
+            [self.view addSubview:alert];
+        }
+            break;
+        case 104:
+        {
+            NSArray * arr = @[@"江苏省",@"浙江省",@"安徽省",@"广东省",@"四川省",@"城都",@"宁夏",@"天津",@"江苏省",@"浙江省",@"安徽省",@"广东省",@"四川省",@"城都",@"宁夏",@"天津"];
+            ZJAlertView *alert = [[ZJAlertView alloc]initWithTitle:@"请选择省份" andContent:arr WithBlock:^(NSString *why, int tag, BOOL isSelect) {
+                if (tag == 0) {
+                    kindBtn.leftLabel.text = why;
+                }
+            }];
+            [self.view addSubview:alert];
+        }
+            break;
+        default:
+            break;
+    }
+}
+
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+
+@end

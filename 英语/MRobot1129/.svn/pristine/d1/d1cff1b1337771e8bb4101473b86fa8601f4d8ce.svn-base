@@ -1,0 +1,101 @@
+//
+//  Common.h
+//  MRobot
+//
+//  Created by mac on 15/8/19.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#ifndef MRobot_Common_h
+#define MRobot_Common_h
+
+// window---width/height
+#define MainSreenOrigin_X  self.view.bounds.origin.x
+#define MainSreenOrigin_Y  self.view.bounds.origin.y
+#define MainScreenSize_W   [[UIScreen mainScreen] bounds].size.width
+#define MainScreenSize_H   [UIScreen mainScreen].bounds.size.height
+#define SIZE_TIMES         [UIScreen mainScreen].bounds.size.width/320
+
+
+// color
+#define RgbColor(r,g,b) [UIColor colorWithRed:(r)/255.0f green:(g)/255.0f blue:(b)/255.0f alpha:1]
+#define PView_BGColor        [UIColor colorWithRed:243.0f/255.0f green:241.0f/255.0f blue:241.0f/255.0f alpha:1.0]   // 底色
+#define PView_RedColor        [UIColor colorWithRed:227.0f/255.0f green:54.0f/255.0f blue:63.0f/255.0f alpha:1.0]
+#define PView_GreenColor        [UIColor colorWithRed:0.0f/255.0f green:139.0f/255.0f blue:0.0f/255.0f alpha:1.0]
+
+//日志
+#ifdef DEBUG_LOG  // if
+#  define PMETHODBEGIN NSLog(@"+++%s/(%d) come in+++", __func__, __LINE__)
+#  define PMETHODEND  NSLog(@"---%s/(%d) come out---", __func__, __LINE__)
+
+#ifndef PLog
+#   define PLog(fmt, ...) {NSLog((@"%s [Line %d] " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__);}
+#endif
+#ifndef ELog
+#   define ELog(err) {if(err) DLog(@"%@", err)}
+#endif
+
+#else   // else
+#  define PMETHODBEGIN
+#  define PMETHODEND
+
+#ifndef PLog
+#   define PLog(...)
+#endif
+#ifndef ELog
+#   define ELog(err)
+#endif
+
+#endif   // endif
+
+
+//Notification key
+#define k_NOTI_NETWORK_ERROR @"k_NOTI_NETWORK_ERROR"        //网络异常
+#define k_NOTI_VERSION_UPDATE @"k_NOTI_VERSION_UPDATE"      //版本更新通知
+
+#define BASE_URL @"http://172.16.0.206:8055/MiddleLearnExam.asmx"  //内网地址
+//#define BASE_URL @"http://121.40.181.136:8016/MiddleLearnExam.asmx"  //外网地址
+
+/// NSError userInfo key that will contain response data
+#define JSONResponseSerializerWithDataKey @"JSONResponseSerializerWithDataKey"
+
+//用户信息
+#define USER_TOKEN      @"USER_TOKEN"
+#define USER_ID         @"USER_ID"
+#define USER_NAME       @"USER_NAME"
+#define USER_CAMPUS     @"USER_CAMPUS"
+#define USER_CLASS      @"USER_CLASS"
+#define USER_AVATAR     @"USER_AVATAR"
+#define USER_EXPIREIN   @"USER_EXPIREIN"
+#define USER_SCHOOLID   @"USER_SCHOOLID"
+#define USER_CLASSID    @"USER_CLASSID"
+#define USER_STIME      @"USER_STIME"
+#define USER_CCAMOUNT   @"USER_CCAMOUNT"
+#define USER_VIPENDDATE @"USER_VIPENDDATE"
+#define USER_VIPSTATUS  @"USER_VIPSTATUS"
+#define SKILLNAME       @"SKILLNAME" 
+
+#define MYNAME          @"MYNAME"
+#define MYPHONE         @"MYPHONE"
+#define MYPASSWORD      @"MYPASSWORD"
+
+//友盟appKey
+#define UmengAppkey @"53f15dd7fd98c5031102f3e5"
+
+
+#define MYNOTI_USER_TRYAGAIN  @"MYNOTI_USER_TRYAGAIN"  // 再做一遍
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#endif

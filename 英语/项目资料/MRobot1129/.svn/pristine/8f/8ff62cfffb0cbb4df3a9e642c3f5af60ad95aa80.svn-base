@@ -1,0 +1,31 @@
+//
+//  TeachContentDataModel.h
+//  MRobot
+//
+//  Created by mac on 15/8/20.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import "BaseEntity.h"
+/**
+ *  教学内容Model
+ */
+@interface TeachContentDataModel : BaseEntity
+
+@property (copy, nonatomic) NSString * progressDesc;//教学进度
+
+@property (copy, nonatomic) NSString * content;//教学内容
+
+@property (copy, nonatomic) NSString * result;//结果描述
+
+@property (copy, nonatomic) NSString * example;//举例
+
+@property (copy, nonatomic) NSString * todayReturn;//今日还课
+
+@property (copy, nonatomic) NSString * nextWeekReturn;//下周还课
+
+@property (copy, nonatomic) NSString * writingHomework;//笔头作业
+
+@property (copy, nonatomic) NSString * previewHomework;//预习作业
+
+@end

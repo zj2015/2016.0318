@@ -1,0 +1,47 @@
+//
+//  SkillTrainingTableViewCell.m
+//  MRobot
+//
+//  Created by BaiYu on 15/8/25.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import "SkillTrainingTableViewCell.h"
+
+@implementation SkillTrainingTableViewCell
+@synthesize skillNameLab;
+@synthesize signImgView;
+
+- (void)awakeFromNib {
+    // Initialization code
+}
+
+-(id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
+{
+    self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
+    if (self) {
+        self.backgroundColor = [UIColor whiteColor];
+        
+        skillNameLab = [[UILabel alloc] initWithFrame:CGRectMake(10, 10, 200, 20*SIZE_TIMES)];
+        skillNameLab.backgroundColor = [UIColor clearColor];
+        skillNameLab.font = [UIFont systemFontOfSize:15.0];
+        [self.contentView addSubview:skillNameLab];
+        
+        signImgView = [[UIImageView alloc] initWithFrame:CGRectMake(MainScreenSize_W - 30, 10, 17*SIZE_TIMES, 17*SIZE_TIMES)];
+        [self.contentView addSubview:signImgView];
+        
+        UILabel *lineLab = [[UILabel alloc] initWithFrame:CGRectMake(0, 39*SIZE_TIMES, MainScreenSize_W, 0.5)];
+        lineLab.backgroundColor = [UIColor lightGrayColor];
+        [self.contentView addSubview:lineLab];
+        
+    }
+    return self;
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+@end

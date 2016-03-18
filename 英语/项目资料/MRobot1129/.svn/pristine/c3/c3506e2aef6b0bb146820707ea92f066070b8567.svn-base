@@ -1,0 +1,47 @@
+//
+//  VideoConnectTableViewCell.m
+//  ERobot
+//
+//  Created by BaiYu on 15/7/2.
+//  Copyright (c) 2015年 BaiYu. All rights reserved.
+//
+
+#import "VideoConnectTableViewCell.h"
+
+@implementation VideoConnectTableViewCell
+@synthesize answerLab;
+@synthesize signImgView;
+
+- (void)awakeFromNib {
+    // Initialization code
+}
+
+-(id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
+{
+    self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
+    if (self) {
+        
+        answerLab = [[UILabel alloc] initWithFrame:CGRectMake(10, 10, 200, 20*SIZE_TIMES)];
+        answerLab.backgroundColor = [UIColor clearColor];
+        answerLab.font = [UIFont systemFontOfSize:15.0];
+        [self.contentView addSubview:answerLab];
+        
+        signImgView = [[UIImageView alloc] initWithFrame:CGRectMake(MainScreenSize_W - 30, 10, 15*SIZE_TIMES, 15*SIZE_TIMES)];
+        [self.contentView addSubview:signImgView];
+        
+        UILabel *lineLab = [[UILabel alloc] initWithFrame:CGRectMake(0, 39*SIZE_TIMES, MainScreenSize_W, 0.5)];
+        lineLab.backgroundColor = [UIColor lightGrayColor];
+        [self.contentView addSubview:lineLab];
+        
+    }
+    return self;
+}
+
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+@end

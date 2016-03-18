@@ -1,0 +1,1351 @@
+//
+//  LearningPlanRequest.m
+//  MRobot
+//
+//  Created by mac on 15/8/20.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import "LearningPlanRequest.h"
+#import "RTHttpClient.h"
+
+#import "UserLoginModel.h"
+
+#import "ExamProModel.h"
+#import "ExamProListModel.h"
+
+#import "TeachContentDataModel.h"
+
+#import "AnalyticalKnowledgeModel.h"
+#import "KnowledgeModel.h"
+
+#import "KnowledgeVideoModel.h"
+#import "ResultArrayListModel.h"
+#import "KnowledgeCVideoModel.h"
+
+#import "ProblemSetsList.h"
+#import "SkillInfoModel.h"
+
+#import "WeekVideoModel.h"
+#import "KVideoListModel.h"
+#import "VideoListModel.h"
+#import "CVideoListModel.h"
+#import "SVideoListModel.h"
+
+#import "CommonSkillModel.h"
+#import "CommonListModel.h"
+
+#import "SkillDataModel.h"
+#import "SkillListModel.h"
+
+#import "ImportantAnalysiModel.h"
+#import "ImportantListModel.h"
+
+#import "WrongKnowledgeDataModel.h"
+#import "WrongKnowledgeListModel.h"
+
+#import "WrongQueDataModel.h"
+#import "WrongQueListModel.h"
+#import "DateListModel.h"
+
+#import "SimulationPaperModel.h"
+#import "SimulationListModel.h"
+
+#import "SubmitByPaperModel.h"
+#import "SubmitByWeekModel.h"
+#import "ResultListModel.h"
+#import "SubmitBySkillModel.h"
+#import "SkillResultListModel.h"
+#import "KSubmitAnswerModel.h"
+#import "SubmitQuestionModel.h"
+
+#import "OpinionListModel.h"
+#import "OpinionResultModel.h"
+
+#import "ProvinceListModel.h"
+#import "ProvinceDataModel.h"
+#import "CityDataModel.h"
+#import "DistrictDataModel.h"
+
+#import "TopLevelKnowModel.h"
+#import "TopLevelListModel.h"
+
+#import "ChildLevelKnowModel.h"
+#import "ChildLevelListModel.h"
+
+#import "TopQTypeChildModel.h"
+#import "TopQTypeListModel.h"
+#import "TopQTypeResultModel.h"
+
+#import "TypeQuestionListModel.h"
+#import "TypeQListModel.h"
+
+@implementation LearningPlanRequest
+
+-(NSString *)fromType
+{
+    return @"3";
+//#if defined (MACRO)
+//    //target（校外版）需要执行的代码
+//    return @"4";
+//#else
+//    //target（校内版）需要执行的代码
+//    return @"3";
+//#endif
+}
+
+/**
+ *  1.4.1 学习进度
+ *
+ *  @param success 回调函数成功
+ *  @param failed 回调函数失败
+ */
+- (void)userExamProgressListSuccess:(SuccessBlock)success failed:(FailedBlock)failed
+{
+    RTHttpClient *client = [RTHttpClient defaultClient];
+    NSDictionary *dict = [[NSDictionary alloc] initWithObjectsAndKeys:[UserDefaultsUtils valueWithKey:USER_TOKEN],@"token",[self fromType],@"fromType",nil];
+    [client requestWithPath:[BaseHandler requestUrlWithPath:@"/ExamProgressList"] method:RTHttpRequestGet parameters:dict prepareExecute:^{
+    } success:^(NSURLSessionDataTask *task, id responseObject) {
+        InfoResult *infoResult = [[InfoResult alloc] init];
+        [infoResult setCode:[responseObject objectForKey:@"code"]];
+        [infoResult setDesc:[responseObject objectForKey:@"desc"]];
+        if ([infoResult.code isEqualToString:@"0"]) {
+            if ([responseObject objectForKey:@"data"] != [NSNull null]) {
+                NSDictionary *examDic = [responseObject objectForKey:@"data"];
+                ExamProModel *examPro = [[ExamProModel alloc]init];
+                if ([[examDic objectForKey:@"ExamProgressList"] count] != 0) {
+                    for (NSDictionary *dict in [examDic objectForKey:@"ExamProgressList"]) {
+                        ExamProListModel *examProList = [[ExamProListModel alloc]init];
+                        [examProList initWithJson:dict];
+                        [examPro.examProListArr addObject:examProList];
+                    }
+                }
+                [infoResult setExtraObj:examPro];
+            }
+        }
+        success(infoResult);
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        failed(error);
+    }];
+}
+
+/**
+ *  1.4.2 教学内容
+ *
+ *  @param weekId  周id
+ *  @param cType   教学类型
+ *  @param success 回调函数成功
+ *  @param failed  回调函数失败
+ */
+- (void)userCourseContentWithWeekId:(NSString *)weekId andCType:(NSString *)cType success:(SuccessBlock)success failed:(FailedBlock)failed
+{
+    RTHttpClient *client = [RTHttpClient defaultClient];
+    NSDictionary *dict = [[NSDictionary alloc] initWithObjectsAndKeys:[UserDefaultsUtils valueWithKey:USER_TOKEN],@"token",weekId,@"weekId",cType,@"cType",[self fromType],@"fromType",nil];
+    [client requestWithPath:[BaseHandler requestUrlWithPath:@"/CourseContent"] method:RTHttpRequestGet parameters:dict prepareExecute:^{
+    } success:^(NSURLSessionDataTask *task, id responseObject) {
+        InfoResult *infoResult = [[InfoResult alloc] init];
+        [infoResult setCode:[responseObject objectForKey:@"code"]];
+        [infoResult setDesc:[responseObject objectForKey:@"desc"]];
+        if ([infoResult.code isEqualToString:@"0"]) {
+            if ([responseObject objectForKey:@"data"] != [NSNull null]) {
+                NSDictionary * teachConDic = [responseObject objectForKey:@"data"];
+                NSDictionary *dic = [teachConDic objectForKey:@"CourseContent"];
+                TeachContentDataModel * teachContentDataModel = [[TeachContentDataModel alloc] init];
+                [teachContentDataModel initWithJson:dic];
+                [infoResult setExtraObj:teachContentDataModel];
+            }
+        }
+        success(infoResult);
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        failed(error);
+    }];
+}
+
+/**
+ *  1.4.3 知识点解析
+ *
+ *  @param weekId  周id
+ *  @param success 回调函数成功
+ *  @param failed  回调函数失败
+ */
+- (void)userKnowledgeAnalysisListWithWeekId:(NSString *)weekId success:(SuccessBlock)success failed:(FailedBlock)failed
+{
+    RTHttpClient *client = [RTHttpClient defaultClient];
+    NSDictionary *dict = [[NSDictionary alloc] initWithObjectsAndKeys:[UserDefaultsUtils valueWithKey:USER_TOKEN],@"token",weekId,@"weekId",[self fromType],@"fromType",nil];
+    [client requestWithPath:[BaseHandler requestUrlWithPath:@"/KnowledgeAnalysisList"] method:RTHttpRequestGet parameters:dict prepareExecute:^{
+    } success:^(NSURLSessionDataTask *task, id responseObject) {
+        InfoResult *infoResult = [[InfoResult alloc] init];
+        [infoResult setCode:[responseObject objectForKey:@"code"]];
+        [infoResult setDesc:[responseObject objectForKey:@"desc"]];
+        if ([infoResult.code isEqualToString:@"0"]) {
+            if ([responseObject objectForKey:@"data"] != [NSNull null]) {
+                NSDictionary * knowledgeDic = [responseObject objectForKey:@"data"];
+                AnalyticalKnowledgeModel * analyticalKnowledgeModel = [[AnalyticalKnowledgeModel alloc] init];
+                if ([[knowledgeDic objectForKey:@"KnowledgeAnalysisList"] count] !=0) {
+                    for (NSDictionary * dict in [knowledgeDic objectForKey:@"KnowledgeAnalysisList"]) {
+                        KnowledgeModel * knowledgeModel = [[KnowledgeModel alloc] init];
+                        [knowledgeModel setKId:[dict objectForKey:@"kId"]];
+                        [knowledgeModel setKName:[dict objectForKey:@"kName"]];
+                        [knowledgeModel setKContent:[dict objectForKey:@"KContent"]];
+                        [analyticalKnowledgeModel.analyticalKnowledgeArr addObject:knowledgeModel];
+                    }
+                }
+                [infoResult setExtraObj:analyticalKnowledgeModel];
+            }
+        }
+        success(infoResult);
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        failed(error);
+    }];
+}
+
+/**
+ *  1.4.4 知识点视频列表
+ *
+ *  @param kId     知识点id
+ *  @param success 回调函数成功
+ *  @param failed  回调函数失败
+ */
+- (void)userKnowledgeVideoListWithKId:(NSString *)kId success:(SuccessBlock)success failed:(FailedBlock)failed
+{
+    RTHttpClient *client = [RTHttpClient defaultClient];
+    NSDictionary *dict = [[NSDictionary alloc] initWithObjectsAndKeys:[UserDefaultsUtils valueWithKey:USER_TOKEN],@"token",kId,@"kId",[self fromType],@"fromType",nil];
+    [client requestWithPath:[BaseHandler requestUrlWithPath:@"/KnowledgeVideoList"] method:RTHttpRequestGet parameters:dict prepareExecute:^{
+    } success:^(NSURLSessionDataTask *task, id responseObject) {
+        InfoResult *infoResult = [[InfoResult alloc] init];
+        [infoResult setCode:[responseObject objectForKey:@"code"]];
+        [infoResult setDesc:[responseObject objectForKey:@"desc"]];
+        if ([infoResult.code isEqualToString:@"0"]) {
+            if ([responseObject objectForKey:@"data"] != [NSNull null]) {
+                NSDictionary *knowDic = [responseObject objectForKey:@"data"];
+                KnowledgeVideoModel *videoModel = [[KnowledgeVideoModel alloc]init];
+                if ([[knowDic objectForKey:@"resultArray"] count] != 0) {
+                    for (NSDictionary *videoDict in [knowDic objectForKey:@"resultArray"])
+                    {
+                        ResultArrayListModel *resultModel = [[ResultArrayListModel alloc]init];
+                        [resultModel setKVideoCCId:[videoDict objectForKey:@"kVideoCCId"]];
+                        [resultModel setKVideoCoverUrl:[videoDict objectForKey:@"kVideoCoverUrl"]];
+                        if ([[videoDict objectForKey:@"cVideoList"] count] != 0) {
+                            for (NSDictionary *resultDic in [videoDict objectForKey:@"cVideoList"]) {
+                                KnowledgeCVideoModel *cvideoModel = [[KnowledgeCVideoModel alloc]init];
+                                [cvideoModel setCVideoCCId:[resultDic objectForKey:@"cVideoCCId"]];
+                                [cvideoModel setCVideoCoverUrl:[resultDic objectForKey:@"cVideoCoverUrl"]];
+                                [resultModel.cVideoList addObject:cvideoModel];
+                            }
+                        }
+                        [videoModel.resultArray addObject:resultModel];
+                    }
+                }
+                [infoResult setExtraObj:videoModel];
+            }
+        }
+        success(infoResult);
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        failed(error);
+    }];
+}
+
+/**
+ *  1.4.5 技巧训练-知识点
+ *
+ *  @param sId     技巧编号
+ *  @param success 回调函数成功
+ *  @param failed  回调函数失败
+ */
+- (void)userSkillInfoWithSId:(NSString *)sId success:(SuccessBlock)success failed:(FailedBlock)failed
+{
+    RTHttpClient *client = [RTHttpClient defaultClient];
+    NSDictionary *dict = [[NSDictionary alloc] initWithObjectsAndKeys:[UserDefaultsUtils valueWithKey:USER_TOKEN],@"token",sId,@"sId",[self fromType],@"fromType",nil];
+    [client requestWithPath:[BaseHandler requestUrlWithPath:@"/SkillInfo"] method:RTHttpRequestGet parameters:dict prepareExecute:^{
+    } success:^(NSURLSessionDataTask *task, id responseObject) {
+        InfoResult *infoResult = [[InfoResult alloc] init];
+        [infoResult setCode:[responseObject objectForKey:@"code"]];
+        [infoResult setDesc:[responseObject objectForKey:@"desc"]];
+        if ([infoResult.code isEqualToString:@"0"]) {
+            if ([responseObject objectForKey:@"data"] != [NSNull null]) {
+                NSDictionary *skillDic = [responseObject objectForKey:@"data"];
+                SkillInfoModel *skillInfo = [[SkillInfoModel alloc]init];
+                [skillInfo setSId:[skillDic objectForKey:@"sId"]];
+                [skillInfo setSName:[skillDic objectForKey:@""]];
+                [skillInfo setMainVideoCoverUrl:[skillDic objectForKey:@"mainVideoCoverUrl"]];
+                [skillInfo setMainVideoCCId:[skillDic objectForKey:@"mainVideoCCId"]];
+                [infoResult setExtraObj:skillInfo];
+            }
+        }
+        success(infoResult);
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        failed(error);
+    }];
+}
+
+/**
+ *  1.4.6 题目列表-技巧训练
+ *
+ *  @param sId     技巧编号
+ *  @param sType   技巧类型
+ *  @param success 回调函数成功
+ *  @param failed  回调函数失败
+ */
+- (void)userSkillQuestionListWithSId:(NSString *)sId andSType:(NSString *)sType success:(SuccessBlock)success failed:(FailedBlock)failed
+{
+    RTHttpClient *client = [RTHttpClient defaultClient];
+    NSDictionary *dict = [[NSDictionary alloc] initWithObjectsAndKeys:[UserDefaultsUtils valueWithKey:USER_TOKEN],@"token",sId,@"sId",sType,@"sType",[self fromType],@"fromType",nil];
+    [client requestWithPath:[BaseHandler requestUrlWithPath:@"/SkillQuestionList"] method:RTHttpRequestGet parameters:dict prepareExecute:^{
+    } success:^(NSURLSessionDataTask *task, id responseObject) {
+        success([ProblemSetsList problemSetsListRequestModel:responseObject]);
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        failed(error);
+    }];
+}
+
+/**
+ *  1.4.7 题目列表-习题训练
+ *
+ *  @param weekId  周编号
+ *  @param success 回调函数成功
+ *  @param failed  回调函数失败
+ */
+- (void)userQuestinListWithWeekId:(NSString *)weekId success:(SuccessBlock)success failed:(FailedBlock)failed
+{
+    RTHttpClient *client = [RTHttpClient defaultClient];
+    NSDictionary *dict = [[NSDictionary alloc] initWithObjectsAndKeys:[UserDefaultsUtils valueWithKey:USER_TOKEN],@"token",weekId,@"weekId",[self fromType],@"fromType",nil];
+    [client requestWithPath:[BaseHandler requestUrlWithPath:@"/QuestionList"] method:RTHttpRequestGet parameters:dict prepareExecute:^{
+    } success:^(NSURLSessionDataTask *task, id responseObject) {
+        
+        success([ProblemSetsList problemSetsListRequestModel:responseObject]);
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        failed(error);
+    }];
+}
+
+/**
+ *  1.4.8 讲解视频
+ *
+ *  @param weekId  周编号
+ *  @param success 回调函数成功
+ *  @param failed  回调函数失败
+ */
+- (void)userWeekVideoListWithWeekId:(NSString *)weekId success:(SuccessBlock)success failed:(FailedBlock)failed
+{
+    RTHttpClient *client = [RTHttpClient defaultClient];
+    NSDictionary *dict = [[NSDictionary alloc] initWithObjectsAndKeys:[UserDefaultsUtils valueWithKey:USER_TOKEN],@"token",weekId,@"weekId",[self fromType],@"fromType",nil];
+    [client requestWithPath:[BaseHandler requestUrlWithPath:@"/WeekVideoList"] method:RTHttpRequestGet parameters:dict prepareExecute:^{
+    } success:^(NSURLSessionDataTask *task, id responseObject) {
+        InfoResult *infoResult = [[InfoResult alloc] init];
+        [infoResult setCode:[responseObject objectForKey:@"code"]];
+        [infoResult setDesc:[responseObject objectForKey:@"desc"]];
+        if ([infoResult.code isEqualToString:@"0"]) {
+            if ([responseObject objectForKey:@"data"] != [NSNull null]) {
+                NSDictionary *weekDic = [responseObject objectForKey:@"data"];
+                WeekVideoModel *weekVideo = [[WeekVideoModel alloc]init];
+                if ([[weekDic objectForKey:@"KVideoList"] count] !=  0) {
+                    for (NSDictionary *kVideoDic in [weekDic objectForKey:@"KVideoList"]) {
+                        KVideoListModel *KVideoModel = [[KVideoListModel alloc]init];
+                        [KVideoModel setKName:[kVideoDic objectForKey:@"kName"]];
+                        if ([[kVideoDic objectForKey:@"videoList"] count] != 0 ) {
+                            for (NSDictionary *VideoDict in [kVideoDic objectForKey:@"videoList"]) {
+                                VideoListModel *videoModel = [[VideoListModel alloc]init];
+                                [videoModel setKVideoCoverUrl:[VideoDict objectForKey:@"kVideoCoverUrl"]];
+                                [videoModel setKVideoCCId:[VideoDict objectForKey:@"kVideoCCId"]];
+                                if ([[VideoDict objectForKey:@"cVideoList"] count] != 0) {
+                                    for (NSDictionary *CVideoDict in [VideoDict objectForKey:@"cVideoList"]) {
+                                        CVideoListModel *cVideoModel = [[CVideoListModel alloc]init];
+                                        [cVideoModel setCVideoCoverUrl:[CVideoDict objectForKey:@"cVideoCoverUrl"]];
+                                        [cVideoModel setCVideoCCId:[CVideoDict objectForKey:@"cVideoCCId"]];
+                                        [videoModel.cVideoList addObject:cVideoModel];
+                                    }
+                                }
+                                [KVideoModel.videoList addObject:videoModel];
+                            }
+                        }
+                        [weekVideo.kVideoListArr addObject:KVideoModel];
+                    }
+                }
+                if ([[weekDic objectForKey:@"SVideoList"] count] != 0) {
+                    for (NSDictionary *SVideoDic in [weekDic objectForKey:@"SVideoList"]) {
+                        SVideoListModel *SVideoModel = [[SVideoListModel alloc]init];
+                        [SVideoModel setSId:[SVideoDic objectForKey:@"sId"]];
+                        [SVideoModel setSName:[SVideoDic objectForKey:@"sName"]];
+                        [SVideoModel setSVideoCoverUrl:[SVideoDic objectForKey:@"sVideoCoverUrl"]];
+                        [SVideoModel setSVideoCCId:[SVideoDic objectForKey:@"sVideoCCId"]];
+                        [weekVideo.sVideoListArr addObject:SVideoModel];
+                    }
+                }
+                
+                [infoResult setExtraObj:weekVideo];
+            }
+        }
+        success(infoResult);
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        failed(error);
+    }];
+}
+
+/**
+ *  1.4.9 通用解题技巧
+ *
+ *  @param kId     知识点id
+ *  @param success 回调函数成功
+ *  @param failed  回调函数失败
+ */
+- (void)userCommonSkillListWithWeekId:(NSString *)weekId success:(SuccessBlock)success failed:(FailedBlock)failed
+{
+    RTHttpClient *client = [RTHttpClient defaultClient];
+    NSDictionary *dict = [[NSDictionary alloc] initWithObjectsAndKeys:[UserDefaultsUtils valueWithKey:USER_TOKEN],@"token",weekId,@"weekId",[self fromType],@"fromType",nil];
+    [client requestWithPath:[BaseHandler requestUrlWithPath:@"/CommonSkillList"] method:RTHttpRequestGet parameters:dict prepareExecute:^{
+    } success:^(NSURLSessionDataTask *task, id responseObject) {
+        InfoResult *infoResult = [[InfoResult alloc] init];
+        [infoResult setCode:[responseObject objectForKey:@"code"]];
+        [infoResult setDesc:[responseObject objectForKey:@"desc"]];
+        if ([infoResult.code isEqualToString:@"0"]) {
+            if ([responseObject objectForKey:@"data"] != [NSNull null]) {
+                NSDictionary *commonDic = [responseObject objectForKey:@"data"];
+                CommonSkillModel *commonModel = [[CommonSkillModel alloc]init];
+                if ([[commonDic objectForKey:@"CommonSkillList"] count] != 0) {
+                    for (NSDictionary *listDic in [commonDic objectForKey:@"CommonSkillList"]) {
+                        CommonListModel *listModel = [[CommonListModel alloc]init];
+                        [listModel setSId:[listDic objectForKey:@"sId"]];
+                        [listModel setSName:[listDic objectForKey:@"sName"]];
+                        [listModel setSVideoCoverUrl:[listDic objectForKey:@"sVideoCoverUrl"]];
+                        [listModel setSVideoCCId:[listDic objectForKey:@"sVideoCCId"]];
+                        [commonModel.commonSkillListArr addObject:listModel];
+                    }
+                }
+                [infoResult setExtraObj:commonModel];
+            }
+        }
+        success(infoResult);
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        failed(error);
+    }];
+}
+
+/**
+ *  1.4.10 技巧训练-综合训练
+ *
+ *  @param weekId  周编号
+ *  @param success 回调函数成功
+ *  @param failed  回调函数失败
+ */
+- (void)userSkillListWithWeekId:(NSString *)weekId success:(SuccessBlock)success failed:(FailedBlock)failed
+{
+    RTHttpClient *client = [RTHttpClient defaultClient];
+    NSDictionary *dict = [[NSDictionary alloc] initWithObjectsAndKeys:[UserDefaultsUtils valueWithKey:USER_TOKEN],@"token",weekId,@"weekId",[self fromType],@"fromType",nil];
+    [client requestWithPath:[BaseHandler requestUrlWithPath:@"/SkillList"] method:RTHttpRequestGet parameters:dict prepareExecute:^{
+    } success:^(NSURLSessionDataTask *task, id responseObject) {
+        InfoResult *infoResult = [[InfoResult alloc] init];
+        [infoResult setCode:[responseObject objectForKey:@"code"]];
+        [infoResult setDesc:[responseObject objectForKey:@"desc"]];
+        if ([infoResult.code isEqualToString:@"0"]) {
+            if ([responseObject objectForKey:@"data"] != [NSNull null]) {
+                NSDictionary *skillDic = [responseObject objectForKey:@"data"];
+                SkillDataModel *skillModel = [[SkillDataModel alloc]init];
+                if ([[skillDic objectForKey:@"SkillList"] count] != 0) {
+                    for (NSDictionary *listDic in [skillDic objectForKey:@"SkillList"]) {
+                        SkillListModel *listModel = [[SkillListModel alloc]init];
+                        [listModel setSId:[listDic objectForKey:@"sId"]];
+                        [listModel setSName:[listDic objectForKey:@"sName"]];
+                        [listModel setMainVideoCoverUrl:[listDic objectForKey:@"mainVideoCoverUrl"]];
+                        [listModel setMainVideoCCId:[listDic objectForKey:@"mainVideoCCId"]];
+                        [skillModel.skillListArr addObject:listModel];
+                    }
+                }
+                [infoResult setExtraObj:skillModel];
+            }
+        }
+        success(infoResult);
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        failed(error);
+    }];
+}
+
+/**
+ *  1.4.11 重点解析-综合训练
+ *
+ *  @param weekId  周编号
+ *  @param success 回调函数成功
+ *  @param failed  回调函数失败
+ */
+- (void)userImportantAnalysiWithWeekId:(NSString *)weekId success:(SuccessBlock)success failed:(FailedBlock)failed
+{
+    RTHttpClient *client = [RTHttpClient defaultClient];
+    NSDictionary *dict = [[NSDictionary alloc] initWithObjectsAndKeys:[UserDefaultsUtils valueWithKey:USER_TOKEN],@"token",weekId,@"weekId",[self fromType],@"fromType",nil];
+    [client requestWithPath:[BaseHandler requestUrlWithPath:@"/ImportantAnalysi"] method:RTHttpRequestGet parameters:dict prepareExecute:^{
+    } success:^(NSURLSessionDataTask *task, id responseObject) {
+        InfoResult *infoResult = [[InfoResult alloc] init];
+        [infoResult setCode:[responseObject objectForKey:@"code"]];
+        [infoResult setDesc:[responseObject objectForKey:@"desc"]];
+        if ([infoResult.code isEqualToString:@"0"]) {
+            if ([responseObject objectForKey:@"data"] != [NSNull null]) {
+                NSDictionary *importantDic = [responseObject objectForKey:@"data"];
+                ImportantAnalysiModel *importantModel = [[ImportantAnalysiModel alloc]init];
+                if ([[importantDic objectForKey:@"SkillList"] count] != 0) {
+                    for (NSDictionary *listDic in [importantDic objectForKey:@"SkillList"])
+                    {
+                        ImportantListModel *listModel = [[ImportantListModel alloc]init];
+                        [listModel setSId:[listDic objectForKey:@"sId"]];
+                        [listModel setSName:[listDic objectForKey:@"sName"]];
+                        [listModel setVideoCoverUrl:[listDic objectForKey:@"videoCoverUrl"]];
+                        [listModel setVideoCCId:[listDic objectForKey:@"videoCCId"]];
+                        [listModel setVideoName:[listDic objectForKey:@"videoName"]];
+                        [importantModel.skillListArray addObject:listModel];
+                    }
+                }
+                [infoResult setExtraObj:importantModel];
+            }
+        }
+        success(infoResult);
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        failed(error);
+    }];
+}
+
+/**
+ *  1.4.12 易错知识点
+ *
+ *  @param pageIndex 分页下标
+ *  @param pageSize  分页大小
+ *  @param success   回调函数成功
+ *  @param failed    回调函数失败
+ */
+- (void)userWrongKnowledgeListWithPageIndex:(NSString *)pageIndex andPageSize:(NSString *)pageSize success:(SuccessBlock)success failed:(FailedBlock)failed
+{
+    RTHttpClient *client = [RTHttpClient defaultClient];
+    NSDictionary *dict = [[NSDictionary alloc] initWithObjectsAndKeys:[UserDefaultsUtils valueWithKey:USER_TOKEN],@"token",pageIndex,@"pageIndex",pageSize,@"pageSize",[self fromType],@"fromType",nil];
+    [client requestWithPath:[BaseHandler requestUrlWithPath:@"/WrongKnowledgeList"] method:RTHttpRequestGet parameters:dict prepareExecute:^{
+    } success:^(NSURLSessionDataTask *task, id responseObject) {
+        InfoResult *infoResult = [[InfoResult alloc] init];
+        [infoResult setCode:[responseObject objectForKey:@"code"]];
+        [infoResult setDesc:[responseObject objectForKey:@"desc"]];
+        if ([infoResult.code isEqualToString:@"0"]) {
+            if ([responseObject objectForKey:@"data"] != [NSNull null]) {
+                NSDictionary *wrongListDic = [responseObject objectForKey:@"data"];
+                WrongKnowledgeListModel *wrongListModel = [[WrongKnowledgeListModel alloc] init];
+                if ([[wrongListDic objectForKey:@"WrongKnowledgeList"] count] != 0) {
+                    for (NSDictionary *dic in [wrongListDic objectForKey:@"WrongKnowledgeList"]) {
+                        WrongKnowledgeDataModel *wrongModel = [[WrongKnowledgeDataModel alloc] init];
+                        [wrongModel setKId:[dic objectForKey:@"kId"]];
+                        [wrongModel setKName:[dic objectForKey:@"kName"]];
+                        [wrongModel setKContent:[dic objectForKey:@"kContent"]];
+                        [wrongModel setWrongPercent:[dic objectForKey:@"wrongPercent"]];
+                        [wrongListModel.wrongListArr addObject:wrongModel];
+                    }
+                }
+                [infoResult setExtraObj:wrongListModel];
+            }
+        }
+
+        success(infoResult);
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        failed(error);
+    }];
+}
+
+/**
+ *  1.4.13 错题库（按月份返回最新的三个错题库）
+ *
+ *  @param success 回调函数成功
+ *  @param failed  回调函数失败
+ */
+- (void)userWrongLibraySuccess:(SuccessBlock)success failed:(FailedBlock)failed
+{
+    RTHttpClient *client = [RTHttpClient defaultClient];
+    NSDictionary *dict = [[NSDictionary alloc] initWithObjectsAndKeys:[UserDefaultsUtils valueWithKey:USER_TOKEN],@"token",[self fromType],@"fromType",nil];
+    [client requestWithPath:[BaseHandler requestUrlWithPath:@"/WrongLibrary"] method:RTHttpRequestGet parameters:dict prepareExecute:^{
+    } success:^(NSURLSessionDataTask *task, id responseObject) {
+        InfoResult *infoResult = [[InfoResult alloc] init];
+        [infoResult setCode:[responseObject objectForKey:@"code"]];
+        [infoResult setDesc:[responseObject objectForKey:@"desc"]];
+        if ([infoResult.code isEqualToString:@"0"]) {
+            if ([responseObject objectForKey:@"data"] != [NSNull null]) {
+                NSDictionary *wrongListDic = [responseObject objectForKey:@"data"];
+                DateListModel *dateListModel = [[DateListModel alloc] init];
+                if ([wrongListDic objectForKey:@"DateList"] != 0) {
+                    for (NSDictionary *dic in [wrongListDic objectForKey:@"DateList"]) {
+                        WrongQueListModel *wrongQueListModel = [[WrongQueListModel alloc] init];
+                        [wrongQueListModel setMonthTimeStamp:[dic objectForKey:@"monthTimeStamp"]];
+                        [wrongQueListModel setWrongAmount:[dic objectForKey:@"wrongAmount"]];
+                        if ([dic objectForKey:@"questionList"] != 0) {
+                            for (NSDictionary *dict in [dic objectForKey:@"questionList"]){
+                                WrongQueDataModel *wrongQueModel = [[WrongQueDataModel alloc] init];
+                                [wrongQueModel setQId:[dict objectForKey:@"qId"]];
+                                [wrongQueModel setQContent:[dict objectForKey:@"qContent"]];
+                                [wrongQueModel setQContentPicUrl:[dict objectForKey:@"qContentPicUrl"]];
+                                [wrongQueModel setQType:[[dict objectForKey:@"qType"] integerValue]];
+                                
+                                [wrongQueListModel.wrongQueListArr addObject:wrongQueModel];
+                            }
+                        }
+                        [dateListModel.dateListArr addObject:wrongQueListModel];
+                    }
+                }
+                [infoResult setExtraObj:dateListModel];
+            }
+        }
+        success(infoResult);
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        failed(error);
+    }];
+}
+
+/**
+ *  1.4.14 根据月份查询错题列表
+ *
+ *  @param monthTimeStamp 月份时间戳
+ *  @param success        回调函数成功
+ *  @param failed         回调函数失败
+ */
+- (void)userMonthWrongQuestinListWithMonthTimeStamp:(NSString *)monthTimeStamp success:(SuccessBlock)success failed:(FailedBlock)failed
+{
+    RTHttpClient *client = [RTHttpClient defaultClient];
+    NSDictionary *dict = [[NSDictionary alloc] initWithObjectsAndKeys:[UserDefaultsUtils valueWithKey:USER_TOKEN],@"token",monthTimeStamp,@"monthTimeStamp",[self fromType],@"fromType",nil];
+    [client requestWithPath:[BaseHandler requestUrlWithPath:@"/MonthWrongQuestionList"] method:RTHttpRequestGet parameters:dict prepareExecute:^{
+    } success:^(NSURLSessionDataTask *task, id responseObject) {
+        success([ProblemSetsList problemErrorListRequestModel:responseObject]);
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        failed(error);
+    }];
+}
+
+/**
+ *  1.4.15 根据月份查询错题库
+ *
+ *  @param monthTimeStamp 月份时间戳
+ *  @param pageIndex      分页下标
+ *  @param pageSize       分页大小
+ *  @param success        回调函数成功
+ *  @param failed         回调函数失败
+ */
+- (void)userMonthWrongLibrayWithMonthTimeStamp:(NSString *)monthTimeStamp andPageIndex:(NSString *)pageIndex andPageSize:(NSString *)pageSize success:(SuccessBlock)success failed:(FailedBlock)failed
+{
+    RTHttpClient *client = [RTHttpClient defaultClient];
+    NSDictionary *dict = [[NSDictionary alloc] initWithObjectsAndKeys:[UserDefaultsUtils valueWithKey:USER_TOKEN],@"token",monthTimeStamp,@"monthTimeStamp",pageIndex,@"pageIndex",pageSize,@"pageSize",[self fromType],@"fromType",nil];
+    [client requestWithPath:[BaseHandler requestUrlWithPath:@"/MonthWrongLibrary"] method:RTHttpRequestGet parameters:dict prepareExecute:^{
+    } success:^(NSURLSessionDataTask *task, id responseObject) {
+        InfoResult *infoResult = [[InfoResult alloc] init];
+        [infoResult setCode:[responseObject objectForKey:@"code"]];
+        [infoResult setDesc:[responseObject objectForKey:@"desc"]];
+        if ([infoResult.code isEqualToString:@"0"]) {
+            if ([responseObject objectForKey:@"data"] != [NSNull null]) {
+                NSDictionary *wrongListDic = [responseObject objectForKey:@"data"];
+                WrongQueListModel *wrongQueListModel = [[WrongQueListModel alloc] init];
+                if ([wrongListDic objectForKey:@"questionList"] != 0) {
+                    for (NSDictionary *dict in [wrongListDic objectForKey:@"questionList"]){
+                        WrongQueDataModel *wrongQueModel = [[WrongQueDataModel alloc] init];
+                        [wrongQueModel setQId:[dict objectForKey:@"qId"]];
+                        [wrongQueModel setQContent:[dict objectForKey:@"qContent"]];
+                        [wrongQueModel setQContentPicUrl:[dict objectForKey:@"qContentPicUrl"]];
+                        [wrongQueModel setQType:[[dict objectForKey:@"qType"] integerValue]];
+                        
+                        [wrongQueListModel.wrongQueListArr addObject:wrongQueModel];
+                    }
+                }
+                [infoResult setExtraObj:wrongQueListModel];
+            }
+        }
+        success(infoResult);
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        failed(error);
+    }];
+}
+
+/**
+ *  1.4.16 模拟试卷列表
+ *
+ *  @param pageIndex 分页上标
+ *  @param pageSize  分页大小
+ *  @param success   回调函数成功
+ *  @param failed    回调函数失败
+ */
+- (void)userSimulationPaperListWithPageIndex:(NSString *)pageIndex andPageSize:(NSString *)pageSize success:(SuccessBlock)success failed:(FailedBlock)failed
+{
+    RTHttpClient *client = [RTHttpClient defaultClient];
+    NSDictionary *dict = [[NSDictionary alloc] initWithObjectsAndKeys:[UserDefaultsUtils valueWithKey:USER_TOKEN],@"token",pageIndex,@"pageIndex",pageSize,@"pageSize",[self fromType],@"fromType",nil];
+    [client requestWithPath:[BaseHandler requestUrlWithPath:@"/SimulationPaperList"] method:RTHttpRequestGet parameters:dict prepareExecute:^{
+    } success:^(NSURLSessionDataTask *task, id responseObject) {
+        InfoResult *infoResult = [[InfoResult alloc] init];
+        [infoResult setCode:[responseObject objectForKey:@"code"]];
+        [infoResult setDesc:[responseObject objectForKey:@"desc"]];
+        if ([infoResult.code isEqualToString:@"0"]) {
+            if ([responseObject objectForKey:@"data"] != [NSNull null]) {
+                NSDictionary *simulationDic = [responseObject objectForKey:@"data"];
+                SimulationPaperModel *simulationModel = [[SimulationPaperModel alloc]init];
+                if ([[simulationDic objectForKey:@"SimulationPaperList"] count] != 0) {
+                    for (NSDictionary *paperDic in [simulationDic objectForKey:@"SimulationPaperList"]) {
+                        SimulationListModel *paperModel = [[SimulationListModel alloc]init];
+                        [paperModel setPaperId:[paperDic objectForKey:@"paperId"]];
+                        [paperModel setPaperName:[paperDic objectForKey:@"paperName"]];
+                        [paperModel setThisWeek:[paperDic objectForKey:@"thisWeek"]];
+                        [simulationModel.simulationPaperList addObject:paperModel];
+                    }
+                }
+                [infoResult setExtraObj:simulationModel];
+            }
+        }
+        success(infoResult);
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        failed(error);
+    }];
+}
+
+
+/**
+ *  1.4.17 试卷题目列表
+ *
+ *  @param paperId 试卷id
+ *  @param success 回调函数成功
+ *  @param failed  回调函数失败
+ */
+- (void)userQuestionListByPaperWithPaperId:(NSString *)paperId success:(SuccessBlock)success failed:(FailedBlock)failed
+{
+    RTHttpClient *client = [RTHttpClient defaultClient];
+    NSDictionary *dict = [[NSDictionary alloc] initWithObjectsAndKeys:[UserDefaultsUtils valueWithKey:USER_TOKEN],@"token",paperId,@"paperId",[self fromType],@"fromType",nil];
+    [client requestWithPath:[BaseHandler requestUrlWithPath:@"/QuestionListByPaper"] method:RTHttpRequestGet parameters:dict prepareExecute:^{
+    } success:^(NSURLSessionDataTask *task, id responseObject) {
+        success([ProblemSetsList problemSetsListRequestModel:responseObject]);
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        failed(error);
+    }];
+}
+
+/**
+ *  1.4.18 提交答案-试卷
+ *
+ *  @param paperId      试卷id
+ *  @param takeTime     考试时间 单位：毫秒
+ *  @param answerResult 答案结果
+ *  @param success      回调函数成功
+ *  @param failed       回调函数失败
+ */
+- (void)userSubmitAnswerByPaperWithPaperId:(NSString *)paperId andTakeTime:(NSString *)takeTime andAnswerResult:(NSString *)answerResult success:(SuccessBlock)success failed:(FailedBlock)failed
+{
+    RTHttpClient *client = [RTHttpClient defaultClient];
+    NSDictionary *dict = [[NSDictionary alloc] initWithObjectsAndKeys:[UserDefaultsUtils valueWithKey:USER_TOKEN],@"token",paperId,@"paperId",takeTime,@"takeTime",answerResult,@"answerResult",[self fromType],@"fromType",nil];
+    [client requestWithPath:[BaseHandler requestUrlWithPath:@"/SubmitAnswerByPaper"] method:RTHttpRequestGet parameters:dict prepareExecute:^{
+    } success:^(NSURLSessionDataTask *task, id responseObject) {
+        InfoResult *infoResult = [[InfoResult alloc] init];
+        [infoResult setCode:[responseObject objectForKey:@"code"]];
+        [infoResult setDesc:[responseObject objectForKey:@"desc"]];
+        if ([infoResult.code isEqualToString:@"0"]) {
+            if ([responseObject objectForKey:@"data"] != [NSNull null]) {
+                NSDictionary *submitDic = [responseObject objectForKey:@"data"];
+                SubmitByPaperModel *submitModel = [[SubmitByPaperModel alloc]init];
+                [submitModel setScore:[submitDic objectForKey:@"score"]];
+                if ([[submitDic objectForKey:@"wrongQIdList"] count] != 0) {
+                    for (NSString *list in [submitDic objectForKey:@"wrongQIdList"]) {
+                        [submitModel.wrongQIdList addObject:list];
+                    }
+                }
+                [infoResult setExtraObj:submitModel];
+            }
+        }
+        success(infoResult);
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        failed(error);
+    }];
+}
+
+/**
+ *  1.4.19 提交答案-教材强化习题训练
+ *
+ *  @param weekId       周 id
+ *  @param takeTime     考试用时  单位：毫秒
+ *  @param answerResult 答题结果
+ *  @param success      回调函数成功
+ *  @param failed       回调函数失败
+ */
+- (void)userSubmitAnswerByWeekWithWeekId:(NSString *)weekId andTakeTime:(NSString *)takeTime andAnswerResult:(NSString *)answerResult success:(SuccessBlock)success failed:(FailedBlock)failed
+{
+    RTHttpClient *client = [RTHttpClient defaultClient];
+    NSDictionary *dict = [[NSDictionary alloc] initWithObjectsAndKeys:[UserDefaultsUtils valueWithKey:USER_TOKEN],@"token",weekId,@"weekId",takeTime,@"takeTime",answerResult,@"answerResult",[self fromType],@"fromType",nil];
+    [client requestWithPath:[BaseHandler requestUrlWithPath:@"/SubmitAnswerByWeek"] method:RTHttpRequestGet parameters:dict prepareExecute:^{
+    } success:^(NSURLSessionDataTask *task, id responseObject) {
+        InfoResult *infoResult = [[InfoResult alloc] init];
+        [infoResult setCode:[responseObject objectForKey:@"code"]];
+        [infoResult setDesc:[responseObject objectForKey:@"desc"]];
+        if ([infoResult.code isEqualToString:@"0"]) {
+            if ([responseObject objectForKey:@"data"] != [NSNull null]) {
+                NSDictionary *submitDic = [responseObject objectForKey:@"data"];
+                SubmitByWeekModel *submitModel = [[SubmitByWeekModel alloc]init];
+                [submitModel setScore:[submitDic objectForKey:@"score"]];
+                if ([[submitDic objectForKey:@"result"]count] != 0) {
+                    for (NSDictionary *listDic in [submitDic objectForKey:@"result"]) {
+                        ResultListModel *listModel = [[ResultListModel alloc]init];
+                        [listModel setKId:[listDic objectForKey:@"kId"]];
+                        [listModel setKName:[listDic objectForKey:@"kName"]];
+                        [listModel setKContent:[listDic objectForKey:@"kContent"]];
+                        if ([[listDic objectForKey:@"wrongQIdList"] count] != 0) {
+                            for (NSString *list in [listDic objectForKey:@"wrongQIdList"]) {
+                                [listModel.wrongQIdList addObject:list];
+                            }
+                        }
+                        [submitModel.resultArr addObject:listModel];
+                    }
+                }
+                
+                [infoResult setExtraObj:submitModel];
+            }
+        }
+        success(infoResult);
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        failed(error);
+    }];
+}
+
+/**
+ *  1.4.20 提交答案-综合训练技巧训练
+ *
+ *  @param sId          技巧id
+ *  @param takeTime     考试用时   单位：毫秒
+ *  @param answerResult 答题结果
+ *  @param success      回调函数成功
+ *  @param failed       回调函数失败
+ */
+- (void)userSubmitAnswerBySkillWithSId:(NSString *)sId andTakeTime:(NSString *)takeTime andAnswerResult:(NSString *)answerResult success:(SuccessBlock)success failed:(FailedBlock)failed
+{
+    RTHttpClient *client = [RTHttpClient defaultClient];
+    NSDictionary *dict = [[NSDictionary alloc] initWithObjectsAndKeys:[UserDefaultsUtils valueWithKey:USER_TOKEN],@"token",sId,@"sId",takeTime,@"takeTime",answerResult,@"answerResult",[self fromType],@"fromType",nil];
+    [client requestWithPath:[BaseHandler requestUrlWithPath:@"/SubmitAnswerBySkill"] method:RTHttpRequestGet parameters:dict prepareExecute:^{
+    } success:^(NSURLSessionDataTask *task, id responseObject) {
+        InfoResult *infoResult = [[InfoResult alloc] init];
+        [infoResult setCode:[responseObject objectForKey:@"code"]];
+        [infoResult setDesc:[responseObject objectForKey:@"desc"]];
+        if ([infoResult.code isEqualToString:@"0"]) {
+            if ([responseObject objectForKey:@"data"] != [NSNull null]) {
+                NSDictionary *submitDic = [responseObject objectForKey:@"data"];
+                SubmitBySkillModel *submitModel = [[SubmitBySkillModel alloc]init];
+                if ([[submitDic objectForKey:@"result"] count] != 0) {
+                    for (NSDictionary *listDict in [submitDic objectForKey:@"result"]) {
+                        SkillResultListModel *listModel = [[SkillResultListModel alloc]init];
+                        [listModel setQId:[listDict objectForKey:@"qId"]];
+                        [listModel setIsRight:[listDict objectForKey:@"isRight"]];
+                        [listModel setSId:[listDict objectForKey:@"sId"]];
+                        [listModel setSName:[listDict objectForKey:@"sName"]];
+                        [submitModel.resultList addObject:listModel];
+                    }
+                }
+                [infoResult setExtraObj:submitModel];
+            }
+        }
+        success(infoResult);
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        failed(error);
+    }];
+}
+
+/**
+ *  1.4.21 提交答案-知识点习题训练
+ *
+ *  @param kId          知识点id
+ *  @param takeTime     考试用时  单位：毫秒
+ *  @param answerResult 答案结果
+ *  @param success      回调函数成功
+ *  @param failed       回调函数失败
+ */
+- (void)userKSubmitAnswerWithKid:(NSString *)kId andTakeTime:(NSString *)takeTime andAnswerResult:(NSString *)answerResult success:(SuccessBlock)success failed:(FailedBlock)failed
+{
+    RTHttpClient *client = [RTHttpClient defaultClient];
+    NSDictionary *dict = [[NSDictionary alloc] initWithObjectsAndKeys:[UserDefaultsUtils valueWithKey:USER_TOKEN],@"token",kId,@"kId",takeTime,@"takeTime",answerResult,@"answerResult",[self fromType],@"fromType",nil];
+    [client requestWithPath:[BaseHandler requestUrlWithPath:@"/KSubmitAnswer"] method:RTHttpRequestGet parameters:dict prepareExecute:^{
+    } success:^(NSURLSessionDataTask *task, id responseObject) {
+        InfoResult *infoResult = [[InfoResult alloc] init];
+        [infoResult setCode:[responseObject objectForKey:@"code"]];
+        [infoResult setDesc:[responseObject objectForKey:@"desc"]];
+        if ([infoResult.code isEqualToString:@"0"]) {
+            if ([responseObject objectForKey:@"data"] != [NSNull null]) {
+                NSDictionary *submitDic = [responseObject objectForKey:@"data"];
+                SubmitQuestionModel *submitQuestionModel = [[SubmitQuestionModel alloc] init];
+                [submitQuestionModel setScore:[submitDic objectForKey:@"score"]];
+                [submitQuestionModel setHighestScore:[submitDic objectForKey:@"highestScore"]];
+                [submitQuestionModel setBeatPercent:[submitDic objectForKey:@"beatPercent"]];
+                
+                if ([submitDic objectForKey:@"wrongQIdList"] != 0) {
+                    for (NSString *dict2 in [submitDic objectForKey:@"wrongQIdList"]){
+                        [submitQuestionModel.wrongQIdList addObject:dict2];
+                    }
+                }
+                
+                [infoResult setExtraObj:submitQuestionModel];
+            }
+        }
+        success(infoResult);
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        failed(error);
+    }];
+}
+
+/**
+ *  1.4.22 提交答案-题型选择
+ *
+ *  @param tId          题型id
+ *  @param bigQId       答题id
+ *  @param takeTime     考试用时  单位：毫秒
+ *  @param answerResult 答案结果
+ *  @param success      回调函数成功
+ *  @param failed       回调函数失败
+ */
+- (void)userSubmitAnswerByQTypeWithTId:(NSString *)tId andBigQId:(NSString *)bigQId andTakeTime:(NSString *)takeTime andAnswerResult:(NSString *)answerResult success:(SuccessBlock)success failed:(FailedBlock)failed
+{
+    RTHttpClient *client = [RTHttpClient defaultClient];
+    NSDictionary *dict = [[NSDictionary alloc] initWithObjectsAndKeys:[UserDefaultsUtils valueWithKey:USER_TOKEN],@"token",tId,@"tId",bigQId,@"bigQId",takeTime,@"takeTime",answerResult,@"answerResult",[self fromType],@"fromType",nil];
+    [client requestWithPath:[BaseHandler requestUrlWithPath:@"/SubmitAnswerByQType"] method:RTHttpRequestGet parameters:dict prepareExecute:^{
+    } success:^(NSURLSessionDataTask *task, id responseObject) {
+        InfoResult *infoResult = [[InfoResult alloc] init];
+        [infoResult setCode:[responseObject objectForKey:@"code"]];
+        [infoResult setDesc:[responseObject objectForKey:@"desc"]];
+        if ([infoResult.code isEqualToString:@"0"]) {
+            if ([responseObject objectForKey:@"data"] != [NSNull null]) {
+                NSDictionary *submitDic = [responseObject objectForKey:@"data"];
+                SubmitBySkillModel *submitModel = [[SubmitBySkillModel alloc]init];
+                if ([[submitDic objectForKey:@"result"] count] != 0) {
+                    for (NSDictionary *listDict in [submitDic objectForKey:@"result"]) {
+                        SkillResultListModel *listModel = [[SkillResultListModel alloc]init];
+                        [listModel setQId:[listDict objectForKey:@"qId"]];
+                        [listModel setIsRight:[listDict objectForKey:@"isRight"]];
+                        [listModel setSId:[listDict objectForKey:@"sId"]];
+                        [listModel setSName:[listDict objectForKey:@"sName"]];
+                        [submitModel.resultList addObject:listModel];
+                    }
+                }
+                [infoResult setExtraObj:submitModel];
+            }
+        }
+        success(infoResult);
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        failed(error);
+    }];
+}
+
+/**
+ *  1.4.23 系统意见列表
+ *
+ *  @param success 回调函数成功
+ *  @param failed  回调函数失败
+ */
+- (void)userOpinionListSuccess:(SuccessBlock)success failed:(FailedBlock)failed
+{
+    RTHttpClient *client = [RTHttpClient defaultClient];
+    NSDictionary *dict = [[NSDictionary alloc] initWithObjectsAndKeys:[UserDefaultsUtils valueWithKey:USER_TOKEN],@"token",[self fromType],@"fromType",nil];
+    [client requestWithPath:[BaseHandler requestUrlWithPath:@"/OpinionList"] method:RTHttpRequestGet parameters:dict prepareExecute:^{
+    } success:^(NSURLSessionDataTask *task, id responseObject) {
+        InfoResult *infoResult = [[InfoResult alloc] init];
+        [infoResult setCode:[responseObject objectForKey:@"code"]];
+        [infoResult setDesc:[responseObject objectForKey:@"desc"]];
+        if ([infoResult.code isEqualToString:@"0"]) {
+            if ([responseObject objectForKey:@"data"] != [NSNull null]) {
+                NSDictionary *opinionDic = [responseObject objectForKey:@"data"];
+                OpinionListModel *opinionModel = [[OpinionListModel alloc]init];
+                if ([[opinionDic objectForKey:@"result"] count] != 0) {
+                    for (NSDictionary *dict in [opinionDic objectForKey:@"result"]) {
+                        OpinionResultModel *listModel = [[OpinionResultModel alloc]init];
+                        [listModel setOId:[dict objectForKey:@"oId"]];
+                        [listModel setOContent:[dict objectForKey:@"oContent"]];
+                        [opinionModel.resultArray addObject:listModel];
+                    }
+                }
+                [infoResult setExtraObj:opinionModel];
+            }
+        }
+        success(infoResult);
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        failed(error);
+    }];
+}
+
+/**
+ *  1.4.24 反馈意见
+ *
+ *  @param opinionResult 意见Json数据
+ *  @param success       回调函数成功
+ *  @param failed        回调函数失败
+ */
+- (void)userSubmitOpinionWithOpinionResult:(NSString *)opinionResult success:(SuccessBlock)success failed:(FailedBlock)failed
+{
+    RTHttpClient *client = [RTHttpClient defaultClient];
+    NSDictionary *dict = [[NSDictionary alloc] initWithObjectsAndKeys:[UserDefaultsUtils valueWithKey:USER_TOKEN],@"token",[self fromType],@"fromType",nil];
+    [client requestWithPath:[BaseHandler requestUrlWithPath:@"/UserLogin"] method:RTHttpRequestGet parameters:dict prepareExecute:^{
+    } success:^(NSURLSessionDataTask *task, id responseObject) {
+        InfoResult *infoResult = [[InfoResult alloc] init];
+        [infoResult setCode:[responseObject objectForKey:@"code"]];
+        [infoResult setDesc:[responseObject objectForKey:@"desc"]];
+        if ([infoResult.code isEqualToString:@"0"]) {
+            // 输出参数为空
+        }
+        success(infoResult);
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        failed(error);
+    }];
+}
+
+/**
+ *  1.4.25 一级知识点列表
+ *
+ *  @param success 回调函数成功
+ *  @param failed  回调函数失败
+ */
+- (void)userTopLevelKnowledgeSuccess:(SuccessBlock)success failed:(FailedBlock)failed
+{
+    RTHttpClient *client = [RTHttpClient defaultClient];
+    NSDictionary *dict = [[NSDictionary alloc] initWithObjectsAndKeys:[UserDefaultsUtils valueWithKey:USER_TOKEN],@"token",[self fromType],@"fromType",nil];
+    [client requestWithPath:[BaseHandler requestUrlWithPath:@"/TopLevelKnowledge"] method:RTHttpRequestGet parameters:dict prepareExecute:^{
+    } success:^(NSURLSessionDataTask *task, id responseObject) {
+        InfoResult *infoResult = [[InfoResult alloc] init];
+        [infoResult setCode:[responseObject objectForKey:@"code"]];
+        [infoResult setDesc:[responseObject objectForKey:@"desc"]];
+        if ([infoResult.code isEqualToString:@"0"]) {
+            if ([responseObject objectForKey:@"data"] != [NSNull null]) {
+                NSDictionary *topDict = [responseObject objectForKey:@"data"];
+                TopLevelKnowModel *topModel = [[TopLevelKnowModel alloc]init];
+                if ([[topDict objectForKey:@"result"] count] != 0) {
+                    for (NSDictionary *levelDict in [topDict objectForKey:@"result"]) {
+                        TopLevelListModel *listModel = [[TopLevelListModel alloc]init];
+                        [listModel setKId:[levelDict objectForKey:@"kId"]];
+                        [listModel setKName:[levelDict objectForKey:@"kName"]];
+                        [listModel setKContent:[levelDict objectForKey:@"kContent"]];
+                        [topModel.resultArray addObject:listModel];
+                    }
+                }
+                [infoResult setExtraObj:topModel];
+            }
+        }
+        success(infoResult);
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        failed(error);
+    }];
+}
+
+/**
+ *  1.4.26 子级知识点列表
+ *
+ *  @param kId     上级知识点id
+ *  @param success 回调函数成功
+ *  @param failed  回调函数失败
+ */
+- (void)userChildLevelKnowledgeWithKId:(NSString *)kId success:(SuccessBlock)success failed:(FailedBlock)failed
+{
+    RTHttpClient *client = [RTHttpClient defaultClient];
+    NSDictionary *dict = [[NSDictionary alloc] initWithObjectsAndKeys:[UserDefaultsUtils valueWithKey:USER_TOKEN],@"token",kId,@"kId",[self fromType],@"fromType",nil];
+    [client requestWithPath:[BaseHandler requestUrlWithPath:@"/ChildLevelKnowledge"] method:RTHttpRequestGet parameters:dict prepareExecute:^{
+    } success:^(NSURLSessionDataTask *task, id responseObject) {
+        InfoResult *infoResult = [[InfoResult alloc] init];
+        [infoResult setCode:[responseObject objectForKey:@"code"]];
+        [infoResult setDesc:[responseObject objectForKey:@"desc"]];
+        if ([infoResult.code isEqualToString:@"0"]) {
+            if ([responseObject objectForKey:@"data"] != [NSNull null]) {
+                NSDictionary *childDic = [responseObject objectForKey:@"data"];
+                ChildLevelKnowModel *childModel = [[ChildLevelKnowModel alloc]init];
+                if ([[childDic objectForKey:@"result"] count] != 0) {
+                    for (NSDictionary *dict in [childDic objectForKey:@"result"]) {
+                        ChildLevelListModel *listModel = [[ChildLevelListModel alloc]init];
+                        [listModel setKId:[dict objectForKey:@"kId"]];
+                        [listModel setKName:[dict objectForKey:@"kName"]];
+                        [listModel setKContent:[dict objectForKey:@"kContent"]];
+                        [listModel setHasViewed:[dict objectForKey:@"hasViewed"]];
+                        [listModel setRemainAmount:[dict objectForKey:@"remainAmount"]];
+                        [childModel.resultArray addObject:listModel];
+                    }
+                }
+                [infoResult setExtraObj:childModel];
+            }
+        }
+        success(infoResult);
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        failed(error);
+    }];
+}
+
+/**
+ *  1.4.27 知识点题目列表
+ *
+ *  @param kId     知识点id
+ *  @param success 回调函数成功
+ *  @param failed  回调函数失败
+ */
+- (void)userKnowledgeQuestionListWithKId:(NSString *)kId success:(SuccessBlock)success failed:(FailedBlock)failed
+{
+    RTHttpClient *client = [RTHttpClient defaultClient];
+    NSDictionary *dict = [[NSDictionary alloc] initWithObjectsAndKeys:[UserDefaultsUtils valueWithKey:USER_TOKEN],@"token",kId,@"kId",[self fromType],@"fromType",nil];
+    [client requestWithPath:[BaseHandler requestUrlWithPath:@"/KnowledgeQuestionList"] method:RTHttpRequestGet parameters:dict prepareExecute:^{
+    } success:^(NSURLSessionDataTask *task, id responseObject) {
+        success([ProblemSetsList problemSetsListRequestModel:responseObject]);
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        failed(error);
+    }];
+}
+
+/**
+ *  1.4.28 用户登录
+ *
+ *  @param account  账号
+ *  @param tel      手机号码
+ *  @param password 密码
+ *  @param success  回调函数成功
+ *  @param failed   回调函数失败
+ */
+- (void)userUserLoginWithAccount:(NSString *)account andTel:(NSString *)tel andPassword:(NSString *)password success:(SuccessBlock)success failed:(FailedBlock)failed
+{
+    RTHttpClient *client = [RTHttpClient defaultClient];
+    NSDictionary *dict = [[NSDictionary alloc] initWithObjectsAndKeys:account,@"account",tel,@"tel",password,@"password",[self fromType],@"fromType",@"iOS",@"clientType",nil];
+    [client requestWithPath:[BaseHandler requestUrlWithPath:@"/UserLogin"] method:RTHttpRequestGet parameters:dict prepareExecute:^{
+    } success:^(NSURLSessionDataTask *task, id responseObject) {
+        InfoResult *infoResult = [[InfoResult alloc] init];
+        [infoResult setCode:[responseObject objectForKey:@"code"]];
+        [infoResult setDesc:[responseObject objectForKey:@"desc"]];
+        if ([infoResult.code isEqualToString:@"0"]) {
+            if ([responseObject objectForKey:@"data"] != [NSNull null]) {
+                NSDictionary *userDic = [responseObject objectForKey:@"data"];
+                UserLoginModel *userLogin = [[UserLoginModel alloc]init];
+                [userLogin setUId:[userDic objectForKey:@"uId"]];
+                [userLogin setUName:[userDic objectForKey:@"uName"]];
+                [userLogin setUCampus:[userDic objectForKey:@"uCampus"]];
+                [userLogin setUClass:[userDic objectForKey:@"uClass"]];
+                [userLogin setUAvatar:[userDic objectForKey:@"uAvatar"]];
+                [userLogin setToken:[userDic objectForKey:@"token"]];
+                [userLogin setExpiresIn:[userDic objectForKey:@"expiresIn"]];
+                [userLogin setSchoolID:[userDic objectForKey:@"schoolID"]];
+                [userLogin setClassID:[userDic objectForKey:@"classID"]];
+                [userLogin setSTime:[userDic objectForKey:@"sTime"]];
+                [userLogin setCcAmount:[userDic objectForKey:@"ccAmount"]];
+                [userLogin setVipStatus:[userDic objectForKey:@"vipStatus"]];
+                [userLogin setVipEndDate:[userDic objectForKey:@"vipEndDate"]];
+                [infoResult setExtraObj:userLogin];
+            }
+        }
+        success(infoResult);
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        failed(error);
+    }];
+}
+
+/**
+ *  1.4.29 题型列表
+ *
+ *  @param success 回调函数成功
+ *  @param failed  回调函数失败
+ */
+- (void)userTopQTypeListSuccess:(SuccessBlock)success failed:(FailedBlock)failed
+{
+    RTHttpClient *client = [RTHttpClient defaultClient];
+    NSDictionary *dict = [[NSDictionary alloc] initWithObjectsAndKeys:[UserDefaultsUtils valueWithKey:USER_TOKEN],@"token",[self fromType],@"fromType",nil];
+    [client requestWithPath:[BaseHandler requestUrlWithPath:@"/TopQTypeList"] method:RTHttpRequestGet parameters:dict prepareExecute:^{
+    } success:^(NSURLSessionDataTask *task, id responseObject) {
+        InfoResult *infoResult = [[InfoResult alloc] init];
+        [infoResult setCode:[responseObject objectForKey:@"code"]];
+        [infoResult setDesc:[responseObject objectForKey:@"desc"]];
+        if ([infoResult.code isEqualToString:@"0"]) {
+            if ([responseObject objectForKey:@"data"] != [NSNull null]) {
+                NSDictionary *topDict = [responseObject objectForKey:@"data"];
+                TopQTypeListModel *listModel = [[TopQTypeListModel alloc]init];
+                if ([[topDict objectForKey:@"result"] count] != 0) {
+                    for (NSDictionary *listDict in [topDict objectForKey:@"result"]) {
+                        TopQTypeResultModel *childModel = [[TopQTypeResultModel alloc]init];
+                        [childModel setTId:[listDict objectForKey:@"tId"]];
+                        [childModel setTName:[listDict objectForKey:@"tName"]];
+                        if ([[listDict objectForKey:@"childType"] count] != 0) {
+                            for (NSDictionary *typeDict in [listDict objectForKey:@"childType"]) {
+                                TopQTypeChildModel *resultModel = [[TopQTypeChildModel alloc]init];
+                                [resultModel setTId:[typeDict objectForKey:@"tId"]];
+                                [resultModel setTName:[typeDict objectForKey:@"tName"]];
+                                [childModel.childTypeArray addObject:resultModel];
+                            }
+                        }
+                        [listModel.resultArray addObject:childModel];
+                    }
+                }
+                [infoResult setExtraObj:listModel];
+            }
+        }
+        success(infoResult);
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        failed(error);
+    }];
+}
+
+/**
+ *  1.4.30 题型题目列表
+ *
+ *  @param tId     题型Id
+ *  @param success 回调函数成功
+ *  @param failed  回调函数失败
+ */
+- (void)userTypeQuestionListWithTId:(NSString *)tId success:(SuccessBlock)success failed:(FailedBlock)failed
+{
+    RTHttpClient *client = [RTHttpClient defaultClient];
+    NSDictionary *dict = [[NSDictionary alloc] initWithObjectsAndKeys:[UserDefaultsUtils valueWithKey:USER_TOKEN],@"token",tId,@"tId",[self fromType],@"fromType",nil];
+    [client requestWithPath:[BaseHandler requestUrlWithPath:@"/TypeQuestionList"] method:RTHttpRequestGet parameters:dict prepareExecute:^{
+    } success:^(NSURLSessionDataTask *task, id responseObject) {
+        InfoResult *infoResult = [[InfoResult alloc] init];
+        [infoResult setCode:[responseObject objectForKey:@"code"]];
+        [infoResult setDesc:[responseObject objectForKey:@"desc"]];
+        if ([infoResult.code isEqualToString:@"0"]) {
+            if ([responseObject objectForKey:@"data"] != [NSNull null]) {
+                NSDictionary *typeDict = [responseObject objectForKey:@"data"];
+                TypeQuestionListModel *questionModel = [[TypeQuestionListModel alloc]init];
+                [questionModel setTVideoCCId:[typeDict objectForKey:@"tVideoCCId"]];
+                [questionModel setTVideoCoverUrl:[typeDict objectForKey:@"tVideoCoverUrl"]];
+                if ([[typeDict objectForKey:@"questionList"] count] != 0) {
+                    for (NSDictionary *dict in [typeDict objectForKey:@"questionList"]) {
+                        TypeQListModel *qListModel = [[TypeQListModel alloc]init];
+                        [qListModel setQId:[dict objectForKey:@"qId"]];
+                        [qListModel setQVideoCCId:[dict objectForKey:@"qVideoCoverUrl"]];
+                        [qListModel setQVideoCoverUrl:[dict objectForKey:@"qVideoCCId"]];
+                        [questionModel.questionListArray addObject:qListModel];
+                    }
+                }
+                [infoResult setExtraObj:questionModel];
+            }
+        }
+        success(infoResult);
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        failed(error);
+    }];
+}
+
+/**
+ *  1.4.31 查询答题
+ *
+ *  @param qId     答题id
+ *  @param success 回调函数成功
+ *  @param failed  回调函数失败
+ */
+- (void)userQuestionInfoWithQId:(NSString *)qId success:(SuccessBlock)success failed:(FailedBlock)failed
+{
+    RTHttpClient *client = [RTHttpClient defaultClient];
+    NSDictionary *dict = [[NSDictionary alloc] initWithObjectsAndKeys:[UserDefaultsUtils valueWithKey:USER_TOKEN],@"token",qId,@"qId",[self fromType],@"fromType",nil];
+    [client requestWithPath:[BaseHandler requestUrlWithPath:@"/QuestionInfo"] method:RTHttpRequestGet parameters:dict prepareExecute:^{
+    } success:^(NSURLSessionDataTask *task, id responseObject) {
+        success([ProblemSetsList problemSetsListRequestModel:responseObject]);
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        failed(error);
+    }];
+}
+
+/**
+ *  1.4.32 学习进度统计
+ *
+ *  @param weekId        学习周Id
+ *  @param weekIndex     学习周序号
+ *  @param thisWeekIndex 本周序号
+ *  @param success       回调函数成功
+ *  @param failed        回调函数失败
+ */
+- (void)userProgressStatisticsWithWeekId:(NSString *)weekId andWeekIndex:(NSString *)weekIndex andThisWeekIndex:(NSString *)thisWeekIndex success:(SuccessBlock)success failed:(FailedBlock)failed
+{
+    RTHttpClient *client = [RTHttpClient defaultClient];
+    NSDictionary *dict = [[NSDictionary alloc] initWithObjectsAndKeys:[UserDefaultsUtils valueWithKey:USER_TOKEN],@"token",weekId,@"weekId",weekIndex,@"weekIndex",thisWeekIndex,@"thisWeekIndex",[self fromType],@"fromType",nil];
+    [client requestWithPath:[BaseHandler requestUrlWithPath:@"/ProgressStatistics"] method:RTHttpRequestGet parameters:dict prepareExecute:^{
+    } success:^(NSURLSessionDataTask *task, id responseObject) {
+        InfoResult *infoResult = [[InfoResult alloc] init];
+        [infoResult setCode:[responseObject objectForKey:@"code"]];
+        [infoResult setDesc:[responseObject objectForKey:@"desc"]];
+        if ([infoResult.code isEqualToString:@"0"]) {
+            if ([responseObject objectForKey:@"data"] != [NSNull null]) {
+                
+            }
+        }
+        success(infoResult);
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        failed(error);
+    }];
+}
+
+
+/**
+ *  1.5.1 用户注册
+ *
+ *  @param tel      手机号码
+ *  @param password 密码
+ *  @param nickName 昵称
+ *  @param pId      省份id
+ *  @param cId      城市id
+ *  @param dId      区id
+ *  @param level    级别
+ *  @param success  回调函数成功
+ *  @param failed   回调函数失败
+ */
+- (void)userUserRegistWithTel:(NSString *)tel andPassword:(NSString *)password andNickName:(NSString *)nickName andPId:(NSString *)pId andCId:(NSString *)cId andDId:(NSString *)dId andLevel:(NSString *)level success:(SuccessBlock)success failed:(FailedBlock)failed
+{
+    RTHttpClient *client = [RTHttpClient defaultClient];
+    NSDictionary *dict = [[NSDictionary alloc] initWithObjectsAndKeys:tel,@"tel",password,@"password",nickName,@"nickName",pId,@"pId",cId,@"cId",dId,@"dId",level,@"level",nil];
+    [client requestWithPath:[BaseHandler requestUrlWithPath:@"/UserRegist"] method:RTHttpRequestGet parameters:dict prepareExecute:^{
+    } success:^(NSURLSessionDataTask *task, id responseObject) {
+        InfoResult *infoResult = [[InfoResult alloc] init];
+        [infoResult setCode:[responseObject objectForKey:@"code"]];
+        [infoResult setDesc:[responseObject objectForKey:@"desc"]];
+        if ([infoResult.code isEqualToString:@"0"]) {
+            if ([responseObject objectForKey:@"data"] != [NSNull null]) {
+                NSDictionary *userDic = [responseObject objectForKey:@"data"];
+                UserLoginModel *userLogin = [[UserLoginModel alloc]init];
+                [userLogin setUId:[userDic objectForKey:@"uId"]];
+                [userLogin setUName:[userDic objectForKey:@"uName"]];
+                [userLogin setUCampus:[userDic objectForKey:@"uCampus"]];
+                [userLogin setUClass:[userDic objectForKey:@"uClass"]];
+                [userLogin setUAvatar:[userDic objectForKey:@"uAvatar"]];
+                [userLogin setToken:[userDic objectForKey:@"token"]];
+                [userLogin setExpiresIn:[userDic objectForKey:@"expiresIn"]];
+                [userLogin setSTime:[userDic objectForKey:@"sTime"]];
+                [userLogin setCcAmount:[userDic objectForKey:@"ccAmount"]];
+                [userLogin setVipStatus:[userDic objectForKey:@"vipStatus"]];
+                [userLogin setVipEndDate:[userDic objectForKey:@"vipEndDate"]];
+                [infoResult setExtraObj:userLogin];
+            }
+        }
+        success(infoResult);
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        failed(error);
+    }];
+}
+
+/**
+ *  1.5.2 查询省市区
+ *
+ *  @param success 回调函数成功
+ *  @param failed  回调函数失败
+ */
+- (void)userRequestWithLocationSuccess:(SuccessBlock)success failed:(FailedBlock)failed
+{
+    RTHttpClient *client = [RTHttpClient defaultClient];
+    NSDictionary *dict = [[NSDictionary alloc] initWithObjectsAndKeys:nil];
+    [client requestWithPath:[BaseHandler requestUrlWithPath:@"/PCD"] method:RTHttpRequestGet parameters:dict prepareExecute:^{
+    } success:^(NSURLSessionDataTask *task, id responseObject) {
+        InfoResult *infoResult = [[InfoResult alloc] init];
+        [infoResult setCode:[responseObject objectForKey:@"code"]];
+        [infoResult setDesc:[responseObject objectForKey:@"desc"]];
+        if ([infoResult.code isEqualToString:@"0"]) {
+            if ([responseObject objectForKey:@"data"] != [NSNull null]) {
+                NSDictionary *provineListDic = [responseObject objectForKey:@"data"];
+                ProvinceListModel *provineList = [[ProvinceListModel alloc]init];
+                if ([[provineListDic objectForKey:@"provinceList"] count] != 0) {
+                    for (NSDictionary *dic in [provineListDic objectForKey:@"provinceList"]) {
+                        ProvinceDataModel *provineData = [[ProvinceDataModel alloc] init];
+                        [provineData setPId:[dic objectForKey:@"pId"]];
+                        [provineData setProvince:[dic objectForKey:@"province"]];
+                        if ([[dic objectForKey:@"cityList"] count] != 0) {
+                            for (NSDictionary *cityDic in [dic objectForKey:@"cityList"]) {
+                                CityDataModel *cityData = [[CityDataModel alloc] init];
+                                [cityData setCId:[cityDic objectForKey:@"cId"]];
+                                [cityData setCity:[cityDic objectForKey:@"city"]];
+                                if ([[cityDic objectForKey:@"districtList"] count] != 0 ) {
+                                    for (NSDictionary *disDic in [cityDic objectForKey:@"districtList"]) {
+                                        DistrictDataModel *districtData = [[DistrictDataModel alloc]init];
+                                        [districtData setDId:[disDic objectForKey:@"dId"]];
+                                        [districtData setDistrict:[disDic objectForKey:@"district"]];
+                                        [cityData.districtList addObject:districtData];
+                                    }
+                                }
+                                [provineData.cityList addObject:cityData];
+                            }
+                        }
+                        [provineList.provinceList addObject:provineData];
+                    }
+                }
+                [infoResult setExtraObj:provineList];
+            }
+        }
+        success(infoResult);
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        failed(error);
+    }];
+}
+
+@end

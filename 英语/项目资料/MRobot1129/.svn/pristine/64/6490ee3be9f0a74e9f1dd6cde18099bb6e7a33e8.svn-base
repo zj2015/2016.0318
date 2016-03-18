@@ -1,0 +1,199 @@
+//
+//  ExerciseTrainViewController.m
+//  MRobot
+//
+//  Created by mac on 15/8/22.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import "ExerciseTrainViewController.h"
+#import "TrainResultViewController.h"
+#import "QuestionDataModel.h"
+#import "ReadingComModel.h"
+#import "QuestionListModel.h"
+#import "SubmitQuestionModel.h"
+@interface ExerciseTrainViewController ()
+{
+    BOOL _isMiddleClick;
+}
+@property (strong, nonatomic) QuestionDataModel *questionModel;
+@property (strong,nonatomic)NSTimer *timer;
+@end
+
+@implementation ExerciseTrainViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    [self base_changeNavigationTitleWithString:@"1/12" andImage:@"nav_title"];
+    [self base_createRightNavigationBarButtonWithFrontImage:@"more2" andSelectedImageName:@"more2" andBackGroundImageName:@"more2" andTitle:@"交卷" andSize:CGSizeMake(40, 30)];
+}
+
+- (void)_prepareData
+{
+    _questionAccount = 10;
+    LearningPlanRequest *request = [[LearningPlanRequest  alloc]init];
+    [request userQuestinListWithWeekId:@"" success:^(id obj) {
+        InfoResult *infoResult = (InfoResult *)obj;
+        if ([infoResult.code isEqualToString:@"0"]) {
+            _questionModel = [[QuestionDataModel alloc] init];
+            _questionModel = (QuestionDataModel *)[infoResult extraObj];
+            [self base_changeNavigationTitleWithString:[NSString stringWithFormat:@"%d/%@",1,_questionModel.qAmount] andImage:@"nav_title"];
+            _questionAccount = [_questionModel.qAmount intValue];
+//            _timeNumber = [questionModel.totalTime longLongValue]/1000.0;
+            _timeNumber = 0;
+            
+            _danArr = [NSArray arrayWithArray:_questionModel.dxt];
+            _tianArr = [NSArray arrayWithArray:_questionModel.tkt];
+            _yueArr = [NSArray arrayWithArray:_questionModel.ydljt];
+            _tingArr = [NSArray arrayWithArray:_questionModel.tlt];
+            
+            
+            
+        }
+    } failed:^(id obj) {
+        
+    }];
+    
+    
+}
+
+- (void)_prepareUI
+{
+    _answerView = [[QuestionAnswer alloc]initWithFrame:CGRectMake(0, 0, MainScreenSize_W   , MainScreenSize_H)];
+    _answerView.backgroundColor = [UIColor whiteColor];
+    _answerView.delegate = self;
+    _answerView.hidden = YES;
+    [self.view addSubview:_answerView];
+    
+    [self _prepareView];
+}
+
+- (void)_prepareView
+{
+    CGRect rect = CGRectMake(0.0f,0.0f,MainScreenSize_W,MainScreenSize_H);
+    _myScrollView = [[UIScrollView alloc]initWithFrame:rect];
+    //题目的个数
+    _myScrollView.contentSize= CGSizeMake(MainScreenSize_W*_questionAccount, 0);
+    _myScrollView.pagingEnabled = YES;
+    _myScrollView.delegate = self;
+    _myScrollView.tag = 111;
+    _myScrollView.showsHorizontalScrollIndicator = NO;
+    _myScrollView.showsVerticalScrollIndicator = NO;
+    _myScrollView.backgroundColor = [UIColor clearColor];
+    [self.view addSubview:_myScrollView];
+    
+    UIView *bgView = [[UIView alloc]initWithFrame:CGRectMake(0, 64, MainScreenSize_W, 40)];
+    bgView.backgroundColor = [UIColor clearColor];
+    [self.view addSubview:bgView];
+    
+    _answerView = [[QuestionAnswer alloc]initWithFrame:CGRectMake(0, 64, MainScreenSize_W, MainScreenSize_H - 64)];
+    _answerView.backgroundColor = [UIColor whiteColor];
+    _answerView.delegate = self;
+    _answerView.hidden = YES;
+    [self.view addSubview:_answerView];
+    
+    _topicLabel = [[UILabel alloc]initWithFrame:CGRectMake(10, 10, 100, 30)];
+    _topicLabel.textAlignment = NSTextAlignmentLeft;
+    _topicLabel.font = [UIFont boldSystemFontOfSize:16];
+    _topicLabel.text = @"单选题";
+    [bgView addSubview:_topicLabel];
+    
+    
+    _timeLabel = [[UILabel alloc]initWithFrame:CGRectMake(MainScreenSize_W - 100, 15, 80, 20)];
+    _timeLabel.text = @"00时00分00秒";
+    _timeLabel.textColor = [UIColor grayColor];
+    _timeLabel.font = [UIFont boldSystemFontOfSize:12];
+    _time = _timeNumber;
+    [bgView addSubview:_timeLabel];
+    
+    _timeView = [[UIImageView alloc]initWithFrame:CGRectMake(_timeLabel.left - 20 , 18 , 15, 15)];
+    _timeView.image = [UIImage imageNamed:@"clock"];
+    [bgView addSubview:_timeView];
+   
+    
+    [self addTimer];
+    self.view.backgroundColor = PView_BGColor;
+    
+}
+
+-(void)addTimer
+{
+//    if (self.rightBtn.hidden == NO) {
+        _timer=[NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(nextTime) userInfo:nil repeats:YES];
+        [[NSRunLoop currentRunLoop]addTimer:self.timer forMode:NSRunLoopCommonModes];
+//    }
+    
+}
+
+-(void)removeTimer
+{
+//    if (self.rightBtn.hidden == NO) {
+        [self.timer invalidate];
+        self.timer=nil;
+//    }
+}
+
+-(void)nextTime
+{
+    _timeNumber++;
+    int hour = _timeNumber/3600.0;
+    int min = (int)_timeNumber%3600/60;
+    int temp = (int)_timeNumber%3600%60;
+    _timeLabel.text = [NSString stringWithFormat:@"%02d时%02d分%02d秒",hour,min,temp];
+    
+}
+
+
+#pragma mark --UIScrollViewDelegate--
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
+{
+    _page = (scrollView.contentOffset.x+MainScreenSize_W*0.5)/MainScreenSize_W;
+    NSLog(@"%d",_page);
+}
+
+#pragma mark ----QuestionAnswerDelegate---
+
+- (void)QuestionAnswerDelegateWithTag:(NSUInteger)tag
+{
+    _isMiddleClick = !_isMiddleClick;
+    if (_isMiddleClick) {
+        _answerView.hidden = NO;
+    }else{
+        _answerView.hidden = YES;
+    }
+}
+
+- (void)middleBtnClick
+{
+    _isMiddleClick = !_isMiddleClick;
+    if (_isMiddleClick) {
+        _answerView.hidden = NO;
+    }else{
+        _answerView.hidden = YES;
+    }
+}
+
+
+- (void)base_navigation_RightBarButtonPressed
+{
+    TrainResultViewController *trainVC = [[TrainResultViewController alloc]init];
+    [self.navigationController pushViewController:trainVC animated:YES];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+
+@end

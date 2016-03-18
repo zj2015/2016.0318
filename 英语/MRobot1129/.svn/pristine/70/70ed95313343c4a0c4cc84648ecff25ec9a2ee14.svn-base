@@ -1,0 +1,133 @@
+//
+//  KVideoViewController.m
+//  MRobot
+//
+//  Created by BaiYu on 15/8/26.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import "KVideoViewController.h"
+#import "DWCustomPlayerViewController.h"
+#import "ResultArrayListModel.h"
+#import "KnowledgeVideoModel.h"
+#import "KnowledgeCVideoModel.h"
+
+#define ROWHEIGHT 100
+
+@interface KVideoViewController ()
+
+@end
+
+@implementation KVideoViewController
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    self.tabBarController.tabBar.hidden = YES;
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    [self base_changeNavigationTitleWithString:@"知识点视频"];
+
+}
+
+-(void)_prepareUI
+{
+    UILabel * kNameLab = [[UILabel alloc]initWithFrame:CGRectMake(0, 64, MainScreenSize_W, 40*SIZE_TIMES)];
+    kNameLab.font = [UIFont systemFontOfSize:15];
+    kNameLab.backgroundColor = [UIColor whiteColor];
+    kNameLab.text = [NSString stringWithFormat:@"  %@",self.kName];
+    [self.view addSubview:kNameLab];
+}
+
+-(void)_prepareData
+{
+    //1.4.4 知识点视频列表
+    [self showAlertHUD:@"正在加载..."];
+    LearningPlanRequest *kVideoRequest = [[LearningPlanRequest alloc] init];
+    [kVideoRequest userKnowledgeVideoListWithKId:self.kId success:^(id obj) {
+        InfoResult *infoResult = (InfoResult *)obj;
+        if ([infoResult.code isEqualToString:@"0"]) {
+            KnowledgeVideoModel *kVideoListModel = [[KnowledgeVideoModel alloc] init];
+            kVideoListModel = (KnowledgeVideoModel *)[infoResult extraObj];
+
+            kVideosArr = kVideoListModel.resultArray;
+            
+            [self loadVideoUI];
+        }else{
+            [aCommon iToast:@"加载失败!"];
+        }
+    } failed:^(id obj) {
+        [aCommon iToast:@"系统未知错误!"];
+    }];
+}
+
+-(void)loadVideoUI
+{
+    if (kVideosArr != 0) {
+        UIScrollView *scrollView = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 64 + 40*SIZE_TIMES, MainScreenSize_W, MainScreenSize_H - 40*SIZE_TIMES)];
+        [self.view addSubview:scrollView];
+    
+        for (int a = 0; a < [kVideosArr count]; a++) {
+            ResultArrayListModel *kVideoModel = [kVideosArr objectAtIndex:a];
+            
+            KVideoView *kVideoView = [[KVideoView alloc] initWithFrame:CGRectMake(0, SIZE_TIMES*ROWHEIGHT*a, MainScreenSize_W, SIZE_TIMES*ROWHEIGHT) listIndex:a smallVideoCount:kVideoModel.cVideoList.count coverImgStr:kVideoModel.kVideoCoverUrl];
+            kVideoView.delegate = self;
+            [scrollView addSubview:kVideoView];
+            
+        }
+        
+        scrollView.contentSize = CGSizeMake(MainScreenSize_W, 64 + [kVideosArr count] *ROWHEIGHT*SIZE_TIMES);
+    }
+}
+
+#pragma mark - PassBtnTagDelegate 知识点视频按钮点击事件
+-(void)passKVideoTag:(NSInteger)btnTag
+{
+    PLog(@"%ld知识点视频按钮被点击",(long)btnTag);
+    ResultArrayListModel *kVideoModel = [kVideosArr objectAtIndex:btnTag];
+
+    DWCustomPlayerViewController *player = [[DWCustomPlayerViewController alloc] init];
+    player.videoId = kVideoModel.kVideoCCId;
+    player.videoTitle = @"知识点视频";
+    player.imgUrlstring = kVideoModel.kVideoCoverUrl;
+    player.videoURL = kVideoModel.kVideoUrl;
+    player.hidesBottomBarWhenPushed = YES;
+    [self.navigationController pushViewController:player animated:NO];
+}
+
+#pragma mark - PassBtnTagDelegate 经典例题视频按钮点击事件
+-(void)passSmallVideoTag:(NSInteger)btnTag
+{
+    PLog(@"%ld经典例题视频按钮被点击",(long)btnTag);
+    ResultArrayListModel *kVideoModel = [kVideosArr objectAtIndex:btnTag/10000];
+    KnowledgeCVideoModel *kCVideoModel = [kVideoModel.cVideoList objectAtIndex:btnTag%10000];
+
+    DWCustomPlayerViewController *player = [[DWCustomPlayerViewController alloc] init];
+    player.videoId = kCVideoModel.cVideoCCId;
+    player.videoTitle = @"经典例题视频";
+    player.imgUrlstring = kCVideoModel.cVideoCoverUrl;
+    player.videoURL = kCVideoModel.cVideoUrl;
+    player.hidesBottomBarWhenPushed = YES;
+    [self.navigationController pushViewController:player animated:NO];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+
+@end

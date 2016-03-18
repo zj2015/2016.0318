@@ -1,0 +1,35 @@
+//
+//  TopKVideoListModel.h
+//  MRobot
+//
+//  Created by mac on 15/11/6.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import "BaseEntity.h"
+
+@interface TopKVideoListModel : BaseEntity
+
+/**
+ *  通用视频名称
+ */
+@property (copy, nonatomic) NSString * tVideoName;
+
+/**
+ *  Video – answer to the common questions 
+Repeat封面地址
+ */
+@property (copy, nonatomic) NSString * tVideoCoverUrl;
+
+/**
+ *  通用解析技巧视频CC ID
+ */
+@property (copy, nonatomic) NSString * tVideoCCId;
+
+/**
+ *  视频地址
+ */
+@property (copy, nonatomic) NSString * tVideoUrl;
+
+
+@end

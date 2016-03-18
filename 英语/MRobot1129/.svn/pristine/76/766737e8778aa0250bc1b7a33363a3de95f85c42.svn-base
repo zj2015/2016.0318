@@ -1,0 +1,467 @@
+//
+//  ProblemSetsList.m
+//  MRobot
+//
+//  Created by mac on 15/8/21.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import "ProblemSetsList.h"
+#import "RTHttpClient.h"
+#import "QuestionDataModel.h"
+#import "QuestionListModel.h"
+#import "FillBlanksModel.h"
+#import "ReadingComModel.h"
+
+@implementation ProblemSetsList
+
+//题目列表
++ (InfoResult *)problemSetsListRequestModel:(id)responseObject
+{
+    InfoResult *infoResult = [[InfoResult alloc] init];
+    infoResult.code = [infoResult objectOrNilForKey:@"code" fromDictionary:responseObject];
+    infoResult.desc = [infoResult objectOrNilForKey:@"desc" fromDictionary:responseObject];
+    if ([infoResult.code isEqualToString:@"0"]) {
+        if ([responseObject objectForKey:@"data"] != [NSNull null]) {
+            NSDictionary *questionDic = [responseObject objectForKey:@"data"];
+            QuestionDataModel *questionData = [[QuestionDataModel alloc] init];
+            [questionData setQAmount:[questionDic objectForKey:@"qAmount"]];
+            [questionData setTotalTime:[questionDic objectForKey:@"totalTime"]];
+            NSArray *arr = [NSArray arrayWithArray:[questionDic allKeys]];
+            for (NSString *str in arr) {
+                if ([str isEqualToString:@"DXT"]) {//选择题
+                    //听力题
+                    if ([[questionDic objectForKey:@"DXT"] count] != 0) {
+                        for (NSDictionary *dict in [questionDic objectForKey:@"DXT"]) {
+                            QuestionListModel *questinList = [[QuestionListModel alloc]init];
+                            [questinList setQId:[dict objectForKey:@"qId"]];
+                            [questinList setQContent:[dict objectForKey:@"qContent"]];
+                            [questinList setQContentPicUrl:[dict objectForKey:@"qContentPicUrl"]];
+                            [questinList setAnswerAnalysis:[dict objectForKey:@"answerAnalysis"]];
+                            [questinList setAnswerVideoAnalysis:[dict objectForKey:@"answerVideoAnalysis"]];
+                            if ([[dict objectForKey:@"options"] count]!= 0) {
+                                for (NSDictionary *dict2 in [dict objectForKey:@"options"]) {
+                                    FillBlanksModel *fillBlank = [[FillBlanksModel alloc]init];
+                                    [fillBlank setOptionId:[dict2 objectForKey:@"optionId"]];
+                                    [fillBlank setOptionContent:[dict2 objectForKey:@"optionContent"]];
+                                    [fillBlank setOptionPicUrl:[dict2 objectForKey:@"optionPicUrl"]];
+                                    [fillBlank setIsAnswer:[dict2 objectForKey:@"isAnswer"]];
+                                    [questinList.options addObject:fillBlank];
+                                }
+                            }
+                            [questionData.dxt addObject:questinList];
+                        }
+                    }
+                }
+                if ([str isEqualToString:@"TKT"]) {//填空题
+                    //填空题
+                    if ([[questionDic objectForKey:@"TKT"] count] != 0) {
+                        for (NSDictionary *dict in [questionDic objectForKey:@"TKT"]) {
+                            QuestionListModel *questinList = [[QuestionListModel alloc]init];
+                            [questinList setQId:[dict objectForKey:@"qId"]];
+                            [questinList setQContent:[dict objectForKey:@"qContent"]];
+                            [questinList setQContentPicUrl:[dict objectForKey:@"qContentPicUrl"]];
+                            [questinList setAnswerAnalysis:[dict objectForKey:@"answerAnalysis"]];
+                            [questinList setAnswerVideoAnalysis:[dict objectForKey:@"answerVideoAnalysis"]];
+                            if ([[dict objectForKey:@"options"] count]!= 0) {
+                                for (NSDictionary *dict2 in [dict objectForKey:@"options"]) {
+                                    FillBlanksModel *fillBlank = [[FillBlanksModel alloc]init];
+                                    [fillBlank setOptionContent:[dict2 objectForKey:@"optionContent"]];
+                                    [fillBlank setOptionPicUrl:[dict2 objectForKey:@"optionPicUrl"]];
+                                    [fillBlank setIsAnswer:[dict2 objectForKey:@"isAnswer"]];
+                                    [questinList.options addObject:fillBlank];
+                                }
+                            }
+                            [questionData.tkt addObject:questinList];
+                        }
+                    }
+                    
+                }
+                if ([str isEqualToString:@"YDLJT"]) {//阅读理解题
+                    //阅读理解题
+                    if ([[questionDic objectForKey:@"YDLJT"] count]!= 0) {
+                        for (NSDictionary *dict in [questionDic objectForKey:@"YDLJT"]) {
+                            ReadingComModel *readingCom = [[ReadingComModel alloc]init];
+                            [readingCom setQTitle:[dict objectForKey:@"qTitle"]];
+                            [readingCom setQTitlePicUrl:[dict objectForKey:@"qTitlePicUrl"]];
+                            [readingCom setQuestionType:[dict objectForKey:@"questionType"]];
+                            NSDictionary *dicts = [dict objectForKey:@"childQuestions"];
+                            NSArray *arr2 = [NSArray arrayWithArray:[dicts allKeys]];
+                            for (NSString *str2 in arr2) {
+                                if ([str2 isEqualToString:@"DXT"]) {//阅读  里面的选择题
+                                    QuestionDataModel *questionD = [[QuestionDataModel alloc] init];
+                                    if ([[dicts objectForKey:@"DXT"] count]!= 0) {
+                                        for (NSDictionary *dict in [dicts objectForKey:@"DXT"]) {
+                                            QuestionListModel *questinList = [[QuestionListModel alloc]init];
+                                            [questinList setQId:[dict objectForKey:@"qId"]];
+                                            [questinList setQContent:[dict objectForKey:@"qContent"]];
+                                            [questinList setQContentPicUrl:[dict objectForKey:@"qContentPicUrl"]];
+                                            [questinList setAnswerAnalysis:[dict objectForKey:@"answerAnalysis"]];
+                                            [questinList setAnswerVideoAnalysis:[dict objectForKey:@"answerVideoAnalysis"]];
+                                            if ([[dict objectForKey:@"options"] count] != 0) {
+                                                for (NSDictionary *dict2 in [dict objectForKey:@"options"]) {
+                                                    FillBlanksModel *fillBlank = [[FillBlanksModel alloc]init];
+                                                    [fillBlank setOptionId:[dict2 objectForKey:@"optionId"]];
+                                                    [fillBlank setOptionContent:[dict2 objectForKey:@"optionContent"]];
+                                                    [fillBlank setOptionPicUrl:[dict2 objectForKey:@"optionPicUrl"]];
+                                                    [fillBlank setIsAnswer:[dict2 objectForKey:@"isAnswer"]];
+                                                    [questinList.options addObject:fillBlank];
+                                                }
+                                            }
+                                            [questionD.dxt addObject:questinList];
+                                            //                                                [readingCom.childQuestions setValue:questinList forKey:@"DXT"];
+                                        }
+                                    }
+                                    [readingCom.childQuestions setValue:questionD forKey:@"DXT"];
+                                }
+                                if ([str2 isEqualToString:@"TKT"]) {//阅读  里面的填空题
+                                    QuestionDataModel *questionT = [[QuestionDataModel alloc] init];
+                                    if ([[dicts objectForKey:@"TKT"] count] != 0) {
+                                        for (NSDictionary *dict in [dicts objectForKey:@"TKT"]) {
+                                            QuestionListModel *questinList = [[QuestionListModel alloc]init];
+                                            [questinList setQId:[dict objectForKey:@"qId"]];
+                                            [questinList setQContent:[dict objectForKey:@"qContent"]];
+                                            [questinList setQContentPicUrl:[dict objectForKey:@"qContentPicUrl"]];
+                                            [questinList setAnswerAnalysis:[dict objectForKey:@"answerAnalysis"]];
+                                            [questinList setAnswerVideoAnalysis:[dict objectForKey:@"answerVideoAnalysis"]];
+                                            if ([[dict objectForKey:@"options"] count] != 0) {
+                                                for (NSDictionary *dict2 in [dict objectForKey:@"options"]) {
+                                                    FillBlanksModel *fillBlank = [[FillBlanksModel alloc]init];
+                                                    [fillBlank setOptionId:[dict2 objectForKey:@"optionId"]];
+                                                    [fillBlank setOptionContent:[dict2 objectForKey:@"optionContent"]];
+                                                    [fillBlank setOptionPicUrl:[dict2 objectForKey:@"optionPicUrl"]];
+                                                    [fillBlank setIsAnswer:[dict2 objectForKey:@"isAnswer"]];
+                                                    [questinList.options addObject:fillBlank];
+                                                }
+                                            }
+                                            [questionT.tkt addObject:questinList];
+                                            //                                                [readingCom.childQuestions setValue:questinList forKey:@"TKT"];
+                                        }
+                                    }
+                                    [readingCom.childQuestions setValue:questionT forKey:@"TKT"];
+                                }
+                            }
+                            [questionData.ydljt addObject:readingCom];
+                        }
+                    }
+                    
+                }
+                if ([str isEqualToString:@"TLT"]) {//听力题
+                    //听力题
+                    if ([[questionDic objectForKey:@"TLT"] count] != 0) {
+                        for (NSDictionary *dict in [questionDic objectForKey:@"TLT"]) {
+                            ReadingComModel *readingCom = [[ReadingComModel alloc]init];
+                            [readingCom setQTitle:[dict objectForKey:@"qTitle"]];
+                            
+                            [readingCom setQTitlePicUrl:[dict objectForKey:@"qTitlePicUrl"]];
+                            [readingCom setQTitleMediaUrl:[dict objectForKeyedSubscript:@"qTitleMediaUrl"]];
+                            //                                [readingCom setChildQuestions:[dict objectForKey:@"childQuestions"]];
+                            
+                            NSDictionary *dicts = [dict objectForKey:@"childQuestions"];
+                            NSArray *arr2 = [NSArray arrayWithArray:[dicts allKeys]];
+                            for (NSString *str2 in arr2) {
+                                if ([str2 isEqualToString:@"DXT"]) {//阅读  里面的选择题
+                                    QuestionDataModel *questionD = [[QuestionDataModel alloc] init];
+                                    if ([[dicts objectForKey:@"DXT"] count] != 0) {
+                                        for (NSDictionary *dict in [dicts objectForKey:@"DXT"]) {
+                                            QuestionListModel *questinList = [[QuestionListModel alloc]init];
+                                            [questinList setQId:[dict objectForKey:@"qId"]];
+                                            [questinList setQContent:[dict objectForKey:@"qContent"]];
+                                            [questinList setQContentPicUrl:[dict objectForKey:@"qContentPicUrl"]];
+                                            [questinList setAnswerAnalysis:[dict objectForKey:@"answerAnalysis"]];
+                                            [questinList setAnswerVideoAnalysis:[dict objectForKey:@"answerVideoAnalysis"]];
+                                            if ([[dict objectForKey:@"options"] count] != 0) {
+                                                for (NSDictionary *dict2 in [dict objectForKey:@"options"]) {
+                                                    FillBlanksModel *fillBlank = [[FillBlanksModel alloc]init];
+                                                    [fillBlank setOptionId:[dict2 objectForKey:@"optionId"]];
+                                                    [fillBlank setOptionContent:[dict2 objectForKey:@"optionContent"]];
+                                                    [fillBlank setOptionPicUrl:[dict2 objectForKey:@"optionPicUrl"]];
+                                                    [fillBlank setIsAnswer:[dict2 objectForKey:@"isAnswer"]];
+                                                    [questinList.options addObject:fillBlank];
+                                                }
+                                            }
+                                            [questionD.dxt addObject:questinList];
+                                            
+                                            
+                                        }
+                                    }
+                                    [readingCom.childQuestions setValue:questionD forKey:@"DXT"];
+                                    //                                        [readingCom setChildQuestionsObj:questionD];
+                                }
+                                if ([str2 isEqualToString:@"TKT"]) {//阅读  里面的填空题
+                                    QuestionDataModel *questionT = [[QuestionDataModel alloc] init];
+                                    if ([[dicts objectForKey:@"TKT"] count] != 0) {
+                                        for (NSDictionary *dict in [dicts objectForKey:@"TKT"]) {
+                                            QuestionListModel *questinList = [[QuestionListModel alloc]init];
+                                            [questinList setQId:[dict objectForKey:@"qId"]];
+                                            [questinList setQContent:[dict objectForKey:@"qContent"]];
+                                            [questinList setQContentPicUrl:[dict objectForKey:@"qContentPicUrl"]];
+                                            [questinList setAnswerAnalysis:[dict objectForKey:@"answerAnalysis"]];
+                                            [questinList setAnswerVideoAnalysis:[dict objectForKey:@"answerVideoAnalysis"]];
+                                            if ([[dict objectForKey:@"options"] count] != 0) {
+                                                for (NSDictionary *dict2 in [dict objectForKey:@"options"]) {
+                                                    FillBlanksModel *fillBlank = [[FillBlanksModel alloc]init];
+                                                    [fillBlank setOptionId:[dict2 objectForKey:@"optionId"]];
+                                                    [fillBlank setOptionContent:[dict2 objectForKey:@"optionContent"]];
+                                                    [fillBlank setOptionPicUrl:[dict2 objectForKey:@"optionPicUrl"]];
+                                                    [fillBlank setIsAnswer:[dict2 objectForKey:@"isAnswer"]];
+                                                    [questinList.options addObject:fillBlank];
+                                                }
+                                            }
+                                            [questionT.tkt addObject:questinList];
+                                            
+                                        }
+                                    }
+                                    [readingCom.childQuestions setValue:questionT forKey:@"TKT"];
+                                    //                                        [readingCom setChildQuestionsObj:questionT];
+                                }
+                                
+                            }
+                            [questionData.tlt addObject:readingCom];
+                        }
+                    }
+                }
+            }
+            
+            [infoResult setExtraObj:questionData];
+        }
+        return infoResult;
+    }else if ([infoResult.code isEqualToString:@"30001"]){
+        [aCommon iToast:@"该账号已在其他设备登陆！"];
+    }else{
+        [aCommon iToast:infoResult.desc];
+    }
+    return nil;
+}
+
+//知识点错题集
++ (InfoResult *)problemErrorListRequestModel:(id)responseObject
+{
+    InfoResult *infoResult = [[InfoResult alloc] init];
+    infoResult.code = [infoResult objectOrNilForKey:@"code" fromDictionary:responseObject];
+    infoResult.desc = [infoResult objectOrNilForKey:@"desc" fromDictionary:responseObject];
+    if ([infoResult.code isEqualToString:@"0"]) {
+        if ([responseObject objectForKey:@"data"] != [NSNull null]) {
+            NSDictionary *questionDic = [responseObject objectForKey:@"data"];
+            QuestionDataModel *questionData = [[QuestionDataModel alloc] init];
+            [questionData setQAmount:[questionDic objectForKey:@"qAmount"]];
+            [questionData setTotalTime:[questionDic objectForKey:@"totalTime"]];
+            NSArray *arr = [NSArray arrayWithArray:[questionDic allKeys]];
+            for (NSString *str in arr) {
+                if ([str isEqualToString:@"DXT"]) {//选择题
+                    //听力题
+                    if ([[questionDic objectForKey:@"DXT"] count] != 0) {
+                        for (NSDictionary *dict in [questionDic objectForKey:@"DXT"]) {
+                            QuestionListModel *questinList = [[QuestionListModel alloc]init];
+                            [questinList setQId:[dict objectForKey:@"qId"]];
+                            [questinList setQContent:[dict objectForKey:@"qContent"]];
+                            [questinList setQContentPicUrl:[dict objectForKey:@"qContentPicUrl"]];
+                            [questinList setAnswerAnalysis:[dict objectForKey:@"answerAnalysis"]];
+                            [questinList setAnswerVideoAnalysis:[dict objectForKey:@"answerVideoAnalysis"]];
+                            [questinList setMyOptionId:[dict objectForKey:@"myOptionId"]];
+                            if ([[dict objectForKey:@"options"] count]!= 0) {
+                                for (NSDictionary *dict2 in [dict objectForKey:@"options"]) {
+                                    FillBlanksModel *fillBlank = [[FillBlanksModel alloc]init];
+                                    [fillBlank setOptionId:[dict2 objectForKey:@"optionId"]];
+                                    [fillBlank setOptionContent:[dict2 objectForKey:@"optionContent"]];
+                                    [fillBlank setOptionPicUrl:[dict2 objectForKey:@"optionPicUrl"]];
+                                    [fillBlank setIsAnswer:[dict2 objectForKey:@"isAnswer"]];
+                                    [fillBlank setMyOption:[dict2 objectForKey:@"myOption"]];
+                                    [questinList.options addObject:fillBlank];
+                                }
+                            }
+                            [questionData.dxt addObject:questinList];
+                        }
+                    }
+                }
+                if ([str isEqualToString:@"TKT"]) {//填空题
+                    //填空题
+                    if ([[questionDic objectForKey:@"TKT"] count] != 0) {
+                        for (NSDictionary *dict in [questionDic objectForKey:@"TKT"]) {
+                            QuestionListModel *questinList = [[QuestionListModel alloc]init];
+                            [questinList setQId:[dict objectForKey:@"qId"]];
+                            [questinList setQContent:[dict objectForKey:@"qContent"]];
+                            [questinList setQContentPicUrl:[dict objectForKey:@"qContentPicUrl"]];
+                            [questinList setAnswerAnalysis:[dict objectForKey:@"answerAnalysis"]];
+                            [questinList setAnswerVideoAnalysis:[dict objectForKey:@"answerVideoAnalysis"]];
+                            [questinList setMyOptionId:[dict objectForKey:@"myOptionId"]];
+                            if ([[dict objectForKey:@"options"] count]!= 0) {
+                                for (NSDictionary *dict2 in [dict objectForKey:@"options"]) {
+                                    FillBlanksModel *fillBlank = [[FillBlanksModel alloc]init];
+                                    [fillBlank setOptionContent:[dict2 objectForKey:@"optionContent"]];
+                                    [fillBlank setOptionPicUrl:[dict2 objectForKey:@"optionPicUrl"]];
+                                    [fillBlank setIsAnswer:[dict2 objectForKey:@"isAnswer"]];
+                                    [fillBlank setMyOption:[dict2 objectForKey:@"myOption"]];
+                                    [questinList.options addObject:fillBlank];
+                                }
+                            }
+                            [questionData.tkt addObject:questinList];
+                        }
+                    }
+                    
+                }
+                if ([str isEqualToString:@"YDLJT"]) {//阅读理解题
+                    //阅读理解题
+                    if ([[questionDic objectForKey:@"YDLJT"] count]!= 0) {
+                        for (NSDictionary *dict in [questionDic objectForKey:@"YDLJT"]) {
+                            ReadingComModel *readingCom = [[ReadingComModel alloc]init];
+                            [readingCom setQTitle:[dict objectForKey:@"qTitle"]];
+                            
+                            [readingCom setQTitlePicUrl:[dict objectForKey:@"qTitlePicUrl"]];
+                            [readingCom setQuestionType:[dict objectForKey:@"questionType"]];
+                            NSDictionary *dicts = [dict objectForKey:@"childQuestions"];
+                            NSArray *arr2 = [NSArray arrayWithArray:[dicts allKeys]];
+                            for (NSString *str2 in arr2) {
+                                if ([str2 isEqualToString:@"DXT"]) {//阅读  里面的选择题
+                                    QuestionDataModel *questionD = [[QuestionDataModel alloc] init];
+                                    if ([[dicts objectForKey:@"DXT"] count]!= 0) {
+                                        for (NSDictionary *dict in [dicts objectForKey:@"DXT"]) {
+                                            QuestionListModel *questinList = [[QuestionListModel alloc]init];
+                                            [questinList setQId:[dict objectForKey:@"qId"]];
+                                            [questinList setQContent:[dict objectForKey:@"qContent"]];
+                                            [questinList setQContentPicUrl:[dict objectForKey:@"qContentPicUrl"]];
+                                            [questinList setAnswerAnalysis:[dict objectForKey:@"answerAnalysis"]];
+                                            [questinList setAnswerVideoAnalysis:[dict objectForKey:@"answerVideoAnalysis"]];
+                                            [questinList setMyOptionId:[dict objectForKey:@"myOptionId"]];
+                                            if ([[dict objectForKey:@"options"] count] != 0) {
+                                                for (NSDictionary *dict2 in [dict objectForKey:@"options"]) {
+                                                    FillBlanksModel *fillBlank = [[FillBlanksModel alloc]init];
+                                                    [fillBlank setOptionId:[dict2 objectForKey:@"optionId"]];
+                                                    [fillBlank setOptionContent:[dict2 objectForKey:@"optionContent"]];
+                                                    [fillBlank setOptionPicUrl:[dict2 objectForKey:@"optionPicUrl"]];
+                                                    [fillBlank setIsAnswer:[dict2 objectForKey:@"isAnswer"]];
+                                                    [fillBlank setMyOption:[dict2 objectForKey:@"myOption"]];
+                                                    [questinList.options addObject:fillBlank];
+                                                }
+                                            }
+                                            [questionD.dxt addObject:questinList];
+                                            //                                                [readingCom.childQuestions setValue:questinList forKey:@"DXT"];
+                                        }
+                                    }
+                                    [readingCom.childQuestions setValue:questionD forKey:@"DXT"];
+                                }
+                                if ([str2 isEqualToString:@"TKT"]) {//阅读  里面的填空题
+                                    QuestionDataModel *questionT = [[QuestionDataModel alloc] init];
+                                    if ([[dicts objectForKey:@"TKT"] count] != 0) {
+                                        for (NSDictionary *dict in [dicts objectForKey:@"TKT"]) {
+                                            QuestionListModel *questinList = [[QuestionListModel alloc]init];
+                                            [questinList setQId:[dict objectForKey:@"qId"]];
+                                            [questinList setQContent:[dict objectForKey:@"qContent"]];
+                                            [questinList setQContentPicUrl:[dict objectForKey:@"qContentPicUrl"]];
+                                            [questinList setAnswerAnalysis:[dict objectForKey:@"answerAnalysis"]];
+                                            [questinList setAnswerVideoAnalysis:[dict objectForKey:@"answerVideoAnalysis"]];
+                                            [questinList setMyOptionId:[dict objectForKey:@"myOptionId"]];
+                                            if ([[dict objectForKey:@"options"] count] != 0) {
+                                                for (NSDictionary *dict2 in [dict objectForKey:@"options"]) {
+                                                    FillBlanksModel *fillBlank = [[FillBlanksModel alloc]init];
+                                                    [fillBlank setOptionId:[dict2 objectForKey:@"optionId"]];
+                                                    [fillBlank setOptionContent:[dict2 objectForKey:@"optionContent"]];
+                                                    [fillBlank setOptionPicUrl:[dict2 objectForKey:@"optionPicUrl"]];
+                                                    [fillBlank setIsAnswer:[dict2 objectForKey:@"isAnswer"]];
+                                                    [fillBlank setMyOption:[dict2 objectForKey:@"myOption"]];
+                                                    [questinList.options addObject:fillBlank];
+                                                }
+                                            }
+                                            [questionT.tkt addObject:questinList];
+                                        }
+                                    }
+                                    [readingCom.childQuestions setValue:questionT forKey:@"TKT"];
+                                }
+                            }
+                            [questionData.ydljt addObject:readingCom];
+                        }
+                    }
+                    
+                }
+                if ([str isEqualToString:@"TLT"]) {//听力题
+                    //听力题
+                    if ([[questionDic objectForKey:@"TLT"] count] != 0) {
+                        for (NSDictionary *dict in [questionDic objectForKey:@"TLT"]) {
+                            ReadingComModel *readingCom = [[ReadingComModel alloc]init];
+                            [readingCom setQTitle:[dict objectForKey:@"qTitle"]];
+                            
+                            [readingCom setQTitlePicUrl:[dict objectForKey:@"qTitlePicUrl"]];
+                            [readingCom setQTitleMediaUrl:[dict objectForKeyedSubscript:@"qTitleMediaUrl"]];
+                            NSDictionary *dicts = [dict objectForKey:@"childQuestions"];
+                            NSArray *arr2 = [NSArray arrayWithArray:[dicts allKeys]];
+                            for (NSString *str2 in arr2) {
+                                if ([str2 isEqualToString:@"DXT"]) {//阅读  里面的选择题
+                                    QuestionDataModel *questionD = [[QuestionDataModel alloc] init];
+                                    if ([[dicts objectForKey:@"DXT"] count] != 0) {
+                                        for (NSDictionary *dict in [dicts objectForKey:@"DXT"]) {
+                                            QuestionListModel *questinList = [[QuestionListModel alloc]init];
+                                            [questinList setQId:[dict objectForKey:@"qId"]];
+                                            [questinList setQContent:[dict objectForKey:@"qContent"]];
+                                            [questinList setQContentPicUrl:[dict objectForKey:@"qContentPicUrl"]];
+                                            [questinList setAnswerAnalysis:[dict objectForKey:@"answerAnalysis"]];
+                                            [questinList setAnswerVideoAnalysis:[dict objectForKey:@"answerVideoAnalysis"]];
+                                            [questinList setMyOptionId:[dict objectForKey:@"myOptionId"]];
+                                            if ([[dict objectForKey:@"options"] count] != 0) {
+                                                for (NSDictionary *dict2 in [dict objectForKey:@"options"]) {
+                                                    FillBlanksModel *fillBlank = [[FillBlanksModel alloc]init];
+                                                    [fillBlank setOptionId:[dict2 objectForKey:@"optionId"]];
+                                                    [fillBlank setOptionContent:[dict2 objectForKey:@"optionContent"]];
+                                                    [fillBlank setOptionPicUrl:[dict2 objectForKey:@"optionPicUrl"]];
+                                                    [fillBlank setIsAnswer:[dict2 objectForKey:@"isAnswer"]];
+                                                    [fillBlank setMyOption:[dict2 objectForKey:@"myOption"]];
+                                                    [questinList.options addObject:fillBlank];
+                                                }
+                                            }
+                                            [questionD.dxt addObject:questinList];
+                                            
+                                            
+                                        }
+                                    }
+                                    [readingCom.childQuestions setValue:questionD forKey:@"DXT"];
+                                    //                                        [readingCom setChildQuestionsObj:questionD];
+                                }
+                                if ([str2 isEqualToString:@"TKT"]) {//阅读  里面的填空题
+                                    QuestionDataModel *questionT = [[QuestionDataModel alloc] init];
+                                    if ([[dicts objectForKey:@"TKT"] count] != 0) {
+                                        for (NSDictionary *dict in [dicts objectForKey:@"TKT"]) {
+                                            QuestionListModel *questinList = [[QuestionListModel alloc]init];
+                                            [questinList setQId:[dict objectForKey:@"qId"]];
+                                            [questinList setQContent:[dict objectForKey:@"qContent"]];
+                                            [questinList setQContentPicUrl:[dict objectForKey:@"qContentPicUrl"]];
+                                            [questinList setAnswerAnalysis:[dict objectForKey:@"answerAnalysis"]];
+                                            [questinList setAnswerVideoAnalysis:[dict objectForKey:@"answerVideoAnalysis"]];
+                                            [questinList setMyOptionId:[dict objectForKey:@"myOptionId"]];
+                                            if ([[dict objectForKey:@"options"] count] != 0) {
+                                                for (NSDictionary *dict2 in [dict objectForKey:@"options"]) {
+                                                    FillBlanksModel *fillBlank = [[FillBlanksModel alloc]init];
+                                                    [fillBlank setOptionId:[dict2 objectForKey:@"optionId"]];
+                                                    [fillBlank setOptionContent:[dict2 objectForKey:@"optionContent"]];
+                                                    [fillBlank setOptionPicUrl:[dict2 objectForKey:@"optionPicUrl"]];
+                                                    [fillBlank setIsAnswer:[dict2 objectForKey:@"isAnswer"]];
+                                                    [fillBlank setMyOption:[dict2 objectForKey:@"myOption"]];
+                                                    [questinList.options addObject:fillBlank];
+                                                }
+                                            }
+                                            [questionT.tkt addObject:questinList];
+                                            
+                                        }
+                                    }
+                                    [readingCom.childQuestions setValue:questionT forKey:@"TKT"];
+                                    //                                        [readingCom setChildQuestionsObj:questionT];
+                                }
+                                
+                            }
+                            [questionData.tlt addObject:readingCom];
+                        }
+                    }
+                }
+            }
+            
+            [infoResult setExtraObj:questionData];
+        }
+        return infoResult;
+    }
+    else if ([infoResult.code isEqualToString:@"30001"]){
+        [aCommon iToast:@"该账号已在其他设备登陆！"];
+    }else{
+        [aCommon iToast:infoResult.desc];
+    }
+    return nil;
+}
+
+@end

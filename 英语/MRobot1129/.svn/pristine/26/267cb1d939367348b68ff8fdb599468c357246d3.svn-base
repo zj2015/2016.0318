@@ -1,0 +1,17 @@
+//
+//  VideoShowViewController.h
+//  ERobot
+//
+//  Created by BaiYu on 15/7/2.
+//  Copyright (c) 2015年 BaiYu. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "VideoExplanationViewController.h"
+
+@interface VideoShowViewController : UIViewController
+
+@property (strong, nonatomic) VideoExplanationViewController *videoExplanVC;
+@property (strong, nonatomic) NSArray *dataArr;
+@property (assign, nonatomic) NSInteger titleCount;
+@end

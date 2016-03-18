@@ -1,0 +1,209 @@
+//
+//  MainViewController.m
+//  BaseDemo
+//
+//  Created by 张娇娇 on 15/7/22.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import "MainViewController.h"
+#import "LearnPlanViewController.h"
+//#import "KnowledgeLearnViewController.h"
+#import "KnowledgeSelectViewController.h"
+#import "TopicParseViewController.h"
+#import "MineViewController.h"
+
+#import "BaseNavigationController.h"
+
+@interface MainViewController ()
+
+/**
+ *  自定义的tabbar
+ */
+@property (nonatomic, strong) LearnPlanViewController *learnPlan;
+@property (nonatomic, strong) KnowledgeSelectViewController *knowledge;
+@property (nonatomic, strong) TopicParseViewController *topic;
+@property (nonatomic, strong) MineViewController *mine;
+
+// 装载子视图控制器
+- (void)loadViewControllers;
+
+// 自定义tabBar视图
+- (void)customTabBarView;
+
+@end
+
+@implementation MainViewController
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization
+        self.tabBar.hidden = YES;
+    }
+    return self;
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    self.view.backgroundColor = [UIColor whiteColor];
+    
+    // 装载子视图控制器
+    [self loadViewControllers];
+    
+    // 自定义tabBar视图
+    [self customTabBarView];
+    
+}
+
+
+/**
+ *  初始化所有的子控制器
+ */
+- (void)loadViewControllers
+{
+    // 1.学习规划 页面
+    LearnPlanViewController *learnPlan = [[LearnPlanViewController alloc] init];
+     BaseNavigationController *learnNavigation = [[BaseNavigationController alloc] initWithRootViewController:learnPlan];
+    self.learnPlan = learnPlan;
+    
+    // 2. 知识点学习 界面
+    KnowledgeSelectViewController *knowledge = [[KnowledgeSelectViewController alloc] init];
+     BaseNavigationController *knowledgeNavigation = [[BaseNavigationController alloc] initWithRootViewController:knowledge];
+    self.knowledge = knowledge;
+    
+    // 3.题型解析 界面
+    TopicParseViewController *topic = [[TopicParseViewController alloc] init];
+     BaseNavigationController *topicNavigation = [[BaseNavigationController alloc] initWithRootViewController:topic];
+    self.topic = topic;
+    
+    // 4.我的 界面
+    MineViewController *mine = [[MineViewController alloc] init];
+     BaseNavigationController *mineNavigation = [[BaseNavigationController alloc] initWithRootViewController:mine];
+    self.mine = mine;
+    
+    NSArray *viewControllers = @[learnNavigation, knowledgeNavigation, topicNavigation, mineNavigation];
+    [self setViewControllers:viewControllers animated:YES];
+}
+
+/**
+ *  初始化一个子控制器
+ *
+ *  @param childVc           需要初始化的子控制器
+ *  @param title             标题
+ *  @param imageName         图标
+ *  @param selectedImageName 选中的图标
+ */
+- (void)customTabBarView
+{
+    // 自定义tabBar背景视图 tabBar高49
+    _tabBarBG = [[UIImageView alloc] initWithFrame:CGRectMake(0, MainScreenSize_H-49, MainScreenSize_W, 49)];
+    _tabBarBG.userInteractionEnabled = YES;
+    _tabBarBG.backgroundColor = [UIColor whiteColor];
+    [self.view addSubview:_tabBarBG];
+    
+    UIImageView *lineView = [[UIImageView alloc]initWithFrame:CGRectMake(0.0, 0.0, MainScreenSize_W, 0.5)];
+    lineView.backgroundColor = RgbColor(169, 109, 15);
+    [_tabBarBG addSubview:lineView];
+    
+    int total = 0;
+    NSArray *imgs = nil;
+    NSArray *titles = nil;
+   
+    total = 4;
+    // 整理数据
+    imgs   = @[@"menu_xxgh", @"menu_zsdjx", @"menu_txjx", @"menu_my"];
+    titles = @[@"学习规划", @"知识点学习", @"题型解析", @"我"];
+    
+    
+    // 选中视图  _tabBarBG.height 是调用了 UIViewExt实现
+    _selectView = [[UIImageView alloc] initWithFrame:CGRectMake(0.0, 0.0, MainScreenSize_W/total, 49.0)];
+    _selectView.backgroundColor = [UIColor colorWithRed:212/255.0f green:132/255.0f blue:13/255.0f alpha:1.0];
+    [_tabBarBG addSubview:_selectView];
+    
+    int x = 0;
+    _itemArr = [NSMutableArray array];
+    for (int index = 0; index < total; index++) {
+        
+        ItemView *itemView = [[ItemView alloc] initWithFrame:CGRectMake(x, _tabBarBG. height/2.0-45.0/2, MainScreenSize_W/total, 45)];
+        itemView.tag = index;
+        itemView.delegate = self; // 设置委托
+        itemView.item.image = [UIImage imageNamed:imgs[index]];
+        itemView.title.text = titles[index];
+        [_tabBarBG addSubview:itemView];
+        if (index == 0) {
+            itemView.title.textColor = [UIColor whiteColor];
+            itemView.item.image = [UIImage imageNamed:@"menu_xxgh_Sel"];
+            
+        }else{
+            itemView.title.textColor = [UIColor grayColor];
+        }
+        x += MainScreenSize_W/total;
+        [_itemArr addObject:itemView];
+    }
+}
+
+#pragma mark - ItemView Delegate
+- (void)didItemView:(ItemView *)itemView atIndex:(NSInteger)index
+{
+    if (index == 1 || index == 2) {
+        [aCommon iToast:@"功能开发中"];
+    }else{
+        self.selectedIndex = index;
+        int total = 0;
+        NSArray *imgss = nil;
+        NSArray *imgs = nil;
+        
+        total = 4;
+        // 整理数据
+        imgss   = @[@"menu_xxgh", @"menu_zsdjx", @"menu_txjx", @"menu_my"];
+        imgs   = @[@"menu_xxgh_Sel", @"menu_zsdjx_sel", @"menu_txjx_sel", @"menu_my_sel"];
+        
+        
+        // 移动选中视图的位置
+        for (int i = 0; i < total; i ++) {
+            ItemView *dem = _itemArr[i];
+            dem.item.image = [UIImage imageNamed:imgss[i]];
+            dem.title.textColor = [UIColor grayColor];
+        }
+        itemView.item.image = [UIImage imageNamed:imgs[index]];
+        itemView.title.textColor = [UIColor whiteColor];
+        [UIView beginAnimations:nil context:NULL];
+        _selectView.frame = CGRectMake(MainScreenSize_W/total*index, 0.0, MainScreenSize_W/total, 49.0);
+        
+        [UIView commitAnimations];
+    }
+}
+
+#pragma mark - Public Method
+- (void)showOrHiddenTabBarView:(BOOL)isHidden
+{
+    [UIView beginAnimations:nil context:NULL];
+    [UIView setAnimationDuration:0.2];
+    if (isHidden) {
+        _tabBarBG.top = MainScreenSize_H;
+    }else {
+        _tabBarBG.bottom = MainScreenSize_H;
+    }
+    [UIView commitAnimations];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+
+@end

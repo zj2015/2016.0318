@@ -1,0 +1,24 @@
+//
+//  SubmitTableViewCell.h
+//  ERobot
+//
+//  Created by mac on 15/7/14.
+//  Copyright (c) 2015年 BaiYu. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface SubmitTableViewCell : UITableViewCell
+
+@property (strong, nonatomic) UIView *bgView;
+
+@property (strong, nonatomic) UILabel *rightLabel;
+
+@property (strong, nonatomic) UILabel *leftLabel;
+
+@property (strong, nonatomic) UIImageView *lineView;
+
+- (void)addCellData:(NSString *)cellData andTitle:(NSString *)title;
+- (void)addCellDataNew:(NSArray *)cellDataArray andTitle:(NSArray *)titleArray;
+
+@end

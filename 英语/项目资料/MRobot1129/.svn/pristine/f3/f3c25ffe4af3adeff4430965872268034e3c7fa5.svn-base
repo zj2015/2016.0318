@@ -1,0 +1,408 @@
+//
+//  ExamTestViewController.m
+//  MRobot
+//
+//  Created by mac on 15/9/11.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import "ExamTestViewController.h"
+#import "QuestionDataModel.h"
+#import "ReadingComModel.h"
+#import "QuestionListModel.h"
+#import "SubmitQuestionModel.h"
+#import "SBJSON.h"
+@interface ExamTestViewController ()
+{
+    BOOL _isMiddleClick;
+}
+@property (strong, nonatomic) QuestionDataModel *questionModel;
+@property (strong,nonatomic)NSTimer *timer;
+
+@end
+
+@implementation ExamTestViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    [self base_changeNavigationTitleWithString:@"1/12" andImage:@"nav_title"];
+    [self base_createRightNavigationBarButtonWithFrontImage:@"more2" andSelectedImageName:@"more2" andBackGroundImageName:@"more2" andTitle:@"交卷" andSize:CGSizeMake(40, 30)];
+    
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tryToExamAgain:) name:MYNOTI_USER_TRYAGAIN object:nil];
+}
+
+- (void)tryToExamAgain:(NSNotification *)noti
+{
+    _page = 0;
+    j=0;k=0;m = 0;
+    [self.view removeAllSubviews];
+    [self base_changeNavigationTitleWithString:@"1/12" andImage:@"nav_title"];
+    [self base_createRightNavigationBarButtonWithFrontImage:@"more2" andSelectedImageName:@"more2" andBackGroundImageName:@"more2" andTitle:@"交卷" andSize:CGSizeMake(40, 30)];
+    [self _prepareData];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:MYNOTI_USER_TRYAGAIN object:nil];
+}
+
+- (void)_prepareData
+{
+    _questionAccount = 10;
+    LearningPlanRequest *request = [[LearningPlanRequest  alloc]init];
+//    1.4.17 试卷题目列表
+    [request userQuestionListByPaperWithPaperId:_paperId success:^(id obj) {
+        
+        _yuedanArr = [NSMutableArray array];
+        _tingdanArr = [NSMutableArray array];
+        InfoResult *infoResult = (InfoResult *)obj;
+        if ([infoResult.code isEqualToString:@"0"]) {
+            _questionModel = [[QuestionDataModel alloc] init];
+            _questionModel = (QuestionDataModel *)[infoResult extraObj];
+            _questionAccount = [_questionModel.qAmount intValue];
+            
+            _timeNumber = 0;
+            
+            _danArr = [NSArray arrayWithArray:_questionModel.dxt];
+            _tianArr = [NSArray arrayWithArray:_questionModel.tkt];
+            _yueArr = [NSArray arrayWithArray:_questionModel.ydljt];
+            _tingArr = [NSArray arrayWithArray:_questionModel.tlt];
+            
+            //答案对照
+            _answerArr = [NSMutableArray array];
+            for (int i = 0; i < _questionAccount; i ++) {
+                [_answerArr addObject:@"0"];
+            }
+            
+            //提交答案
+            _array = [NSMutableArray array];
+            _answerDict = [NSMutableDictionary dictionary];
+            
+            for (int i = 0; i < [_danArr count]; i ++ ) {
+                QuestionListModel *listModel = _danArr[i];
+                NSMutableDictionary *dict = [NSMutableDictionary dictionary];
+                _choose = [[NSMutableArray alloc]initWithObjects:@"", nil];
+                [dict setValue:listModel.qId forKey:@"qId"];
+                [dict setValue:_choose forKey:@"options"];
+                [_array addObject:dict];
+            }
+            
+            for (int i = 0; i < [_tianArr count]; i ++ ) {
+                QuestionListModel *listModel = _tianArr[i];
+                NSMutableDictionary *dict = [NSMutableDictionary dictionary];
+                _tianArray1 = [NSMutableArray array];
+                if (listModel.options.count) {
+                    for (int i = 0; i < listModel.options.count; i ++) {
+                        [_tianArray1 addObject:@""];
+                    }
+                }else{
+                    [_tianArray1 addObject:@""];
+                }
+                [dict setValue:listModel.qId forKey:@"qId"];
+                [dict setValue:_tianArray1 forKey:@"options"];
+                [_array addObject:dict];
+            }
+            
+            
+            
+            //阅读理解
+            for (int i = 0; i < _yueArr.count; i ++ ) {
+                ReadingComModel *listmodel = _yueArr[i];
+                NSDictionary *dict = listmodel.childQuestions;
+                if ([dict objectForKey:@"DXT"]) {
+                    QuestionDataModel *dataModel = [dict objectForKey:@"DXT"];
+                    for (QuestionListModel *arr in dataModel.dxt) {
+                        NSDictionary * dict = [NSDictionary dictionaryWithObjectsAndKeys:arr,@"title",@"0",@"type", nil];
+                        [_yuedanArr addObject: dict];
+                        
+                        _choose = [[NSMutableArray alloc]initWithObjects:@"", nil];
+                        NSMutableDictionary *Dict = [NSMutableDictionary dictionary];
+                        [Dict setValue:arr.qId forKey:@"qId"];
+                        [Dict setValue:_choose forKey:@"options"];
+                        [_array addObject:Dict];
+                    }
+                }
+                if ([dict objectForKey:@"TKT"]) {
+                    QuestionDataModel *dataModel = [dict objectForKey:@"TKT"];
+                    for (QuestionListModel *arr in dataModel.tkt) {
+                        NSDictionary * dict = [NSDictionary dictionaryWithObjectsAndKeys:arr,@"title",@"1",@"type", nil];
+                        [_yuedanArr addObject: dict];
+                        
+                        _tianArray2 = [NSMutableArray array];
+                        for (int i = 0; i < arr.options.count; i ++) {
+                            [_tianArray2 addObject:@""];
+                        }
+                        
+                        NSMutableDictionary *Dict = [NSMutableDictionary dictionary];
+                        [Dict setValue:arr.qId forKey:@"qId"];
+                        [Dict setValue:_tianArray2 forKey:@"options"];
+                        [_array addObject:Dict];
+                    }
+                }
+                
+            }
+            
+            //听力
+            for (int i = 0; i < _tingArr.count; i ++ ) {
+                
+                ReadingComModel *listmodel = _tingArr[i];
+                NSDictionary *dict = listmodel.childQuestions;
+                if ([dict objectForKey:@"DXT"]) {
+                    QuestionDataModel *dataModel = [dict objectForKey:@"DXT"];
+                    for (QuestionListModel *arr in dataModel.dxt) {
+                        NSDictionary * dict = [NSDictionary dictionaryWithObjectsAndKeys:arr,@"title",@"0",@"type", nil];
+                        [_tingdanArr addObject: dict];
+                        _choose = [[NSMutableArray alloc]initWithObjects:@"", nil];
+                        NSMutableDictionary *Dict = [NSMutableDictionary dictionary];
+                        [Dict setValue:arr.qId forKey:@"qId"];
+                        [Dict setValue:_choose forKey:@"options"];
+                        [_array addObject:Dict];
+                    }
+                }
+                if ([dict objectForKey:@"TKT"]) {
+                    QuestionDataModel *dataModel = [dict objectForKey:@"TKT"];
+                    for (QuestionListModel *arr in dataModel.tkt) {
+                        NSDictionary * dict = [NSDictionary dictionaryWithObjectsAndKeys:arr,@"title",@"1",@"type", nil];
+                        [_tingdanArr addObject: dict];
+                        
+                        _tianArray3 = [NSMutableArray array];
+                        for (int i = 0; i < arr.options.count; i ++) {
+                            [_tianArray3 addObject:@""];
+                        }
+                        
+                        NSMutableDictionary *Dict = [NSMutableDictionary dictionary];
+                        [Dict setValue:arr.qId forKey:@"qId"];
+                        [Dict setValue:_tianArray3 forKey:@"options"];
+                        [_array addObject:Dict];
+                    }
+                }
+            }
+            
+            [self _prepareView];
+            
+        }
+    } failed:^(id obj) {
+        
+    }];
+}
+
+- (void)_prepareUI
+{
+    _answerView = [[QuestionAnswer alloc]initWithFrame:CGRectMake(0, 0, MainScreenSize_W   , MainScreenSize_H)];
+    _answerView.backgroundColor = [UIColor whiteColor];
+    _answerView.delegate = self;
+    _answerView.hidden = YES;
+    [self.view addSubview:_answerView];
+    
+}
+
+- (void)_prepareView
+{
+    UIView *bgView = [[UIView alloc]initWithFrame:CGRectMake(0, 64, MainScreenSize_W, 40)];
+    bgView.backgroundColor = PView_BGColor;
+    [self.view addSubview:bgView];
+    
+    _topicLabel = [[UILabel alloc]initWithFrame:CGRectMake(10, 10, 100, 30)];
+    _topicLabel.textAlignment = NSTextAlignmentLeft;
+    _topicLabel.font = [UIFont boldSystemFontOfSize:16];
+    if (_danArr.count) {
+        _topicLabel.text = @"单选题";
+    }else if (_tianArr.count){
+        _topicLabel.text = @"填空题";
+    }else if (_yueArr.count){
+        _topicLabel.text = @"阅读理解题";
+    }else{
+        _topicLabel.text = @"听力题";
+    }
+    [bgView addSubview:_topicLabel];
+    
+    _timeLabel = [[UILabel alloc]initWithFrame:CGRectMake(MainScreenSize_W - 100, 15, 80, 20)];
+    _timeLabel.text = @"00时00分00秒";
+    _timeLabel.textColor = [UIColor grayColor];
+    _timeLabel.font = [UIFont boldSystemFontOfSize:12];
+    _time = _timeNumber;
+    [bgView addSubview:_timeLabel];
+    
+    _timeView = [[UIImageView alloc]initWithFrame:CGRectMake(_timeLabel.left - 20 , 18 , 15, 15)];
+    _timeView.image = [UIImage imageNamed:@"clock"];
+    [bgView addSubview:_timeView];
+    
+    CGRect rect = CGRectMake(0.0f,bgView.bottom,MainScreenSize_W,MainScreenSize_H-bgView.bottom);
+    _myScrollView = [[UIScrollView alloc]initWithFrame:rect];
+    //题目的个数
+    _myScrollView.contentSize= CGSizeMake(MainScreenSize_W*_questionAccount, 0);
+    _myScrollView.pagingEnabled = YES;
+    _myScrollView.delegate = self;
+    _myScrollView.tag = 111;
+    _myScrollView.showsHorizontalScrollIndicator = NO;
+    _myScrollView.showsVerticalScrollIndicator = NO;
+    _myScrollView.backgroundColor = [UIColor clearColor];
+    [self.view addSubview:_myScrollView];
+    
+    _answerView = [[QuestionAnswer alloc]initWithFrame:CGRectMake(0, 64, MainScreenSize_W, MainScreenSize_H - 64)];
+    _answerView.backgroundColor = [UIColor whiteColor];
+    _answerView.delegate = self;
+    _answerView.hidden = YES;
+    [self.view addSubview:_answerView];
+    
+    [MBProgressHUD showHUDAddedTo:self.view animated:YES];
+    for (int i = 0; i < _questionAccount; i ++) {
+     
+        
+        
+    }
+    [self performSelector:@selector(titles) withObject:self afterDelay:0.5];
+    
+    [MBProgressHUD hideHUDForView:self.view animated:YES];
+    [self addTimer];
+    
+    self.view.backgroundColor = PView_BGColor;
+}
+
+- (void)titles
+{
+    [self base_changeNavigationTitleWithString:[NSString stringWithFormat:@"%d/%d",1,_questionAccount] andImage:@"nav_title"];
+}
+
+-(void)addTimer
+{
+    _timer=[NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(nextTime) userInfo:nil repeats:YES];
+    [[NSRunLoop currentRunLoop]addTimer:self.timer forMode:NSRunLoopCommonModes];
+}
+
+-(void)removeTimer
+{
+    [self.timer invalidate];
+    self.timer=nil;
+}
+
+-(void)nextTime
+{
+    _timeNumber++;
+    int hour = _timeNumber/3600.0;
+    int min = (int)_timeNumber%3600/60;
+    int temp = (int)_timeNumber%3600%60;
+    _timeLabel.text = [NSString stringWithFormat:@"%02d时%02d分%02d秒",hour,min,temp];
+    
+}
+
+#pragma mark --UIScrollViewDelegate--
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
+{
+    _page = (scrollView.contentOffset.x+MainScreenSize_W*0.5)/MainScreenSize_W;
+    PLog(@"%d",_page);
+}
+
+
+- (void)submitAnswer
+{
+    NSString *TakeTime = [NSString stringWithFormat:@"%.0f",_timeNumber*1000.0];
+    
+    [_answerDict setValue:_array forKey:@"result"];
+    SBJsonWriter *writer = [[SBJsonWriter alloc] init];
+    NSString *jsonString = [writer stringWithObject:_answerDict];
+    
+    [self removeTimer];
+    if (bsound) {
+        [self.soundplayer stop];
+        self.soundplayer=nil;
+        bsound = NO;
+    }
+    
+    // 1.4.18 提交答案-试卷
+    LearningPlanRequest *request = [[LearningPlanRequest alloc] init];
+    [request userSubmitAnswerByPaperWithPaperId:_paperId andTakeTime:TakeTime andAnswerResult:jsonString success:^(id obj) {
+        InfoResult *infoResult = (InfoResult *)obj;
+        if ([infoResult.code isEqualToString:@"0"]) {
+            
+        }
+    } failed:^(id obj) {
+        
+    }];
+    
+}
+
+- (void)middleBtnClick
+{
+    [self.view endEditing:YES];
+    _isMiddleClick = !_isMiddleClick;
+    if (_isMiddleClick) {
+        _answerView.hidden = NO;
+        [_answerView answerWithTrueOrFalse:(int)_danArr.count and:(int)_tianArr.count and:(int)_yuedanArr.count and:(int)_tingdanArr.count allArr:_answerArr];
+    }else{
+        _answerView.hidden = YES;
+    }
+}
+
+-(void)base_navigation_LeftBarButtonPressed
+{
+    //    [self.navigationController popViewControllerAnimated:YES];
+    UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"友情提示" message:@"确定退出模拟考试吗?" delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"确定", nil];
+    alert.tag = 102;
+    [alert show];
+}
+
+
+- (void)base_navigation_RightBarButtonPressed
+{
+    _numQuestionCount = 0;
+    for (NSString *str in _answerArr) {
+        if ([str isEqualToString:@"0"]) {
+            _numQuestionCount++;
+        }
+    }
+    if (_numQuestionCount) {
+        UIAlertView *alert = [[UIAlertView alloc]initWithTitle:[NSString stringWithFormat:@"您还有%d题未答",_numQuestionCount] message:@"还要交卷嘛~" delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"确定", nil];
+        alert.tag = 101;
+        [alert show];
+    }else{
+        [self submitAnswer];
+    }
+    
+}
+
+
+#pragma mark ---UIAlertViewDelegate----
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    if (alertView.tag == 101) {
+        if (buttonIndex) {
+            
+            [self submitAnswer];
+            
+        }
+    }else if (alertView.tag == 102) {
+        if (buttonIndex) {
+            [self removeTimer];
+            [self.navigationController popViewControllerAnimated:YES];
+            if (bsound) {
+                [self.soundplayer stop];
+                self.soundplayer=nil;
+                bsound = NO;
+            }
+        }
+    }
+}
+
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+
+@end

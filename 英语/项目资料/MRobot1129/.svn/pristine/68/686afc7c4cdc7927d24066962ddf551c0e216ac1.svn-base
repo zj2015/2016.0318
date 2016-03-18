@@ -1,0 +1,15 @@
+//
+//  SubmitTestViewController.h
+//  MRobot
+//
+//  Created by mac on 15/10/19.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+@interface SubmitTestViewController : BaseViewController
+
+@property (strong, nonatomic) NSString *score;
+
+@end

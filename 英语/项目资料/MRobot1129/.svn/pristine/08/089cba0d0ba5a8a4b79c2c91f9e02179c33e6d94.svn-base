@@ -1,0 +1,337 @@
+//
+//  VideoExplanationViewController.m
+//  MRobot
+//
+//  Created by BaiYu on 15/8/22.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import "VideoExplanationViewController.h"
+#import "ExerciseTrainViewController.h"
+#import "MainViewController.h"
+#import "DWCustomPlayerViewController.h"
+#import "KnowledgeVideoModel.h"
+#import "ResultArrayListModel.h"
+#import "KnowledgeCVideoModel.h"
+
+
+@interface VideoExplanationViewController ()
+
+@end
+
+@implementation VideoExplanationViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    if (self.fromVC == 0) {
+        [self base_changeNavigationTitleWithString:@"讲解视频"];
+    }else if (self.fromVC == 1) {
+        [self base_changeNavigationTitleWithString:@"通用解题技巧讲解"];
+    }
+    
+    self.view.backgroundColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1];
+    
+    openedInSectionArr = [NSMutableArray array];
+    for (int i=0; i< 3; i++) {
+        [openedInSectionArr addObject:@"0"];
+    }
+}
+
+-(void)_prepareUI
+{
+    if (self.fromVC == 0) {//代表讲解视频
+        knowledgeBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+        knowledgeBtn.frame = CGRectMake(0, 64, MainScreenSize_W/2, 35*SIZE_TIMES);
+        knowledgeBtn.tag = 1;
+        [knowledgeBtn setTitle:@"知识点" forState:UIControlStateNormal];
+        knowledgeBtn.titleLabel.font = [UIFont systemFontOfSize:15];
+        knowledgeBtn.backgroundColor = [UIColor colorWithRed:54/255.0 green:184/255.0 blue:176/255.0 alpha:1];
+        [knowledgeBtn addTarget:self action:@selector(selectBtnClick:) forControlEvents:UIControlEventTouchUpInside];
+        [self.view addSubview:knowledgeBtn];
+        
+        solveBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+        solveBtn.frame = CGRectMake(MainScreenSize_W/2, 64, MainScreenSize_W/2, 35*SIZE_TIMES);
+        solveBtn.tag = 2;
+        [solveBtn setTitle:@"解题技巧" forState:UIControlStateNormal];
+        solveBtn.titleLabel.font = [UIFont systemFontOfSize:15];
+        [solveBtn setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+        solveBtn.backgroundColor = [UIColor whiteColor];
+        [solveBtn addTarget:self action:@selector(selectBtnClick:) forControlEvents:UIControlEventTouchUpInside];
+        [self.view addSubview:solveBtn];
+        
+        videoTable = [[UITableView alloc] initWithFrame:CGRectMake(0, 68 + 35*SIZE_TIMES, MainScreenSize_W, MainScreenSize_H - 68 - 35*SIZE_TIMES) style:UITableViewStylePlain];
+        videoTable.tag = 1;
+        
+    }else if (self.fromVC == 1){// 代表通用解题技巧
+        videoTable = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, MainScreenSize_W, MainScreenSize_H) style:UITableViewStylePlain];
+        videoTable.tag = 2;
+    }
+    
+    videoTable.separatorStyle = UITableViewCellSeparatorStyleNone;
+    videoTable.delegate = self;
+    videoTable.dataSource = self;
+    [self.view addSubview:videoTable];
+}
+
+-(void)_prepareData
+{
+    if (self.fromVC == 0) {//讲解视频
+        //1.4.8 讲解视频
+        [self showAlertHUD:@"正在加载..."];
+        LearningPlanRequest *videoListRequest = [[LearningPlanRequest alloc] init];
+        [videoListRequest userWeekVideoListWithWeekId:self.weekId success:^(id obj) {
+            InfoResult *infoResult = (InfoResult *)obj;
+            if ([infoResult.code isEqualToString:@"0"]) {
+                //            KnowledgeVideoListModel *videoListModel = [[KnowledgeVideoListModel alloc] init];
+                //            videoListModel = (KnowledgeVideoListModel *)[infoResult extraObj];
+                //
+                //            videosArr = videoListModel.videoListArr;
+                
+                [videoTable reloadData];
+            }else{
+                [aCommon iToast:infoResult.desc];
+            }
+            
+        } failed:^(id obj) {
+            InfoResult *infoResult = (InfoResult *)obj;
+            [aCommon iToast:infoResult.desc];
+        }];
+    }else if (self.fromVC == 1){//通用解题技巧
+        //1.4.9 通用解题技巧
+        [self showAlertHUD:@"正在加载..."];
+        LearningPlanRequest *skillListRequest = [[LearningPlanRequest alloc] init];
+        [skillListRequest userCommonSkillListWithWeekId:self.weekId success:^(id obj) {
+            InfoResult *infoResult = (InfoResult *)obj;
+            if ([infoResult.code isEqualToString:@"0"]) {
+                //            KnowledgeVideoListModel *videoListModel = [[KnowledgeVideoListModel alloc] init];
+                //            videoListModel = (KnowledgeVideoListModel *)[infoResult extraObj];
+                //
+                //            videosArr = videoListModel.videoListArr;
+                [videoTable reloadData];
+            }else{
+                [aCommon iToast:infoResult.desc];
+            }
+            
+        } failed:^(id obj) {
+            InfoResult *infoResult = (InfoResult *)obj;
+            [aCommon iToast:infoResult.desc];
+        }];
+    }
+}
+
+-(void)selectBtnClick:(UIButton *)sender
+{
+    if (sender.tag == 1) {
+        //知识点
+        knowledgeBtn.backgroundColor = [UIColor colorWithRed:54/255.0 green:184/255.0 blue:176/255.0 alpha:1];
+        [knowledgeBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        solveBtn.backgroundColor = [UIColor whiteColor];
+        [solveBtn setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+        
+        videoTable.tag = 1;
+        for (int i=0; i< openedInSectionArr.count; i++) {
+            if ([[openedInSectionArr objectAtIndex:i] intValue] == 1) {
+                [openedInSectionArr replaceObjectAtIndex:i withObject:@"0"];
+            }
+        }
+        [videoTable reloadData];
+        
+    }else{
+        //讲解视频
+        knowledgeBtn.backgroundColor = [UIColor whiteColor];
+        [knowledgeBtn setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+        solveBtn.backgroundColor = [UIColor colorWithRed:54/255.0 green:184/255.0 blue:176/255.0 alpha:1];
+        [solveBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        
+        videoTable.tag = 2;
+        for (int i=0; i< openedInSectionArr.count; i++) {
+            if ([[openedInSectionArr objectAtIndex:i] intValue] == 1) {
+                [openedInSectionArr replaceObjectAtIndex:i withObject:@"0"];
+            }
+        }
+        [videoTable reloadData];
+    }
+}
+
+#pragma mark- UITableViewDataSource
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    return 3;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    if ([[openedInSectionArr objectAtIndex:section] intValue] == 1) {
+        return 3;
+    }else{
+        return 0;
+    }
+}
+
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
+{
+    UIView *headerView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, MainScreenSize_W, 40*SIZE_TIMES)];
+    headerView.backgroundColor = [UIColor whiteColor];
+    
+    UIButton * heightButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    heightButton.frame = CGRectMake(0, 0, MainScreenSize_W, 40*SIZE_TIMES);
+    heightButton.tag = section;
+    [heightButton addTarget:self action:@selector(headerClick:) forControlEvents:UIControlEventTouchUpInside];
+    [headerView addSubview:heightButton];
+    
+//    WrongQueListModel *wrongListModel = [[WrongQueListModel alloc] init];
+//    wrongListModel = [sectionArr objectAtIndex:section];
+    
+    UILabel *nameLab = [[UILabel alloc] initWithFrame:CGRectMake(10, 5, MainScreenSize_W - 40, 40*SIZE_TIMES - 10)];
+    nameLab.text = [NSString stringWithFormat:@"%ld. %@",(long)section + 1,@"一般现在时句意解析"];
+    [headerView addSubview:nameLab];
+    
+    UIImageView * imageView = [[UIImageView alloc] initWithFrame:CGRectMake(MainScreenSize_W - 30, 15, 15*SIZE_TIMES, 15*SIZE_TIMES)];
+    imageView.image = [UIImage imageNamed:@"hide"];
+    [headerView addSubview:imageView];
+    
+    if ([[openedInSectionArr objectAtIndex:section] intValue] == 1   && section == preHeaderIndex) {
+        imageView.image = [UIImage imageNamed:@"show"];
+    }else{
+        imageView.image = [UIImage imageNamed:@"hide"];
+    }
+    
+    UILabel * line = [[UILabel alloc] initWithFrame:CGRectMake(0, 39*SIZE_TIMES, MainScreenSize_W, 0.5)];
+    line.backgroundColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1];
+    [headerView addSubview:line];
+    
+    return headerView;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    static NSString *identifier = @"VideoConnectTableViewCell";
+    
+    if ([tableView respondsToSelector:@selector(setSeparatorInset:)]) {
+        [tableView setSeparatorInset:UIEdgeInsetsZero];
+    }
+    
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:identifier];
+    if (cell == nil) {
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:identifier];
+        cell.selectionStyle = UITableViewCellSelectionStyleNone;
+    }
+    
+    for (UIView *view in [cell subviews]) {
+        [view removeFromSuperview];
+    }
+    if (tableView.tag == 1) {
+        KVideoView *kVideoView = [[KVideoView alloc] initWithFrame:CGRectMake(0, 0, MainScreenSize_W, SIZE_TIMES*100) listIndex:indexPath.row smallVideoCount:5];
+        kVideoView.delegate = self;
+        [cell addSubview:kVideoView];
+    }else{
+        SVideoView *sVideoView = [[SVideoView alloc] initWithFrame:CGRectMake(0, 0, MainScreenSize_W, SIZE_TIMES*110) listIndex:indexPath.row ];
+        sVideoView.delegate = self;
+        [cell addSubview:sVideoView];
+    }
+    
+    return cell;
+}
+
+#pragma mark- UITableViewDelegate
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
+{
+    return 40 * SIZE_TIMES;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if (tableView.tag == 1) {
+        return 100 * SIZE_TIMES;
+    }else{
+        return 110 * SIZE_TIMES;
+    }
+}
+
+#pragma mark - 区头点击方法
+- (void)headerClick:(UIButton *)btn
+{
+    if ([[openedInSectionArr objectAtIndex:btn.tag] intValue] == 0) {
+        [openedInSectionArr replaceObjectAtIndex:preHeaderIndex withObject:@"0"];//将上一个被点击的区置为闭合状态
+        [openedInSectionArr replaceObjectAtIndex:btn.tag withObject:@"1"];
+    }
+    else
+    {
+        [openedInSectionArr replaceObjectAtIndex:btn.tag withObject:@"0"];
+    }
+    preHeaderIndex = btn.tag;
+    [videoTable reloadData];
+}
+
+#pragma mark - PassBtnTagDelegate 知识点视频按钮点击事件
+-(void)passKVideoTag:(NSInteger)btnTag
+{
+    NSLog(@"%ld知识点视频按钮被点击",(long)btnTag);
+    NSLog(@"当前展开的区%ld",preHeaderIndex);
+    
+//    ResultArrayListModel *kVideoModel = [videosArr objectAtIndex:btn.tag];
+//    
+//    DWCustomPlayerViewController *player = [[DWCustomPlayerViewController alloc] init];
+//    player.videoId = kVideoModel.kVideoCoverUrl;
+//    player.videoTitle = kVideoModel.kVideoCCId;
+//    player.hidesBottomBarWhenPushed = YES;
+//    [self.navigationController pushViewController:player animated:NO];
+}
+
+#pragma mark - PassBtnTagDelegate 经典例题视频按钮点击事件
+-(void)passSmallVideoTag:(NSInteger)btnTag
+{
+    NSLog(@"%ld经典例题视频按钮被点击",btnTag);
+    NSLog(@"当前展开的区%ld",preHeaderIndex);
+    
+//    ResultArrayListModel *kVideoModel = [videosArr objectAtIndex:btnTag];
+//    
+//    DWCustomPlayerViewController *player = [[DWCustomPlayerViewController alloc] init];
+//    player.videoId = kVideoModel.kVideoCoverUrl;
+//    player.videoTitle = kVideoModel.kVideoCCId;
+//    player.hidesBottomBarWhenPushed = YES;
+//    [self.navigationController pushViewController:player animated:NO];
+}
+
+#pragma mark - PassSkillBtnTagDelegate 技巧视频按钮点击事件
+-(void)passSVideoTag:(NSInteger)btnTag
+{
+    NSLog(@"%ld技巧视频按钮被点击",(long)btnTag);
+    NSLog(@"当前展开的区%ld",preHeaderIndex);
+    
+    [self showAlert];
+    
+    //    UnitVideoDataModel *unitVideoModel = [videosArr objectAtIndex:selectRow];
+    //    KnowledgeVideoDataModel *videoDataModel = [unitVideoModel.videoArr objectAtIndex:btn.tag];
+    //
+    //    DWCustomPlayerViewController *player = [[DWCustomPlayerViewController alloc] init];
+    //    player.videoId = videoDataModel.videoUrl;
+    //    player.videoTitle = videoDataModel.videoName;
+    //    player.hidesBottomBarWhenPushed = YES;
+    //    [self.navigationController pushViewController:player animated:NO];
+}
+
+#pragma mark - PassSkillBtnTagDelegate 技巧训练按钮点击事件
+-(void)passSkillTrainTag:(NSInteger)btnTag
+{
+    NSLog(@"%ld技巧训练按钮被点击",(long)btnTag);
+    NSLog(@"当前展开的区%ld",preHeaderIndex);
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+
+@end

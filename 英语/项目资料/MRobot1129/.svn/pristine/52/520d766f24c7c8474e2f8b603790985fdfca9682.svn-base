@@ -1,0 +1,15 @@
+//
+//  VideoConnectTableViewCell.h
+//  ERobot
+//
+//  Created by BaiYu on 15/7/2.
+//  Copyright (c) 2015年 BaiYu. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface VideoConnectTableViewCell : UITableViewCell
+
+@property(nonatomic,strong)UILabel *answerLab;//问答描述
+@property(nonatomic,strong)UIImageView *signImgView;//单元格右边箭头
+@end

@@ -1,0 +1,22 @@
+//
+//  FocusAnalysisViewController.h
+//  MRobot
+//
+//  Created by BaiYu on 15/8/24.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+@interface FocusAnalysisViewController : BaseViewController
+<UITableViewDelegate,UITableViewDataSource>
+{
+    UITableView *analysisTable;
+    BOOL isClick;//单元格被点击
+    NSInteger selectRow;//当前点击的单元格
+    
+    NSArray *skillsArr;//技巧训练列表
+    
+}
+@property (strong, nonatomic) NSString *weekId;//周Id
+@end

@@ -1,0 +1,17 @@
+//
+//  SolveProblemViewController.h
+//  MRobot
+//
+//  Created by BaiYu on 15/8/22.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import "BaseViewController.h"
+#import "VideoExplanationViewController.h"
+
+@interface SolveProblemViewController : BaseViewController
+
+@property (strong, nonatomic) VideoExplanationViewController *videoExplanVC;
+@property (strong, nonatomic) NSArray *dataArr;
+@property (assign, nonatomic) NSInteger titleCount;
+@end

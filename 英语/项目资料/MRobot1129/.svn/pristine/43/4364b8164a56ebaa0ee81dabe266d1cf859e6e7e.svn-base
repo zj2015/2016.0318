@@ -1,0 +1,63 @@
+//
+//  TopicHeadView.m
+//  MRobot
+//
+//  Created by mac on 15/8/26.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import "TopicHeadView.h"
+
+@implementation TopicHeadView
+
++ (instancetype)headViewWithTableView:(UITableView *)tableView withBlock:(TopicHeadViewBlock)block
+{
+    static NSString *headIdentifier = @"header";
+    
+    TopicHeadView *headView = [tableView dequeueReusableCellWithIdentifier:headIdentifier];
+    if (headView == nil) {
+        headView = [[TopicHeadView alloc] initWithReuseIdentifier:headIdentifier with:block];
+    }
+    
+    return headView;
+}
+
+- (id)initWithReuseIdentifier:(NSString *)reuseIdentifier with:(TopicHeadViewBlock)block
+{
+    if (self = [super initWithReuseIdentifier:reuseIdentifier]) {
+        
+        _block = block;
+        
+        self.contentView.backgroundColor = [UIColor whiteColor];
+        
+        _topicNameLab = [[UILabel alloc] initWithFrame:CGRectMake(10, 10, 250*SIZE_TIMES, 20*SIZE_TIMES)];
+        _topicNameLab.font = [UIFont systemFontOfSize:15.0];
+        [self.contentView addSubview:_topicNameLab];
+        
+        _signImgView = [[UIImageView alloc] initWithFrame:CGRectMake(MainScreenSize_W - 30, 10, 17*SIZE_TIMES, 17*SIZE_TIMES)];
+        [self.contentView addSubview:_signImgView];
+        
+        UILabel *lineLab = [[UILabel alloc] initWithFrame:CGRectMake(0, 39*SIZE_TIMES, MainScreenSize_W, 0.5)];
+        lineLab.backgroundColor = [UIColor lightGrayColor];
+        [self.contentView addSubview:lineLab];
+        
+        [self.contentView addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(clickTheTopicHeadView:)]];
+        
+    }
+    return self;
+}
+
+
+- (void)clickTheTopicHeadView:(UITapGestureRecognizer *)tap
+{
+    _block(tap.view.tag);
+}
+/*
+// Only override drawRect: if you perform custom drawing.
+// An empty implementation adversely affects performance during animation.
+- (void)drawRect:(CGRect)rect {
+    // Drawing code
+}
+*/
+
+@end

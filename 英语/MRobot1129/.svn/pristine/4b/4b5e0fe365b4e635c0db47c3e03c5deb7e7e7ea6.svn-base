@@ -1,0 +1,103 @@
+//
+//  TeachContentViewController.m
+//  ERobot
+//
+//  Created by BaiYu on 15/6/30.
+//  Copyright (c) 2015年 BaiYu. All rights reserved.
+//
+
+#import "TeachContentViewController.h"
+#import "TeachContentCell.h"
+
+@interface TeachContentViewController ()
+
+@end
+
+@implementation TeachContentViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    [self base_changeNavigationTitleWithString:@"教学内容"];
+    self.view.backgroundColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1];
+    
+}
+
+-(void)_prepareUI
+{
+    teachContentTable = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, MainScreenSize_W, MainScreenSize_H) style:UITableViewStylePlain];
+    teachContentTable.separatorStyle = UITableViewCellSeparatorStyleNone;
+    teachContentTable.delegate = self;
+    teachContentTable.dataSource = self;
+    teachContentTable.rowHeight = 50*SIZE_TIMES;
+    [self.view addSubview:teachContentTable];
+    teachContentLeftArr = [[NSArray alloc] initWithObjects:@"上课时间",@"教学进度",@"教学内容",@"还课内容",@"笔头作业",@"预习作业",@"提示内容",@"教辅内容",@"备       注", nil];
+}
+
+//请求的数据结果
+- (void)_prepareData
+{
+//    1.4.2 教学内容
+    [self showAlertHUD:@"正在加载..."];
+    LearningPlanRequest * teachContent = [[LearningPlanRequest alloc] init];
+    [teachContent userCourseContentWithWeekId:self.weekId andCType:[NSString stringWithFormat:@"%ld",(long)self.cType] success:^(id obj) {
+        InfoResult *infoResult = (InfoResult *)obj;
+        if ([infoResult.code isEqualToString:@"0"]) {
+            
+        }else{
+            [aCommon iToast:@"加载失败!"];
+        }
+    } failed:^(id obj) {
+       [aCommon iToast:@"系统未知错误!"];
+    }];
+}
+
+#pragma mark- UITableViewDataSourcer
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    
+    return teachContentLeftArr.count;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    static NSString * cellIndentifier = @"TeachContentCell";
+    TeachContentCell * cell = [tableView dequeueReusableCellWithIdentifier:cellIndentifier];
+    if (cell == nil) {
+        cell = [[TeachContentCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellIndentifier];
+        cell.selectionStyle = UITableViewCellSelectionStyleNone;
+    }
+    
+    cell.teachContentLabel.text = [teachContentLeftArr objectAtIndex:indexPath.row];
+    
+    return cell;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    
+    switch (indexPath.row) {
+        case 2:
+            tableView.rowHeight = 80*SIZE_TIMES;
+            break;
+        default:
+            tableView.rowHeight = 50*SIZE_TIMES;
+            break;
+    }
+    return tableView.rowHeight;
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+
+@end

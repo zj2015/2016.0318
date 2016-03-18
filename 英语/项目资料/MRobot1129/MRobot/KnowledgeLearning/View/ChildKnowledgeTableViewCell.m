@@ -1,0 +1,43 @@
+//
+//  ChildKnowledgeTableViewCell.m
+//  MRobot
+//
+//  Created by BaiYu on 15/9/9.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import "ChildKnowledgeTableViewCell.h"
+
+@implementation ChildKnowledgeTableViewCell
+
+-(id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
+{
+    self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
+    if (self) {
+        self.backgroundColor = [UIColor clearColor];
+        self.contentView.backgroundColor = [UIColor clearColor];
+
+        _kChildLab = [[UILabel alloc] initWithFrame:CGRectMake(10, 0, MainScreenSize_W - 110, 40*SIZE_TIMES)];
+        _kChildLab.backgroundColor = [UIColor clearColor];
+        _kChildLab.font = [UIFont systemFontOfSize:15.0];
+        [self.contentView addSubview:_kChildLab];
+        
+        UILabel *lineLab = [[UILabel alloc] initWithFrame:CGRectMake(0, 40*SIZE_TIMES-0.5, MainScreenSize_W - 100, 0.5)];
+        lineLab.backgroundColor = [UIColor lightGrayColor];
+        [self.contentView addSubview:lineLab];
+        
+    }
+    return self;
+}
+
+- (void)awakeFromNib {
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+@end

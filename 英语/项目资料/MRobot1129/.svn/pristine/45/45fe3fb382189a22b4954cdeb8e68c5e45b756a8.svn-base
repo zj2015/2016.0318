@@ -1,0 +1,15 @@
+//
+//  ThirdChildKTableViewCell.h
+//  MRobot
+//
+//  Created by BaiYu on 15/9/10.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface ThirdChildKTableViewCell : UITableViewCell
+
+@property(nonatomic,strong)UILabel *thirdKLab;//子知识点名称
+@property(nonatomic,strong)UIImageView *signImgView;//右边箭头
+@end

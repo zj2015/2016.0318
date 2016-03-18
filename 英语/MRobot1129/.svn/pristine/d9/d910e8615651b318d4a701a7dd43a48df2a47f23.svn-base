@@ -1,0 +1,127 @@
+//
+//  ChooseIdentityViewController.m
+//  MRobot
+//
+//  Created by BaiYu on 15/11/9.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import "ChooseIdentityViewController.h"
+#import "LoginViewController.h"
+#import "MainViewController.h"
+
+@interface ChooseIdentityViewController ()
+
+@end
+
+@implementation ChooseIdentityViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    self.navigationController.navigationBarHidden = YES;
+    
+    UIImageView *bgImgView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, MainScreenSize_W, MainScreenSize_H)];
+    bgImgView.image = [UIImage imageNamed:@"chooseBg"];
+    [self.view addSubview:bgImgView];
+    
+    UIButton *innerBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    innerBtn.frame = CGRectMake((MainScreenSize_W - 90*SIZE_TIMES*2)/3, 130*SIZE_TIMES, 90*SIZE_TIMES, 90*SIZE_TIMES);
+    innerBtn.tag = 1;
+    [innerBtn setBackgroundImage:[UIImage imageNamed:@"xiaonei"] forState:UIControlStateNormal];
+    [innerBtn addTarget:self action:@selector(identityChooseClick:) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:innerBtn];
+    
+    UIButton *outBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    outBtn.frame = CGRectMake((MainScreenSize_W - 90*SIZE_TIMES*2)/3*2+90*SIZE_TIMES, 130*SIZE_TIMES, 90*SIZE_TIMES, 90*SIZE_TIMES);
+    outBtn.tag = 2;
+    [outBtn setBackgroundImage:[UIImage imageNamed:@"xiaowai"] forState:UIControlStateNormal];
+    [outBtn addTarget:self action:@selector(identityChooseClick:) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:outBtn];
+    
+    UILabel *innerLab = [[UILabel alloc] initWithFrame:CGRectMake((MainScreenSize_W - 120*SIZE_TIMES*2)/3, CGRectGetMaxY(innerBtn.frame), 120*SIZE_TIMES, 20*SIZE_TIMES)];
+    innerLab.text = @"我是CC校内学生";
+    innerLab.font = [UIFont systemFontOfSize:16];
+    innerLab.textAlignment = NSTextAlignmentCenter;
+    [self.view addSubview:innerLab];
+    
+    UILabel *outLab = [[UILabel alloc] initWithFrame:CGRectMake((MainScreenSize_W - 120*SIZE_TIMES*2)/3*2+120*SIZE_TIMES, CGRectGetMaxY(outBtn.frame), 120*SIZE_TIMES, 20*SIZE_TIMES)];
+    outLab.text = @"我是校外学生";
+    outLab.font = [UIFont systemFontOfSize:16];
+    outLab.textAlignment = NSTextAlignmentCenter;
+    [self.view addSubview:outLab];
+    
+    UILabel *bottomLab = [[UILabel alloc] initWithFrame:CGRectMake((MainScreenSize_W - 120*SIZE_TIMES)/2, MainScreenSize_H - 40*SIZE_TIMES, 120*SIZE_TIMES, 20*SIZE_TIMES)];
+    bottomLab.text = @"请选择您的身份";
+    bottomLab.font = [UIFont systemFontOfSize:16];
+    bottomLab.textAlignment = NSTextAlignmentCenter;
+    [self.view addSubview:bottomLab];
+}
+
+- (void)identityChooseClick:(UIButton *)btn
+{
+    if (btn.tag == 1) {
+        [UserDefaultsUtils saveBoolValue:YES withKey:ISINNER];
+    }else{
+        [UserDefaultsUtils saveBoolValue:NO withKey:ISINNER];
+    }
+    if (![UserDefaultsUtils boolValueWithKey:WHETHERTHECANCELLATION]) {
+        NSString *myName = nil;
+        NSString *myPhone = nil;
+        NSString *myPassword = nil;
+        if ([UserDefaultsUtils boolValueWithKey:ISINNER]) {
+            myName = [UserDefaultsUtils valueWithKey:INNER_MYNAME];
+            myPhone = [UserDefaultsUtils valueWithKey:INNER_MYPHONE];
+            myPassword = [UserDefaultsUtils valueWithKey:INNER_MYPASSWORD];
+        }else{
+            myName = [UserDefaultsUtils valueWithKey:OUT_MYNAME];
+            myPhone = [UserDefaultsUtils valueWithKey:OUT_MYPHONE];
+            myPassword = [UserDefaultsUtils valueWithKey:OUT_MYPASSWORD];
+        }
+        
+        if (myName&&myPhone&&myPassword) {
+
+            MainViewController *mainViewController = [[MainViewController alloc]init];
+            [UserDefaultsUtils saveBoolValue:NO withKey:WHETHERTHECANCELLATION];
+            mainViewController.isAutoLogin = YES;
+            [self.navigationController pushViewController:mainViewController animated:YES];
+
+        }else{
+            LoginViewController *loginVC = [[LoginViewController alloc]init];
+            [self.navigationController pushViewController:loginVC animated:YES];
+        }
+
+    }else{
+        LoginViewController *loginVC = [[LoginViewController alloc]init];
+        [self.navigationController pushViewController:loginVC animated:YES];
+    }
+}
+
+- (UIStatusBarStyle)preferredStatusBarStyle
+{
+    if (iOS7) {
+        return UIStatusBarStyleLightContent;
+    }else
+    {
+        return UIStatusBarStyleDefault;
+    }
+    
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+
+@end

@@ -1,0 +1,26 @@
+//
+//  AnalyticalKnowledgeViewController.h
+//  ERobot
+//
+//  Created by BaiYu on 15/6/30.
+//  Copyright (c) 2015年 BaiYu. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface AnalyticalKnowledgeViewController : BaseViewController<UITableViewDataSource,UITableViewDelegate>
+{
+    UITableView * analyticalTableView;
+    NSArray *kDataArr;//知识点列表
+}
+
+@property (strong, nonatomic) NSString *unitId;
+@property (strong, nonatomic) NSString *weekId;//周Id
+
+@property (assign, nonatomic) NSInteger fromType;//0:代表从学习进度界面进来 1:代表从我的易错知识点界面进来
+@property (assign, nonatomic) NSInteger mainPage;//0:代表从学习进度界面进来 1:代表从我的易错知识点界面进来
+@property (strong, nonatomic) NSString *kId;//知识点Id
+@property (strong, nonatomic) NSString *kName;//知识点名称
+@property (strong, nonatomic) NSString *kContent;//知识点内容
+
+@end

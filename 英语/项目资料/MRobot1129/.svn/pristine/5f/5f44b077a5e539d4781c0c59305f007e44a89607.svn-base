@@ -1,0 +1,30 @@
+//
+//  TrainResultTwoViewController.h
+//  MRobot
+//
+//  Created by mac on 15/8/22.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import "BaseViewController.h"
+#import "SubmitListModel.h"
+#import "SubmitQuestionModel.h"
+#import "QuestionDataModel.h"
+
+@interface TrainResultTwoViewController : BaseViewController<UITableViewDataSource,UITableViewDelegate>
+
+@property (strong, nonatomic) SubmitQuestionModel *submitModel;
+@property(nonatomic,strong)UITableView *myTableView;//6d7448ee-dbfa-40bc-a831-0c6792d5989f
+@property (strong, nonatomic) NSArray *arr;
+@property (strong, nonatomic) NSArray *arrRight;
+@property (copy, nonatomic) NSString *unitId;
+@property (copy, nonatomic) NSString *unitName;
+
+@property (strong, nonatomic) NSArray *wellArray;
+@property (strong, nonatomic) NSArray *badArray;
+
+@property (strong, nonatomic) NSArray *answerArray;
+
+@property (strong, nonatomic) QuestionDataModel *questionModel;
+
+@end

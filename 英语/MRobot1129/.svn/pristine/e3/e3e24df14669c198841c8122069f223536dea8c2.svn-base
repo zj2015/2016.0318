@@ -1,0 +1,17 @@
+//
+//  TeachContentViewController.h
+//  ERobot
+//
+//  Created by BaiYu on 15/6/30.
+//  Copyright (c) 2015年 BaiYu. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface TeachContentViewController :BaseViewController <UITableViewDataSource,UITableViewDelegate>
+{
+    UITableView *teachContentTable;
+    NSArray * teachContentLeftArr;//教学进度表左边字段数组
+}
+@property (strong, nonatomic) NSString *unitId;
+@end

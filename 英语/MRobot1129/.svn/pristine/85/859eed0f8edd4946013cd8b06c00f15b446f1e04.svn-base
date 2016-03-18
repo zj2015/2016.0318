@@ -1,0 +1,660 @@
+//
+//  RegisterViewController.m
+//  MRobot
+//
+//  Created by mac on 15/8/27.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import "RegisterViewController.h"
+#import "MainViewController.h"
+#import "ProvinceDataModel.h"
+#import "ProvinceListModel.h"
+#import "CityDataModel.h"
+#import "DistrictDataModel.h"
+#import <SMS_SDK/SMS_SDK.h>
+#import "UserLoginModel.h"
+@interface RegisterViewController ()
+
+{
+    NSTimer* _timer1;
+    NSTimer* _timer2;
+    NSTimer* _timer3;
+
+    UIAlertView* _alert;
+    UIAlertView* _alert1;
+    UIAlertView* _alert2;
+    
+}
+
+@property (strong, nonatomic) ProvinceListModel *listModel;
+
+@property (strong, nonatomic) ProvinceDataModel *provinceModel;
+
+@property (strong, nonatomic) CityDataModel *cityModel;
+
+@property (strong, nonatomic) DistrictDataModel *areaModel;
+
+@end
+static int count = 0;
+@implementation RegisterViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    [self base_changeNavigationTitleWithString:@"注册"];
+    _originalPhone = @"";
+//    UITapGestureRecognizer * TapGesturRecognizer = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(tapGestureRecognizer)];
+//    [self.view addGestureRecognizer:TapGesturRecognizer];
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    self.navigationController.navigationBarHidden = NO;
+}
+
+- (void)base_navigation_LeftBarButtonPressed
+{
+    [_timer2 invalidate];
+    [_timer1 invalidate];
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+/**
+ *  省市区的请求数据
+ */
+- (void)_prepareData
+{
+    LearningPlanRequest *request = [[LearningPlanRequest alloc]init];
+    [request userRequestWithLocationSuccess:^(id obj) {
+        InfoResult *infoResult = (InfoResult *)obj;
+        if ([infoResult.code isEqualToString:@"0"]) {
+            _listModel = [[ProvinceListModel alloc] init];
+            _listModel = (ProvinceListModel *)[infoResult extraObj];
+            
+            _proviceArray = [[NSMutableArray alloc]init];
+            for (int i = 0; i < _listModel.provinceList.count ; i ++ ) {
+                ProvinceDataModel *dataModel = [_listModel.provinceList objectAtIndex:i];
+                [_proviceArray addObject:dataModel.province];
+            }
+            
+            
+        }
+    } failed:^(id obj) {
+        
+    }];
+}
+
+/**
+ *  注册界面UI
+ */
+- (void)_prepareUI
+{
+    
+    nameTextField = [[UITextField alloc]initWithFrame:CGRectMake(10, 20 + 64 , MainScreenSize_W-20, 35*SIZE_TIMES)];
+    nameTextField.borderStyle = UITextBorderStyleRoundedRect;
+    nameTextField.delegate = self;
+    nameTextField.placeholder = @" 请输入用户名";
+    [self.view addSubview:nameTextField];
+    
+    numTextField = [[UITextField alloc]initWithFrame:CGRectMake(10, nameTextField.bottom + 10, MainScreenSize_W-20, 35*SIZE_TIMES)];
+    numTextField.borderStyle = UITextBorderStyleRoundedRect;
+    numTextField.keyboardType = UIKeyboardTypeNumberPad;
+    numTextField.delegate = self;
+    numTextField.placeholder = @" 请输入您的手机号";
+    [self.view addSubview:numTextField];
+    
+    verTextField = [[UITextField alloc]initWithFrame:CGRectMake(10, numTextField.bottom + 10, (MainScreenSize_W-30)*2/3, 35*SIZE_TIMES)];
+    verTextField.borderStyle = UITextBorderStyleRoundedRect;
+    verTextField.keyboardType = UIKeyboardTypeNumberPad;
+    verTextField.delegate = self;
+    verTextField.placeholder = @" 请输入手机验证码";
+    [self.view addSubview:verTextField];
+    
+    yanzhengBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    yanzhengBtn.frame = CGRectMake(verTextField.right+10, verTextField.top, (MainScreenSize_W-30)/3, 35*SIZE_TIMES);
+    yanzhengBtn.layer.cornerRadius = 4.0;
+    yanzhengBtn.layer.masksToBounds = YES;
+    yanzhengBtn.userInteractionEnabled = YES;
+    yanzhengBtn.titleLabel.font = [UIFont boldSystemFontOfSize:16];
+    yanzhengBtn.backgroundColor = RgbColor(35, 173, 92);
+    [yanzhengBtn setTitle:@"发送验证码" forState:UIControlStateNormal];
+    [yanzhengBtn addTarget:self action:@selector(getVerificationCode:) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:yanzhengBtn];
+    
+    repeatSMSBtn=[UIButton buttonWithType:UIButtonTypeCustom];
+    repeatSMSBtn.frame = CGRectMake(verTextField.right+10, verTextField.top, (MainScreenSize_W-30)/3, 35*SIZE_TIMES);
+    repeatSMSBtn.hidden = YES;
+    repeatSMSBtn.layer.cornerRadius = 4.0;
+    repeatSMSBtn.layer.masksToBounds = YES;
+    repeatSMSBtn.titleLabel.font = [UIFont boldSystemFontOfSize:16];
+    [repeatSMSBtn setTitle:@"重新获取" forState:UIControlStateNormal];
+    repeatSMSBtn.backgroundColor = RgbColor(35, 173, 92);
+    [repeatSMSBtn addTarget:self action:@selector(CannotGetSMS) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:repeatSMSBtn];
+    
+    passWTextField = [[UITextField alloc]initWithFrame:CGRectMake(10, verTextField.bottom + 10, MainScreenSize_W-20, 35*SIZE_TIMES)];
+    passWTextField.borderStyle = UITextBorderStyleRoundedRect;
+    passWTextField.delegate = self;
+    passWTextField.secureTextEntry = YES;
+    passWTextField.placeholder = @" 请输入密码";
+    [self.view addSubview:passWTextField];
+    
+    provinceBtn = [[CustomButton alloc]initWithFrame:CGRectMake(10, passWTextField.bottom + 10, MainScreenSize_W - 20, 35*SIZE_TIMES)];
+    provinceBtn.leftLabel.text = @"请选择省份";
+    provinceBtn.delegate = self;
+    provinceBtn.tag = 101;
+    [self.view addSubview:provinceBtn];
+    
+    cityBtn = [[CustomButton alloc]initWithFrame:CGRectMake(10, provinceBtn.bottom + 10, (MainScreenSize_W-30)/2, 35*SIZE_TIMES)];
+    cityBtn.leftLabel.text = @"请选择市";
+    cityBtn.delegate = self;
+    cityBtn.tag = 102;
+    [self.view addSubview:cityBtn];
+    
+    areaBtn = [[CustomButton alloc]initWithFrame:CGRectMake(cityBtn.right + 10, cityBtn.top, (MainScreenSize_W-30)/2, 35*SIZE_TIMES)];
+    areaBtn.leftLabel.text = @"请选择区";
+    areaBtn.delegate = self;
+    areaBtn.tag = 103;
+    [self.view addSubview:areaBtn];
+    
+    kindBtn = [[CustomButton alloc]initWithFrame:CGRectMake(10, cityBtn.bottom + 10, MainScreenSize_W - 20, 35*SIZE_TIMES)];
+    kindBtn.leftLabel.text = @"请选择中考班级类型";
+    kindBtn.delegate = self;
+    kindBtn.tag = 104;
+    [self.view addSubview:kindBtn];
+    
+    registerBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    registerBtn.frame = CGRectMake(10, MainScreenSize_H - 45*SIZE_TIMES, MainScreenSize_W - 20, 40*SIZE_TIMES);
+    registerBtn.layer.cornerRadius = 4.0;
+    registerBtn.layer.masksToBounds = YES;
+    registerBtn.titleLabel.font = [UIFont boldSystemFontOfSize:18];
+    registerBtn.backgroundColor = RgbColor(35, 173, 92);
+    [registerBtn setTitle:@"立即注册" forState:UIControlStateNormal];
+    [registerBtn addTarget:self action:@selector(registerButtonEvent:) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:registerBtn];
+}
+
+/**
+ *  验证码
+ */
+- (void)getVerificationCode:(UIButton *)btn
+{
+    if (![aCommon isBlankString:nameTextField.text]) {
+        if ( numTextField.text.length == 11 ) {
+            PLog(@"验证码按钮事件");
+            [self.view endEditing:YES];
+            _array=[NSMutableArray array];
+            //获取支持的地区列表
+            [SMS_SDK getZone:^(enum SMS_ResponseState state, NSArray *array) {
+                if (1==state)
+                {
+                    PLog(@"获取区号成功");
+                    //区号数据
+                    _array=[NSMutableArray arrayWithArray:array];
+                }
+                else if (0==state)
+                {
+                    PLog(@"获取区号失败");
+                }
+            }];
+            
+            for (int i=0; i<_array.count; i++) {
+                NSDictionary* dict1=[_array objectAtIndex:i];
+                NSString* code1=[dict1 valueForKey:@"zone"];
+                if ([code1 isEqualToString:@"86"]) {
+                    NSString* rule1=[dict1 valueForKey:@"rule"];
+                    NSPredicate* pred=[NSPredicate predicateWithFormat:@"SELF MATCHES %@",rule1];
+                    BOOL isMatch=[pred evaluateWithObject:numTextField.text];
+                    if (!isMatch) {
+                        //手机号码不正确
+                        UIAlertView* alert=[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"提示", nil) message:NSLocalizedString(@"手机号码不合法", nil) delegate:self cancelButtonTitle:NSLocalizedString(@"确定", nil) otherButtonTitles:nil, nil];
+                        [alert show];
+                        return;
+                    }
+                    break;
+                }
+            }
+            
+            NSString* str=[NSString stringWithFormat:@"%@:%@ %@",NSLocalizedString(@"确定将验证码发送至该号码", nil),@"+86",numTextField.text];
+            UIAlertView* alert=[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"提示", nil) message:str delegate:self cancelButtonTitle:NSLocalizedString(@"取消", nil) otherButtonTitles:NSLocalizedString(@"确定", nil), nil];
+            _alert = alert;
+            [alert show];
+        }else if ( nameTextField.text.length > 20 ){
+            [aCommon iToast:@"用户名不能超过20位"];
+        }else if ( [aCommon isBlankString:numTextField.text] ){
+            [aCommon iToast:@"要输入您的手机号码~"];
+        }else{
+            [aCommon iToast:@"输入合法的手机号码哦~"];
+        }
+        
+    }else{
+        [aCommon iToast:@"用户名不要为空哦~"];
+    }
+    
+    
+}
+
+#pragma mark - UIAlertViewDelegate
+-(void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    if (alertView == _alert) {
+        if (1==buttonIndex)
+        {
+            [self getVerifyCode];
+        }
+        if (0==buttonIndex) {
+            PLog(@"点击了取消按钮");
+        }
+    }
+    if (alertView==_alert1)
+    {
+        if (1==buttonIndex)
+        {
+            PLog(@"重发验证码");
+            yanzhengBtn.hidden=NO;
+            repeatSMSBtn.hidden=YES;
+            count = 0;
+            
+            [self getVerifyCode];
+        }
+    }
+    
+    if (alertView==_alert2) {
+        if (0==buttonIndex)
+        {
+            [self.navigationController popViewControllerAnimated:YES];
+            yanzhengBtn.hidden=NO;
+            repeatSMSBtn.hidden=YES;
+            [_timer2 invalidate];
+            [_timer1 invalidate];
+            count = 0;
+        }
+        if (1==buttonIndex) {
+            ;
+        }
+    }
+}
+
+#pragma mark - 获取验证码
+-(void)getVerifyCode
+{
+    [_timer2 invalidate];
+    [_timer1 invalidate];
+    //显示“重新获取”按钮
+    _timer1 = [NSTimer scheduledTimerWithTimeInterval:60
+                                               target:self
+                                             selector:@selector(showRepeatButton)
+                                             userInfo:nil
+                                              repeats:YES];
+    //倒计时
+    _timer2 = [NSTimer scheduledTimerWithTimeInterval:1
+                                               target:self
+                                             selector:@selector(updateTime)
+                                             userInfo:nil
+                                              repeats:YES];
+    
+    [SMS_SDK getVerifyCodeByPhoneNumber:numTextField.text AndZone:@"86" result:^(enum SMS_GetVerifyCodeResponseState state) {
+        if (1==state) {
+            PLog(@"block 获取验证码成功");
+            
+        }
+        else if(0==state)
+        {
+            PLog(@"block 获取验证码失败");
+            [aCommon iToast:@"获取验证码失败"];
+            yanzhengBtn.hidden=YES;
+            repeatSMSBtn.hidden=NO;
+            count = 0;
+        }
+        else if (SMS_ResponseStateMaxVerifyCode==state)
+        {
+            [aCommon iToast:@"您已超过了请求次数"];
+            yanzhengBtn.hidden=YES;
+            repeatSMSBtn.hidden=NO;
+            count = 0;
+        }
+        else if(SMS_ResponseStateGetVerifyCodeTooOften==state)
+        {
+            [aCommon iToast:@"验证码获取太过频繁"];
+            yanzhengBtn.hidden=YES;
+            repeatSMSBtn.hidden=NO;
+            count = 0;
+        }
+    }];
+}
+
+-(void)updateTime
+{
+    count++;
+    if (count>=60) {
+        [_timer2 invalidate];
+        return;
+    }
+    //PLog(@"更新时间");
+    yanzhengBtn.backgroundColor = [UIColor lightGrayColor];
+    yanzhengBtn.userInteractionEnabled = NO;
+    [yanzhengBtn setTitle:[NSString stringWithFormat:@"倒计时%i%@",60-count,NSLocalizedString(@"秒", nil)] forState:UIControlStateNormal];
+}
+
+-(void)showRepeatButton{
+    yanzhengBtn.hidden=YES;
+    repeatSMSBtn.hidden=NO;
+    [_timer1 invalidate];
+    return;
+}
+
+#pragma mark -重新获取验证码
+-(void)CannotGetSMS
+{
+    if (![aCommon isBlankString:nameTextField.text]) {
+        if ( numTextField.text.length == 11 ) {
+            PLog(@"验证码按钮事件");
+            [self.view endEditing:YES];
+            _array=[NSMutableArray array];
+            //获取支持的地区列表
+            [SMS_SDK getZone:^(enum SMS_ResponseState state, NSArray *array) {
+                if (1==state)
+                {
+                    PLog(@"获取区号成功");
+                    //区号数据
+                    _array=[NSMutableArray arrayWithArray:array];
+                }
+                else if (0==state)
+                {
+                    PLog(@"获取区号失败");
+                }
+            }];
+            
+            for (int i=0; i<_array.count; i++) {
+                NSDictionary* dict1=[_array objectAtIndex:i];
+                NSString* code1=[dict1 valueForKey:@"zone"];
+                if ([code1 isEqualToString:@"86"]) {
+                    NSString* rule1=[dict1 valueForKey:@"rule"];
+                    NSPredicate* pred=[NSPredicate predicateWithFormat:@"SELF MATCHES %@",rule1];
+                    BOOL isMatch=[pred evaluateWithObject:numTextField.text];
+                    if (!isMatch) {
+                        //手机号码不正确
+                        UIAlertView* alert=[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"提示", nil) message:NSLocalizedString(@"手机号码不合法", nil) delegate:self cancelButtonTitle:NSLocalizedString(@"确定", nil) otherButtonTitles:nil, nil];
+                        [alert show];
+                        return;
+                    }
+                    break;
+                }
+            }
+            
+            NSString* str=[NSString stringWithFormat:@"%@:%@ %@",NSLocalizedString(@"重新发送验证码至该号码", nil) ,@"+86",numTextField.text];
+            UIAlertView* alert=[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"提示", nil) message:str delegate:self cancelButtonTitle:NSLocalizedString(@"取消", nil) otherButtonTitles:NSLocalizedString(@"确定", nil), nil];
+            _alert1=alert;
+            [alert show];
+        }else if ( nameTextField.text.length > 20 ){
+            [aCommon iToast:@"用户名不能超过20位"];
+        }else if ( [aCommon isBlankString:numTextField.text] ){
+            [aCommon iToast:@"要输入您的手机号码~"];
+        }else{
+            [aCommon iToast:@"输入合法的手机号码哦~"];
+        }
+        
+    }else{
+        [aCommon iToast:@"用户名不要为空哦~"];
+    }
+}
+
+#pragma mark - UITextFieldDelegate 验证码输入结束判断验证码是否正确
+- (BOOL)textFieldShouldEndEditing:(UITextField *)textField
+{
+    if (textField == verTextField) {
+        //验证号码
+        //验证成功后 获取通讯录 上传通讯录
+        //
+        [self.view endEditing:YES];
+        
+        if(verTextField.text.length!=4)
+        {
+            [aCommon iToast:@"验证码错误"];
+            yanzhengBtn.hidden=YES;
+            repeatSMSBtn.hidden=NO;
+            verTextField.text = @"";
+            verTextField.placeholder = @" 请输入手机验证码";
+        }
+        else
+        {
+            [SMS_SDK commitVerifyCode:verTextField.text result:^(enum SMS_ResponseState state) {
+                if (1==state) {
+                    PLog(@"验证成功");
+                    [aCommon iToast:@"验证成功"];
+                    
+                    //解决等待时间乱跳的问题
+                    [_timer2 invalidate];
+                    [_timer1 invalidate];
+                    
+                    yanzhengBtn.backgroundColor = RgbColor(35, 173, 92);
+                    [yanzhengBtn setTitle:@"验证成功" forState:UIControlStateNormal];
+                    _originalPhone = numTextField.text;
+                    
+                }
+                else if(0==state)
+                {
+                    PLog(@"验证失败");
+                    [aCommon iToast:@"验证失败"];
+                    yanzhengBtn.hidden=YES;
+                    repeatSMSBtn.hidden=NO;
+                    verTextField.text = @"";
+                    verTextField.placeholder = @" 请输入手机验证码";
+                }
+            }];
+        }
+    }
+    return YES;
+}
+
+
+/**
+ *  注册按钮
+ */
+- (void)registerButtonEvent:(UIButton *)btn
+{
+    PLog(@"注册按钮事件");
+    if ([aCommon isBlankString:nameTextField.text]) {
+        [aCommon iToast:@"昵称不能为空哦~"];
+    }else if ([_originalPhone isEqualToString:@""]){
+        [aCommon iToast:@"请获取验证码~"];
+    }else if (![_originalPhone isEqualToString:numTextField.text]) {
+        [aCommon iToast:@"修改手机号,要重新获取验证码~"];
+    }else if (passWTextField.text.length>0) {
+        [MBProgressHUD showHUDAddedTo:self.view animated:YES];
+        LearningPlanRequest *request = [[LearningPlanRequest alloc]init];
+        [request userUserRegistWithTel:[numTextField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]]  andPassword:passWTextField.text andNickName:[nameTextField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]] andPId:_provinceModel.pId andCId:_cityModel.cId andDId:_areaModel.dId andLevel:level success:^(id obj) {
+            [MBProgressHUD hideHUDForView:self.view animated:YES];
+            InfoResult *infoResult = (InfoResult *)obj;
+            if ([infoResult.code isEqualToString:@"0"]) {
+                [self showSucessHUD:@"注册成功~"];
+                UserLoginModel *loginModel = [[UserLoginModel alloc] init];
+                loginModel = (UserLoginModel *)[infoResult extraObj];
+                
+                [UserDefaultsUtils saveValue:loginModel.token forKey:USER_TOKEN];
+                [UserDefaultsUtils saveValue:loginModel.uId forKey:USER_ID];
+                [UserDefaultsUtils saveValue:loginModel.uName forKey:USER_NAME];
+                [UserDefaultsUtils saveValue:loginModel.uCampus forKey:USER_CAMPUS];
+                [UserDefaultsUtils saveValue:loginModel.uClass forKey:USER_CLASS];
+                [UserDefaultsUtils saveValue:loginModel.uAvatar forKey:USER_AVATAR];
+                [UserDefaultsUtils saveValue:loginModel.schoolID forKey:USER_SCHOOLID];
+                [UserDefaultsUtils saveValue:loginModel.classID forKey:USER_CLASSID];
+                [UserDefaultsUtils saveValue:loginModel.sTime forKey:USER_STIME];
+                [UserDefaultsUtils saveValue:loginModel.ccAmount forKey:USER_CCAMOUNT];
+                [UserDefaultsUtils saveValue:loginModel.vipEndDate forKey:USER_VIPENDDATE];
+//                [UserDefaultsUtils saveValue:loginModel.vipStatus forKey:USER_VIPSTATUS];
+                [UserDefaultsUtils saveValue:loginModel.expiresIn forKey:USER_EXPIREIN];
+                
+                /**
+                 注册成功进入界面
+                 */
+                MainViewController *mainViewController = [[MainViewController alloc]init];
+                self.view.window.rootViewController = mainViewController;
+                
+            }else{
+                [aCommon iToast:infoResult.desc];
+            }
+            
+        } failed:^(id obj) {
+            [MBProgressHUD hideHUDForView:self.view animated:YES];
+        }];
+    }
+    
+    
+}
+
+#pragma mark ------CustomButtonDelegate-------
+/**
+ *  省市区的选择，以及等级的选择
+ *
+ *  @param btn tag值
+ */
+- (void)chooseDifferentCategoriesWithTag:(NSInteger)tag
+{
+    [self.view endEditing:YES];
+    switch (tag) {
+        case 101:
+        {
+            ZJAlertView *alert = [[ZJAlertView alloc]initWithTitle:@"请选择省份" andSelect:provinceBtn.leftLabel.text andContent:_proviceArray WithBlock:^(NSString *why, int tag, int isSelect) {
+                if (tag == 0 && why.length !=0 ) {
+                    provinceBtn.leftLabel.text = why;
+                    cityBtn.leftLabel.text = @"请选择市";
+                    areaBtn.leftLabel.text = @"请选择区";
+                    provinceNum = isSelect;
+                    _provinceModel = [_listModel.provinceList objectAtIndex:provinceNum];
+                }
+            }];
+            [self.view addSubview:alert];
+        }
+            break;
+        case 102:
+        {
+            
+            if ([provinceBtn.leftLabel.text isEqualToString:@"请选择省份"]) {
+                [aCommon iToast:@"你前面没选好哦~"];
+            }else{
+                
+                _cityArray = [[NSMutableArray alloc]init];
+                _provinceModel = [_listModel.provinceList objectAtIndex:provinceNum];
+                for (int i = 0; i < _provinceModel.cityList.count ; i ++ ) {
+                    CityDataModel *dataModel = [_provinceModel.cityList objectAtIndex:i];
+                    [_cityArray addObject:dataModel.city];
+                }
+                
+                ZJAlertView *alert = [[ZJAlertView alloc]initWithTitle:@"请选择市" andSelect:cityBtn.leftLabel.text andContent:_cityArray WithBlock:^(NSString *why, int tag, int isSelect) {
+                    if (tag == 0 && why.length !=0 ) {
+                        cityBtn.leftLabel.text = why;
+                        areaBtn.leftLabel.text = @"请选择区";
+                        cityNum = isSelect;
+                    }
+                }];
+                [self.view addSubview:alert];
+            }
+           
+        }
+            break;
+        case 103:
+        {
+            if ([cityBtn.leftLabel.text isEqualToString:@"请选择市"]) {
+                [aCommon iToast:@"你前面没选好哦~"];
+            }else{
+                
+                _areaArray = [[NSMutableArray alloc]init];
+                _cityModel = [_provinceModel.cityList objectAtIndex:cityNum];
+                for (int i = 0; i < _cityModel.districtList.count ; i ++ ) {
+                    DistrictDataModel *dataModel = [_cityModel.districtList objectAtIndex:i];
+                    [_areaArray addObject:dataModel.district];
+                }
+                
+                ZJAlertView *alert = [[ZJAlertView alloc]initWithTitle:@"请选择区" andSelect:areaBtn.leftLabel.text andContent:_areaArray WithBlock:^(NSString *why, int tag, int isSelect) {
+                    if (tag == 0 && why.length !=0 ) {
+                        areaBtn.leftLabel.text = why;
+                        areaNum = isSelect;
+                        
+                        _areaModel = [_cityModel.districtList objectAtIndex:areaNum];
+                        
+                    }
+                }];
+                [self.view addSubview:alert];
+                
+            }
+        }
+            break;
+        case 104:
+        {
+            NSArray * arr = @[@"普通",@"精英"];
+            ZJAlertView *alert = [[ZJAlertView alloc]initWithTitle:@"请选择中考班级类型" andSelect:kindBtn.leftLabel.text andContent:arr WithBlock:^(NSString *why, int tag, int isSelect) {
+                if (tag == 0 && why.length !=0 ) {
+                    kindBtn.leftLabel.text = why;
+                    level = [NSString stringWithFormat:@"%d",isSelect];
+                }
+            }];
+            [self.view addSubview:alert];
+        }
+            break;
+        default:
+            break;
+    }
+}
+
+-(void)tapGestureRecognizer
+{
+    [self.view endEditing:YES];
+    [UIView animateWithDuration:0.10f delay:0.1 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+        self.view.frame =CGRectMake(0, 0, MainScreenSize_W, MainScreenSize_H);
+    } completion:^(BOOL finished)
+     {
+         
+     }];
+}
+
+#pragma mark - UITextviewdelegate 实现代理方法
+//开始编辑输入框的时候，软键盘出现，执行此事件
+-(void)textFieldDidBeginEditing:(UITextField *)textField
+{
+    CGRect frame = textField.frame;
+    int offset = frame.origin.y + 32 +textField.frame.size.height - (self.view.frame.size.height - 216.0);//键盘高度216
+    
+    NSTimeInterval animationDuration = 0.30f;
+    [UIView beginAnimations:@"ResizeForKeyboard" context:nil];
+    [UIView setAnimationDuration:animationDuration];
+    
+    //将视图的Y坐标向上移动offset个单位，以使下面腾出地方用于软键盘的显示
+    if(offset > 0)
+        self.view.frame = CGRectMake(0.0f, -offset, self.view.frame.size.width, self.view.frame.size.height);
+    
+    [UIView commitAnimations];
+}
+
+//当用户按下return键或者按回车键，keyboard消失
+-(BOOL)textFieldShouldReturn:(UITextField *)textField
+{
+    [textField resignFirstResponder];
+    return YES;
+}
+
+//输入框编辑完成以后，将视图恢复到原始状态
+-(void)textFieldDidEndEditing:(UITextField *)textField
+{
+    self.view.frame =CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height);
+}
+
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+
+@end

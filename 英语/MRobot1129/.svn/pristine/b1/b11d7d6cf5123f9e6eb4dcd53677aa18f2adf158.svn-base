@@ -1,0 +1,223 @@
+//
+//  aCommon.m
+//  CCEnglish
+//
+//  Created by RD on 14-5-6.
+//  Copyright (c) 2014年 mac. All rights reserved.
+//
+
+#import "aCommon.h"
+#import "xml.h"
+#import "WsqMD5Util.h"
+
+@interface aCommon ()<NSXMLParserDelegate>
+{
+    NSString *lastStr;
+    
+}
+
+
+@end
+
+@implementation aCommon
+
+
+//将外层的XML拿掉
++(NSData *)parseJsonDataXml:(NSData *)jsonDataXml
+{
+    //    __block NSDictionary * dataDict;
+    __block NSData * jsonData;
+    [[xml shareInstance] getjsonFrom:jsonDataXml success:^(NSString* object) {
+        PLog(@"最后的json:>>>>>>>  %@ <<<<<< ",object);
+        /**
+         *  对于回车换行符进行解析
+         */
+        NSString *rack_object = [self ReplacingNewLineAndWhitespaceCharactersFromJson:object];
+        //        NSError *error = nil;
+        jsonData = [rack_object dataUsingEncoding:NSUTF8StringEncoding];
+        //        dataDict = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingAllowFragments error:&error];
+    }];
+    return jsonData;
+}
+
+//将外层的XML拿掉
++(NSDictionary *)parseJsonDataXmls:(NSData *)jsonDataXml
+{
+    __block NSDictionary * dataDict;
+    [[xml shareInstance] getjsonFrom:jsonDataXml success:^(NSString* object) {
+        NSLog(@"最后的json:>>>>>>>  %@ <<<<<< ",object);
+        /**
+         *  对于回车换行符进行解析
+         */
+        NSString *rack_object = [self ReplacingNewLineAndWhitespaceCharactersFromJson:object];
+        NSError *error = nil;
+        NSData * jsonData = [rack_object dataUsingEncoding:NSUTF8StringEncoding];
+        dataDict = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingAllowFragments error:&error];
+    }];
+    return dataDict;
+}
+
++(NSString *)ReplacingNewLineAndWhitespaceCharactersFromJson:(NSString *)dataStr{
+    NSScanner *scanner = [[NSScanner alloc] initWithString:dataStr];
+    [scanner setCharactersToBeSkipped:nil];
+    NSMutableString *result = [[NSMutableString alloc] init];
+    
+    NSString *temp;
+    NSCharacterSet*newLineAndWhitespaceCharacters = [ NSCharacterSet newlineCharacterSet];
+    while (![scanner isAtEnd])
+    {
+        temp = nil;
+        [scanner scanUpToCharactersFromSet:newLineAndWhitespaceCharacters intoString:&temp];
+        if (temp) [result appendString:temp];
+        
+        // 替换换行符
+        if ([scanner scanCharactersFromSet:newLineAndWhitespaceCharacters intoString:NULL]) {
+            if (result.length > 0 && ![scanner isAtEnd]) // Dont append space to beginning or end of result
+                [result appendString:@""];
+        }
+    }
+    return result;
+}
+
++(void)iToast:(NSString *)msg
+{
+    iToast *toast = [iToast makeText:msg];
+    [toast show];
+}
+
+//判断字符串为空
++ (BOOL) isBlankString:(NSString *)string
+{
+    if (string == nil || string == NULL) {
+        return YES;
+    }
+    
+    if ([string isKindOfClass:[NSNull class]]) {
+        return YES;
+    }
+    if ([[string stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]] length]==0) {
+        
+        return YES;
+    }
+    return NO;
+}
+
+//返回socket的data参数
++(NSMutableData *)dataWithPath:(NSString *)path
+{
+    NSString *md5 = [WsqMD5Util getFileMD5WithPath:path];
+    //文件长度
+    long long Lfilelength = [self fileSizeAtPath:path];
+    // long long 型转换
+    NSNumber *longlongNumber = [NSNumber numberWithLongLong:Lfilelength];
+    NSString *fileLength = [longlongNumber stringValue];
+    
+    NSMutableDictionary *dic = [[NSMutableDictionary alloc]init];
+    //    [dic setValue:@"B3AAF8EE7B8A857CFF33168BF6F810F9" forKey:@"token"];
+    [dic setValue:md5 forKey:@"md5"];
+    [dic setValue:fileLength forKey:@"fileLength"];
+    
+    NSString *str = [self stringWithDictionary:dic];//设置参数
+    
+    NSData *testData = [str dataUsingEncoding: NSUTF8StringEncoding];
+    //    Byte *testByte = (Byte *)[testData bytes];
+    //    for(int i=0;i<[testData length];i++)
+    //        printf("testByte = %d\n",testByte[i]);
+    int dlenth = (int)[testData length];
+    
+    NSData *data1 = [NSData dataWithBytes: &dlenth length: sizeof(dlenth)];
+    NSMutableData *data = [[NSMutableData alloc]init];
+    [data appendData:data1];
+    [data appendData:testData];
+    
+    return data;
+}
+
+//通常用于删除缓存的时，计算缓存大小
+//单个文件的大小
++(long long) fileSizeAtPath:(NSString*) filePath
+{
+    NSFileManager* manager = [NSFileManager defaultManager];
+    if ([manager fileExistsAtPath:filePath]){
+        return [[manager attributesOfItemAtPath:filePath error:nil] fileSize];
+    }
+    return 0;
+}
+
+//拼接传输的字符串
++(NSString *)stringWithDictionary:(NSMutableDictionary *)dic
+{
+    NSString *DataString = @"";
+    NSArray *keys = [dic allKeys];
+    int i = 0 ;
+    for (NSString *skey in keys) {
+        if (i > 0) {
+            DataString = [NSString stringWithFormat:@"%@&%@=%@",DataString,skey,[dic objectForKey:skey]];
+        }else DataString = [NSString stringWithFormat:@"%@=%@",skey,[dic objectForKey:skey]];
+        i++;
+    }
+    return DataString;
+}
+
+//视频转为mp4格式
++(NSURL *)convert2Mp4:(NSURL *)movUrl {
+    NSURL *mp4Url = nil;
+    AVURLAsset *avAsset = [AVURLAsset URLAssetWithURL:movUrl options:nil];
+    NSArray *compatiblePresets = [AVAssetExportSession exportPresetsCompatibleWithAsset:avAsset];
+    
+    if ([compatiblePresets containsObject:AVAssetExportPresetMediumQuality]) {
+        AVAssetExportSession *exportSession = [[AVAssetExportSession alloc]initWithAsset:avAsset
+                                                                              presetName:AVAssetExportPresetMediumQuality];
+        mp4Url = [movUrl copy];
+        mp4Url = [mp4Url URLByDeletingPathExtension];
+        mp4Url = [mp4Url URLByAppendingPathExtension:@"mp4"];
+        exportSession.outputURL = mp4Url;
+        exportSession.shouldOptimizeForNetworkUse = YES;
+        exportSession.outputFileType = AVFileTypeMPEG4;
+        dispatch_semaphore_t wait = dispatch_semaphore_create(0l);
+        [exportSession exportAsynchronouslyWithCompletionHandler:^{
+            switch ([exportSession status]) {
+                case AVAssetExportSessionStatusFailed: {
+                    PLog(@"failed, error:%@.", exportSession.error);
+                } break;
+                case AVAssetExportSessionStatusCancelled: {
+                    PLog(@"cancelled.");
+                } break;
+                case AVAssetExportSessionStatusCompleted: {
+                    PLog(@"completed.");
+                } break;
+                default: {
+                    PLog(@"others.");
+                } break;
+            }
+            dispatch_semaphore_signal(wait);
+        }];
+        long timeout = dispatch_semaphore_wait(wait, DISPATCH_TIME_FOREVER);
+        if (timeout) {
+            PLog(@"timeout.");
+        }
+        if (wait) {
+            //dispatch_release(wait);
+            wait = nil;
+        }
+    }    
+    return mp4Url;
+}
+
+//返回View覆盖多余的tableview cell线条
++ (UIView *)tableViewsFooterView
+{
+    UIView *coverView = [[UIView alloc]init];
+    coverView.backgroundColor = [UIColor clearColor];
+    return coverView;
+}
+
+//返回view 确定tableView的背景颜色
++ (UIView *)tableViewsBackGroundView
+{
+    UIView * backColorView = [[UIView alloc] init];
+    backColorView.backgroundColor = PView_BGColor;
+    return backColorView;
+}
+
+@end

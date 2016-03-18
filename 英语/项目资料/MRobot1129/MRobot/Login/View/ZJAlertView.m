@@ -1,0 +1,206 @@
+//
+//  ZJAlertView.m
+//  AlertViewDemo
+//
+//  Created by mac on 15/8/3.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import "ZJAlertView.h"
+#import "SmallTableViewCell.h"
+#define SIZE_HEIGHT             [UIScreen mainScreen].bounds.size.height/480
+
+#define AlertHeight  140*SIZE_TIMES
+#define AlertWidth   MainScreenSize_W-56
+
+
+@implementation ZJAlertView
+
+- (instancetype)init
+{
+    self = [super initWithFrame:CGRectMake(0, 0, MainScreenSize_W, MainScreenSize_H)];
+    if (self) {
+        [self setBackgroundColor:[UIColor colorWithRed:0 green:0 blue:0 alpha:.3]];
+        
+    }
+    return self;
+}
+
+- (instancetype)initWithTitle:(NSString *)title andSelect:(NSString*)selected andContent:(NSArray *)contentArr WithBlock:(ZJAlert)end
+{
+    self = [self init];
+    if (self)
+    {
+        _finish = end;
+        _origPhone = selected;
+        _numArray = [[NSArray alloc]initWithArray:contentArr];
+        _cellArray = [[NSMutableArray alloc]initWithCapacity:0];
+        CGFloat tableHeight = contentArr.count*35+45;
+        
+        if (tableHeight > (MainScreenSize_H - 200*SIZE_TIMES)) {
+            tableHeight = MainScreenSize_H - 200*SIZE_TIMES;
+        }
+        
+        alertHeight = tableHeight+ 50;
+        
+        _backView=[[UIView alloc]init];
+        _backView = [ZJAlertView showAnimationAlert:_backView];
+        _backView.backgroundColor = [UIColor whiteColor];
+        _backView.layer.masksToBounds = YES;
+        _backView.layer.cornerRadius = 5;
+        _backView.frame = CGRectMake(28, (MainScreenSize_H+64)/2 - alertHeight/2, AlertWidth, alertHeight);
+        [self addSubview:_backView];
+        
+        headView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, _backView.width, 45)];
+        
+        titleLabel = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, _backView.width, 44.5)];
+        titleLabel.textAlignment = NSTextAlignmentCenter;
+        titleLabel.text = title;
+        titleLabel.backgroundColor = [UIColor whiteColor];
+        titleLabel.font = [UIFont systemFontOfSize:16];
+        [headView addSubview:titleLabel];
+        
+        titleLine = [[UILabel alloc]initWithFrame:CGRectMake(0, titleLabel.bottom, _backView.width, 0.5)];
+        titleLine.backgroundColor = [UIColor lightGrayColor];
+        [headView addSubview:titleLine];
+        
+        
+        smallTableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 0, _backView.width, tableHeight) style:UITableViewStyleGrouped];
+        smallTableView.delegate = self;
+        smallTableView.dataSource = self;
+        smallTableView.rowHeight = 35;
+        if (tableHeight < MainScreenSize_H - 200*SIZE_TIMES) {
+            smallTableView.scrollEnabled = NO;
+        }
+        smallTableView.tableHeaderView = headView;
+        smallTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+        [_backView addSubview:smallTableView];
+        
+        // 改变 tableView的背景色
+        smallTableView.backgroundView = [aCommon tableViewsBackGroundView];
+        
+        //去掉多余的分割线
+        smallTableView.tableFooterView = [aCommon tableViewsFooterView];
+        
+        
+        UIButton *btnCancle = [UIButton buttonWithType:UIButtonTypeCustom];
+        [btnCancle setTitle:@"确  定" forState:UIControlStateNormal];
+        [btnCancle setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        [btnCancle addTarget:self action:@selector(BtnClicked:) forControlEvents:UIControlEventTouchUpInside];
+        btnCancle.titleLabel.font = [UIFont boldSystemFontOfSize:15];
+        btnCancle.backgroundColor = RgbColor(252, 125, 10);
+        btnCancle.layer.masksToBounds = YES;
+        btnCancle.layer.cornerRadius = 4;
+        [btnCancle setFrame:CGRectMake(8, alertHeight - 35*SIZE_TIMES, (AlertWidth-8*3)/2, 30*SIZE_TIMES)];
+        [_backView addSubview:btnCancle];
+        
+        UIButton *btnSure = [UIButton buttonWithType:UIButtonTypeCustom];
+        [btnSure setTitle:@"取  消" forState:UIControlStateNormal];
+        [btnSure setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+        btnSure.tag = 1;
+        btnSure.titleLabel.font = [UIFont boldSystemFontOfSize:15];
+        btnSure.backgroundColor = RgbColor(188, 188, 188);
+        btnSure.layer.masksToBounds = YES;
+        btnSure.layer.cornerRadius = 4;
+        [btnSure setFrame:CGRectMake(16+(AlertWidth-8*3)/2, alertHeight - 35*SIZE_TIMES, (AlertWidth-8*3)/2, 30*SIZE_TIMES)];
+        [btnSure addTarget:self action:@selector(BtnClicked:) forControlEvents:UIControlEventTouchUpInside];
+        [_backView addSubview:btnSure];
+    }
+    return self;
+    
+}
+
+- (void)BtnClicked:(UIButton *)btn
+{
+    if (btn.tag == 1) {
+        _finish(@"取消",(int)btn.tag,-1);
+        [self hiden];
+    }else{
+        _finish(cellData,(int)btn.tag,isSelect);
+        [self hiden];
+    }
+}
+
+- (void)hiden
+{
+    [self removeFromSuperview];
+}
+
+// alertView的弹性效果
++(UIView *) showAnimationAlert:(UIView *)view
+{
+    CAKeyframeAnimation *popAnimation = [CAKeyframeAnimation animationWithKeyPath:@"transform"];
+    popAnimation.duration = 0.4;
+    popAnimation.values = @[[NSValue valueWithCATransform3D:CATransform3DMakeScale(0.01f, 0.01f, 1.0f)],
+                            [NSValue valueWithCATransform3D:CATransform3DMakeScale(1.1f, 1.1f, 1.0f)],
+                            [NSValue valueWithCATransform3D:CATransform3DMakeScale(0.9f, 0.9f, 1.0f)],
+                            [NSValue valueWithCATransform3D:CATransform3DIdentity]];
+    popAnimation.keyTimes = @[@0.0f, @0.5f, @0.75f, @1.0f];
+    popAnimation.timingFunctions = @[[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut],
+                                     [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut],
+                                     [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut]];
+    [view.layer addAnimation:popAnimation forKey:nil];
+    return view;
+}
+
+#pragma mark ------
+#pragma mark ---UITableViewDataSource---
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    return _numArray.count;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    NSString *identifier = @"identifier";
+    SmallTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:identifier];
+    if (!cell) {
+        cell = [[SmallTableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
+        cell.selectionStyle = UITableViewCellSelectionStyleNone;//取消选中
+    }
+    cell.leftLabel.text = _numArray[indexPath.row];
+    if ([_origPhone isEqualToString:_numArray[indexPath.row]]) {
+        cell.rightImageView.image = [UIImage imageNamed:@"radioChecked"];
+    }
+    cell.tag = indexPath.row + 1;
+    [_cellArray addObject:cell];
+    return cell;
+}
+
+#pragma mark ------
+#pragma mark ---UITableViewDelegate---
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    cellData = _numArray[indexPath.row];
+    isSelect = (int)indexPath.row;
+    SmallTableViewCell * cellSelected = (SmallTableViewCell *)[tableView cellForRowAtIndexPath:indexPath];
+    for (SmallTableViewCell * cell in _cellArray) {
+        if (cell.tag == cellSelected.tag) {
+            cell.rightImageView.image = [UIImage imageNamed:@"radioChecked"];
+        }else{
+            cell.rightImageView.image = [UIImage imageNamed:@"radio"];
+        }
+    }
+    
+}
+
+
+
+
+
+/*
+// Only override drawRect: if you perform custom drawing.
+// An empty implementation adversely affects performance during animation.
+- (void)drawRect:(CGRect)rect {
+    // Drawing code
+}
+*/
+
+@end

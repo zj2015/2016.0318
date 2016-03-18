@@ -1,0 +1,32 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "452e5c94-b62a-1b4f-b5fb-9ff99b9fcdb1++6261",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+    "452e5c94-b62a-1b4f-b5fb-9ff99b9fcdb1++6261" : {
+
+    }
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "7ABA4CBD2460DABBEC9938DA5B2B27B2F360324E" : 0,
+    "452e5c94-b62a-1b4f-b5fb-9ff99b9fcdb1++6261" : 0
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "B05B60F1-6FB5-43FC-B2CB-F2EDA5E3EFE9",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "7ABA4CBD2460DABBEC9938DA5B2B27B2F360324E" : "",
+    "452e5c94-b62a-1b4f-b5fb-9ff99b9fcdb1++6261" : "MRobot-svn"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "MRobot",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "MRobot.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/172.16.0.201\/svn\/Project",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Subversion",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "452e5c94-b62a-1b4f-b5fb-9ff99b9fcdb1++6261"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/git.oschina.net\/zzhrainbow\/testFiles",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "7ABA4CBD2460DABBEC9938DA5B2B27B2F360324E"
+    }
+  ]
+}

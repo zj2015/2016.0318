@@ -1,0 +1,25 @@
+//
+//  ExamProListModel.m
+//  MRobot
+//
+//  Created by mac on 15/8/20.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import "ExamProListModel.h"
+
+@implementation ExamProListModel
+
+-(void)initWithJson:(NSDictionary *)resultDic
+{
+    if ([self init]) {
+        [self setWeekId:[resultDic objectForKey:@"weekId"]];
+        [self setWeekDesc:[resultDic objectForKey:@"weekDesc"]];
+        [self setTeachContent:[resultDic objectForKey:@"teachContent"]];
+        [self setThisWeek:[resultDic objectForKey:@"thisWeek"]];
+        [self setHasBookLearn:[resultDic objectForKey:@"hasBookLearn"]];
+        [self setHasTrain:[resultDic objectForKey:@"hasTrain"]];
+    }
+}
+
+@end

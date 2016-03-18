@@ -1,0 +1,71 @@
+//
+//  ChooseKindView.m
+//  MRobot
+//
+//  Created by mac on 15/8/21.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import "ChooseKindView.h"
+
+@implementation ChooseKindView
+
+- (instancetype)initWithFrame:(CGRect)frame withTitle:(NSString *)title withImageArr:(NSArray *)imagesArr withTitleArr:(NSArray *)titlesArr withBlock:(ChooseKindViewBlock)block
+{
+    self = [super initWithFrame:frame];
+    if (self) {
+        _block = block;
+        self.backgroundColor = [UIColor colorWithHex:0xDCDCDC alpha:1.0];
+        int total = (int)titlesArr.count;
+        
+        UILabel * titleLabel = [[UILabel alloc]initWithFrame:CGRectMake(1, 1, MainScreenSize_W - 12, 35)];
+        titleLabel.backgroundColor = [UIColor whiteColor];
+        titleLabel.font = [UIFont systemFontOfSize:17];
+        titleLabel.text = title;
+        [self addSubview:titleLabel];
+        
+        for (int i=0; i<total; i++) {
+            
+            int column = i % total;
+            
+            UIView *view = [[UIView alloc] initWithFrame:CGRectMake((MainScreenSize_W - 11)/total*column + 1, titleLabel.bottom + 1, (MainScreenSize_W - 11)/total - 1, 80)];
+            view.tag = i+1;
+            view.backgroundColor = PView_BGColor;
+            
+            UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapGestureRecognizer:)];
+            [view addGestureRecognizer:tap];
+            
+            UIImageView * image = [[UIImageView alloc]initWithFrame:CGRectMake(((MainScreenSize_W - 11)/total-45)/2, 8, 45, 45)];
+            image.backgroundColor = [UIColor clearColor];
+            image.image = [UIImage imageNamed:imagesArr[i]];
+            [view addSubview:image];
+            
+            UILabel *lbl = [[UILabel alloc] initWithFrame:CGRectMake(0, 59, (MainScreenSize_W - 10)/total, 20)];
+            lbl.textAlignment = NSTextAlignmentCenter;
+            lbl.font = [UIFont systemFontOfSize:12.0f];
+            lbl.text = [titlesArr objectAtIndex:i];
+            [view addSubview:lbl];
+            
+            [self addSubview:view];
+        }
+        
+        
+        
+    }
+    return self;
+}
+
+- (void)tapGestureRecognizer:(UITapGestureRecognizer *)tap
+{
+    _block((int)tap.view.tag);    
+}
+
+/*
+// Only override drawRect: if you perform custom drawing.
+// An empty implementation adversely affects performance during animation.
+- (void)drawRect:(CGRect)rect {
+    // Drawing code
+}
+*/
+
+@end

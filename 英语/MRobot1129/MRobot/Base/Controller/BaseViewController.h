@@ -1,0 +1,48 @@
+//
+//  BaseViewController.h
+//  BaseDemo
+//
+//  Created by xiefei on 15/7/1.
+//  Copyright (c) 2015年 xiefei. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+#define  NAVIGATION_LEFT_BARBUTTON_SIZE       CGSizeMake(40, 40)  // navigation 左边按钮的尺寸
+#define  NAVIGATION_RIGHT_BARBUTTON_SIZE      CGSizeMake(40, 40)  // navigation 右边按钮的尺寸
+
+#define  BASE_BG_COLOR      [UIColor colorWithRed:245/255.0f green:245/255.0f blue:245/255.0f alpha:1.0]
+#define  BASE_TITLE_COLOR   [UIColor colorWithRed:60/255.0f green:185/255.0f blue:181/255.0f alpha:1.0]
+
+@interface BaseViewController : UIViewController
+
+- (void)_prepareNotificaitons;//初始化设置通知
+
+- (void)_prepareData;//初始化数据
+
+- (void)_prepareUI;//初始化视图
+
+-(void)base_ExtendedLayout;/* 在IOS7 的情况下 会自动留边整体向下64像素，如果调用此方法 则不需要获取offset 高度适配了*/
+
+-(void)base_changeNavigationBarBackgroudImage:(NSString *)ImgName;
+-(void)base_changeNavigationBarBackgroudColor:(UIColor *)color;
+-(void)base_changeNavigationTitleWithString:(NSString *)title;
+-(void)base_changeNavigationTitleWithString:(NSString *)title andSmallTitle:(NSString *)smallTitle;
+-(void)base_changeNavigationTitleWithImage:(NSString *)imageName;
+-(void)base_changeNavigationTitleWithString:(NSString *)title andImage:(NSString *)imageName;
+
+-(void)base_createLeftNavigationBarButtonWithFrontImage:(NSString *) frontImageName andSelectedImageName:(NSString *)selectedImageName andBackGroundImageName:(NSString *)backgroundImageName andTitle:(NSString *)title;
+
+-(void)base_createRightNavigationBarButtonWithFrontImage:(NSString *) frontImageName andSelectedImageName:(NSString *)selectedImageName andBackGroundImageName:(NSString *)backgroundImageName andTitle:(NSString *)title;
+
+-(void)base_createLeftNavigationBarButtonWithFrontImage:(NSString *) frontImageName andSelectedImageName:(NSString *)selectedImageName andBackGroundImageName:(NSString *)backgroundImageName andTitle:(NSString *)title andSize:(CGSize)size;
+
+-(void)base_createRightNavigationBarButtonWithFrontImage:(NSString *) frontImageName andSelectedImageName:(NSString *)selectedImageName andBackGroundImageName:(NSString *)backgroundImageName andTitle:(NSString *)title andSize:(CGSize)size;
+
+-(void)base_navigation_LeftBarButtonPressed;
+-(void)base_navigation_RightBarButtonPressed;
+
+- (void)showSucessHUD:(NSString *)message;//操作成功的提示
+- (void)showAlertHUD:(NSString *)message;//一般提示
+
+@end

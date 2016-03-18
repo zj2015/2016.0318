@@ -1,0 +1,25 @@
+//
+//  VideoExplanationViewController.h
+//  MRobot
+//
+//  Created by BaiYu on 15/8/22.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import "BaseViewController.h"
+#import "UIFolderTableView.h"
+
+@interface VideoExplanationViewController : BaseViewController<UITableViewDelegate,UITableViewDataSource,UIFolderTableViewDelegate>
+{
+    UIButton *knowledgeBtn;
+    UIButton *solveBtn;
+    UIFolderTableView *knowledgeTable;
+    UIFolderTableView *solveTable;
+    NSIndexPath *currentIndexPath;
+    BOOL isClick;//单元格被点击
+    NSInteger selectRow;//当前点击的单元格
+    
+    NSArray *videosArr;
+}
+
+@end

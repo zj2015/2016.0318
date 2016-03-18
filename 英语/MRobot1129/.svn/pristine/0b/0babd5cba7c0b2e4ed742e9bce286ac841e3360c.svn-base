@@ -1,0 +1,27 @@
+//
+//  TrainResultFourViewController.h
+//  MRobot
+//
+//  Created by mac on 15/8/22.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import "BaseViewController.h"
+#import "SubmitBySkillModel.h"
+#import "SkillResultListModel.h"
+#import "QuestionDataModel.h"
+#import "SkillListModel.h"
+#import "DWCustomPlayerViewController.h"
+@interface TrainResultFourViewController : BaseViewController
+
+@property (strong, nonatomic) SubmitBySkillModel *skillModel;
+
+@property (strong, nonatomic) QuestionDataModel *questionModel;
+
+@property (strong, nonatomic) NSArray *answerArray;
+
+@property (strong, nonatomic) NSMutableArray *answerArr;// 0 没写， 1正确   2错误
+
+@property (strong, nonatomic) SkillListModel *skillListModel;
+
+@end

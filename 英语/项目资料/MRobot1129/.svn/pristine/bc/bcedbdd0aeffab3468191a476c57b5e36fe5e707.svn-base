@@ -1,0 +1,45 @@
+//
+//  NSString+date.h
+//  ECenter
+//
+//  Created by mac on 15/6/8.
+//  Copyright (c) 2015年 mac. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@interface NSString (date)
+
+/**
+ *  将毫秒转换成年月日
+ */
++ (NSString *)makeTimeWithYear:(NSString *)date;
+
+/**
+ *  将时间戳转化成年月日 时分秒
+ */
++ (NSString *)makeTimeStrWithDate:(NSString *)date;
+
+/**
+ * 将bite转换成kb或者mb
+ **/
++ (NSString *)makeBtWithKbOrMb:(NSString *)bite;
+
+/**
+ *  根据控件宽度和字符串 获取字符串高度
+ *
+ *  @param textStr 字符串
+ *  @param width   控件宽度
+ *
+ *  @return 字符串高度
+ */
++(CGSize)getTextHeight:(NSString *)textStr maxWidth:(CGFloat)width;
+
+/**
+ *  将数字转化成字符
+ */
++ (NSString *)makeNumWithPinYin:(NSString *)number;
+
++ (NSString *)filterHTML:(NSString *)html;
+
+@end

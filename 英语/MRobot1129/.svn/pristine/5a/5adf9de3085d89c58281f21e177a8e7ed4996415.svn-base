@@ -1,0 +1,90 @@
+//
+//  KnowledgeLearnViewController.m
+//  MRobot
+//
+//  Created by mac on 15/8/19.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import "KnowledgeLearnViewController.h"
+#import "KnowledgeTableViewCell.h"
+@interface KnowledgeLearnViewController ()
+
+@end
+
+@implementation KnowledgeLearnViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    [self base_changeNavigationTitleWithString:@"知识点选择"];
+}
+
+- (void)_prepareUI
+{
+    CGRect rect = CGRectMake(MainSreenOrigin_X,MainSreenOrigin_Y,MainScreenSize_W,MainScreenSize_H);
+    _myTableView = [[UITableView alloc] initWithFrame:rect style:UITableViewStylePlain];
+    _myTableView.delegate = self;
+    _myTableView.dataSource = self;
+    _myTableView.rowHeight = KnowledgeCellHeight;
+    _myTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+    [self.view addSubview:_myTableView];
+    
+    // 改变 tableView的背景色
+    _myTableView.backgroundView = [aCommon tableViewsBackGroundView];
+    
+    //去掉多余的分割线
+    _myTableView.tableFooterView = [aCommon tableViewsFooterView];
+}
+
+#pragma mark ------
+#pragma mark ---UITableViewDataSource---
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    return 2;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    NSString *identifier = @"identifier";
+    KnowledgeTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:identifier];
+    if (!cell) {
+        cell = [[KnowledgeTableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
+        cell.selectionStyle = UITableViewCellSelectionStyleNone;//取消选中
+    }
+    cell.knowledgeNameLab.text = [NSString stringWithFormat:@"%ld.  %@",indexPath.row+1,@"时态"];
+   
+    return cell;
+}
+
+#pragma mark ------
+#pragma mark ---UITableViewDelegate---
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    
+}
+
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+
+@end

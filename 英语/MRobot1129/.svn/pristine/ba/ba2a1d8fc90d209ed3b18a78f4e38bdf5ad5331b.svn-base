@@ -1,0 +1,15 @@
+//
+//  SilyTabBarButton.h
+//  BaseDemo
+//
+//  Created by mac on 15/7/27.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface SilyTabBarButton : UIButton
+
+@property (nonatomic, strong) UITabBarItem *item;
+
+@end

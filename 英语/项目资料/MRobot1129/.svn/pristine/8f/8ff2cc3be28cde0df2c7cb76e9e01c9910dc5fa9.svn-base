@@ -1,0 +1,21 @@
+//
+//  KnowledgeModel.h
+//  MRobot
+//
+//  Created by mac on 15/8/20.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import "BaseEntity.h"
+/**
+ *  知识点解析Model
+ */
+@interface KnowledgeModel : BaseEntity
+
+@property (copy, nonatomic) NSString * kId; //知识点id
+
+@property (copy, nonatomic) NSString * kName; //知识点名称
+
+@property (copy, nonatomic) NSString * KContent; //知识点内容
+
+@end

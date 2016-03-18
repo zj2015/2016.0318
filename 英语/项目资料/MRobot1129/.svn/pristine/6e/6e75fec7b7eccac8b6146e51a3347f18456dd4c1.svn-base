@@ -1,0 +1,227 @@
+//
+//  TrainResultFourViewController.m
+//  MRobot
+//
+//  Created by mac on 15/8/22.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import "TrainResultFourViewController.h"
+#import "SubmitWrongViewController.h"
+#import "SubmitWrongTViewController.h"
+
+#import "UserLoginModel.h"
+
+@interface TrainResultFourViewController ()
+
+@end
+
+@implementation TrainResultFourViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    [self base_changeNavigationTitleWithString:@"重点例题训练结果"];
+//    [self base_createRightNavigationBarButtonWithFrontImage:@"share" andSelectedImageName:nil andBackGroundImageName:@"share" andTitle:nil andSize:CGSizeMake(30, 30)];
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+     self.tabBarController.tabBar.hidden = YES;
+}
+
+-(void)base_navigation_LeftBarButtonPressed
+{
+    [self.navigationController popToViewController:[self.navigationController.viewControllers objectAtIndex:1] animated:YES];
+}
+
+- (void)_prepareUI
+{
+    UILabel *titleLabel = [[UILabel alloc]initWithFrame:CGRectMake(0, 64.0, MainScreenSize_W, 40*SIZE_TIMES)];
+    titleLabel.backgroundColor = [UIColor whiteColor];
+    titleLabel.text = [NSString stringWithFormat:@"   %@",[UserDefaultsUtils valueWithKey:SKILLNAME]];
+    titleLabel.font = [UIFont systemFontOfSize:16];
+    [self.view addSubview:titleLabel];
+    
+    UILabel *lineLabel = [[UILabel alloc]initWithFrame:CGRectMake(0, titleLabel.bottom, MainScreenSize_W, 0.5)];
+    lineLabel.backgroundColor = [UIColor lightGrayColor];
+    [self.view addSubview:lineLabel];
+    
+    UIView *bgView = [[UIView alloc]init];
+    bgView.backgroundColor = RgbColor(240.0f, 240.0f, 240.0f);
+    
+    int temp = 0;
+    for (int i = 0; i < _skillModel.resultList.count; i ++ ) {
+        
+        SkillResultListModel *listModel = _skillModel.resultList[i];
+        
+        UIView * lineView = [[UIView alloc]initWithFrame:CGRectMake(0, temp, MainScreenSize_W/2, 34)];
+        lineView.backgroundColor = RgbColor(240.0f, 240.0f, 240.0f);
+        lineView.tag = i;
+        UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapViewGestureRecognizer:)];
+        [lineView addGestureRecognizer:tap];
+        [bgView addSubview:lineView];
+        
+        UILabel *flagLabel = [[UILabel alloc]initWithFrame:CGRectMake(15, 8, 18, 18)];
+        if ([listModel.isRight isEqualToString:@"1"]) {
+            flagLabel.backgroundColor = RgbColor(54.0f, 183.0f, 173.0f);
+        }else{
+            flagLabel.backgroundColor = RgbColor(231.0f, 169.0f, 27.0f);
+        }
+        flagLabel.layer.masksToBounds = YES;
+        flagLabel.layer.cornerRadius = 2.0;
+        flagLabel.font = [UIFont boldSystemFontOfSize:13];
+        flagLabel.textColor = [UIColor whiteColor];
+        flagLabel.textAlignment = NSTextAlignmentCenter;
+        flagLabel.text = [NSString stringWithFormat:@"%d",i+1];
+        [lineView addSubview:flagLabel];
+        
+        UILabel *detailLabel = [[UILabel alloc]initWithFrame:CGRectMake(flagLabel.right + 10, flagLabel.top, MainScreenSize_W/2 - 48, 18)];
+        detailLabel.text = listModel.sName;
+        detailLabel.backgroundColor = [UIColor clearColor];
+        detailLabel.lineBreakMode = NSLineBreakByCharWrapping;
+        detailLabel.font = [UIFont systemFontOfSize:14];
+        [lineView addSubview:detailLabel];
+        
+        temp += 30;
+    }
+    
+    if (temp < 160) {
+        temp = 160;
+    }
+    
+    UIButton *tryAgainBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    tryAgainBtn.frame = CGRectMake(MainScreenSize_W/2 + 20*SIZE_TIMES, temp - 30, MainScreenSize_W/2 - 40*SIZE_TIMES , 35);
+    tryAgainBtn.layer.masksToBounds = YES;
+    tryAgainBtn.layer.cornerRadius = 4.0;
+    [tryAgainBtn setTitle:@"再次训练" forState:UIControlStateNormal];
+    tryAgainBtn.titleLabel.font = [UIFont boldSystemFontOfSize:18];
+    tryAgainBtn.backgroundColor = RgbColor(231, 169, 27);
+    [tryAgainBtn addTarget:self action:@selector(clickTheBtnWithTry:) forControlEvents:UIControlEventTouchUpInside];
+    [bgView addSubview:tryAgainBtn];
+    
+    UILabel *videoLabel = [[UILabel alloc]initWithFrame:CGRectMake(MainScreenSize_W/2, tryAgainBtn.top - 30, MainScreenSize_W/2, 25)];
+    videoLabel.textAlignment = NSTextAlignmentCenter;
+    videoLabel.text = @"重点解题技巧";
+    videoLabel.font = [UIFont systemFontOfSize:15];
+    [bgView addSubview:videoLabel];
+    
+    
+    UIImageView *videoCoverImg = [[UIImageView alloc] initWithFrame:  CGRectMake(MainScreenSize_W/2 + 20, videoLabel.top - 80, MainScreenSize_W/2 - 40, 75)];
+    videoCoverImg.userInteractionEnabled = YES;
+    if (_type == 0) {
+        [videoCoverImg setImageWithURL:[NSURL URLWithString:_skillListModel.mainVideoCoverUrl] placeholderImage:[UIImage imageNamed:@"video"]];
+    }else if (_type == 1){
+       [videoCoverImg setImageWithURL:[NSURL URLWithString:_qListModel.qVideoCoverUrl] placeholderImage:[UIImage imageNamed:@"video"]];
+    }
+    
+    [bgView addSubview:videoCoverImg];
+    
+    UIImageView *videoCoverImg2 = [[UIImageView alloc] initWithFrame:  CGRectMake(videoCoverImg.width/2 - 15, videoCoverImg.height/2 - 15, 30, 30)];
+    videoCoverImg2.userInteractionEnabled = YES;
+    videoCoverImg2.image = [UIImage imageNamed:@"PLAY"];
+    [videoCoverImg addSubview:videoCoverImg2];
+    
+    UIButton *videoBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    videoBtn.frame = CGRectMake(MainScreenSize_W/2 + 20, videoLabel.top - 80, MainScreenSize_W/2 - 40, 75);
+    [videoBtn addTarget:self action:@selector(clickTheBtnWithPlayVideo:) forControlEvents:UIControlEventTouchUpInside];
+    [bgView addSubview:videoBtn];
+    
+    UILabel *line2Label = [[UILabel alloc]initWithFrame:CGRectMake(MainScreenSize_W/2, 0, 0.5, temp+20)];
+    line2Label.backgroundColor = [UIColor lightGrayColor];
+    [bgView addSubview:line2Label];
+    
+    bgView.frame = CGRectMake(0, lineLabel.bottom, MainScreenSize_W, temp + 20);
+    
+    [self.view addSubview:bgView];
+}
+
+- (void)clickTheBtnWithTry:(UIButton *)btn
+{
+    PLog(@"再次训练");
+    LearningPlanRequest * request = [[LearningPlanRequest alloc]init];
+    [request userPayCCWithVideoId:@"" source:@"1" success:^(id obj) {
+        InfoResult *infoResult = (InfoResult *)obj;
+        if ([infoResult.code isEqualToString:@"0"]) {
+            UserLoginModel *loginModel = [[UserLoginModel alloc] init];
+            loginModel = (UserLoginModel *)[infoResult extraObj];
+            
+            [UserDefaultsUtils saveValue:loginModel.ccAmount forKey:USER_CCAMOUNT];
+            
+            [[NSNotificationCenter defaultCenter] postNotificationName:MYNOTI_USER_TRYAGAIN object:nil];
+            [self.navigationController popViewControllerAnimated:YES];
+        }
+    } failed:^(id obj) {
+        
+    }];
+    
+}
+
+- (void)clickTheBtnWithPlayVideo:(UIButton *)btn
+{
+    PLog(@"播放视频");
+    DWCustomPlayerViewController *player = [[DWCustomPlayerViewController alloc] init];
+    player.videoTitle = @"重点解题技巧视频";
+    if (_type == 0) {
+        player.videoId = _skillListModel.mainVideoCCId;
+        player.imgUrlstring = _skillListModel.mainVideoCoverUrl;
+        player.videoURL = _skillListModel.mainVideoUrl;
+    }else if (_type == 1){
+        player.videoId = _qListModel.qVideoCCId;
+        player.imgUrlstring = _qListModel.qVideoCoverUrl;
+        player.videoURL = _qListModel.qVideoUrl;
+    }
+    player.hidesBottomBarWhenPushed = YES;
+    // 1.4.36 视频播放&再次训练 付费控制
+    LearningPlanRequest * request = [[LearningPlanRequest alloc]init];
+    [request userPayCCWithVideoId:player.videoId source:@"0" success:^(id obj)
+     {
+         InfoResult *infoResult = (InfoResult *)obj;
+         if ([infoResult.code isEqualToString:@"0"]) {
+             [self.navigationController pushViewController:player animated:NO];
+         }
+     } failed:^(id obj) {
+         
+     }];
+    
+}
+
+- (void)tapViewGestureRecognizer:(UITapGestureRecognizer *)tap
+{
+    PLog(@"tag====%ld",tap.view.tag);
+    SkillResultListModel *listModel = _skillModel.resultList[tap.view.tag];
+    SubmitWrongTViewController *submitWrongVC = [[SubmitWrongTViewController alloc]init];
+    submitWrongVC.wrongId = listModel.qId;
+    submitWrongVC.questionModel = _questionModel;
+    submitWrongVC.optionsArr = _answerArray;
+    submitWrongVC.answerArr = _answerArr;
+    NSMutableArray *count = [NSMutableArray array];
+    for (SkillResultListModel *list in _skillModel.resultList) {
+        
+        [count addObject:list.qId];
+        if ([list.qId isEqualToString:submitWrongVC.wrongId]) {
+            submitWrongVC.location = (int)count.count;
+        }
+    }
+    submitWrongVC.errorIdArray = count;
+    [self.navigationController pushViewController:submitWrongVC animated:YES];
+    
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+
+@end

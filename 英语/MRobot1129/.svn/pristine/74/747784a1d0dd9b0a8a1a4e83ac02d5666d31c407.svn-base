@@ -1,0 +1,28 @@
+//
+//  TeachContentDataModel.m
+//  MRobot
+//
+//  Created by mac on 15/8/20.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import "TeachContentDataModel.h"
+
+@implementation TeachContentDataModel
+
+- (void)initWithJson:(NSDictionary *)resultDic
+{
+    if ([self init]) {
+        [self setProgressDesc:[resultDic objectForKey:@"progressDesc"]];
+        [self setContent:[resultDic objectForKey:@"content"]];
+        [self setResult:[resultDic objectForKey:@"result"]];
+        [self setExample:[resultDic objectForKey:@"example"]];
+        [self setTodayReturn:[resultDic objectForKey:@"todayReturn"]];
+        [self setNextWeekReturn:[resultDic objectForKey:@"nextWeekReturn"]];
+        [self setWritingHomework:[resultDic objectForKey:@"writingHomework"]];
+        [self setPreviewHomework:[resultDic objectForKey:@"previewHomework"]];
+    }
+}
+
+
+@end

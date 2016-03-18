@@ -1,0 +1,79 @@
+//
+//  StudyPlanViewController.m
+//  MRobot
+//
+//  Created by mac on 15/9/16.
+//  Copyright © 2015年 silysolong. All rights reserved.
+//
+
+#import "StudyPlanViewController.h"
+
+@interface StudyPlanViewController ()
+
+@end
+
+@implementation StudyPlanViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    [self base_changeNavigationTitleWithString:@"更改学习计划"];
+}
+
+- (void)_prepareUI
+{
+    
+    UIButton *normalBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    normalBtn.frame = CGRectMake(50*SIZE_TIMES, 100*SIZE_TIMES, MainScreenSize_W - 100*SIZE_TIMES, 40*SIZE_TIMES);
+    normalBtn.backgroundColor = RgbColor(35, 174, 92);
+    normalBtn.tag = 101;
+    normalBtn.titleLabel.font = [UIFont boldSystemFontOfSize:18];
+    [normalBtn setTitle:@"中考普通班" forState:UIControlStateNormal];
+    [normalBtn addTarget:self action:@selector(changeTheClass:) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:normalBtn];
+    
+    UIButton *topBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    topBtn.frame = CGRectMake(50*SIZE_TIMES, normalBtn.bottom + 20*SIZE_TIMES, MainScreenSize_W - 100*SIZE_TIMES, 40*SIZE_TIMES);
+    topBtn.backgroundColor = RgbColor(35, 174, 92);
+    topBtn.tag = 102;
+    topBtn.titleLabel.font = [UIFont boldSystemFontOfSize:18];
+    [topBtn setTitle:@"中考进阶班" forState:UIControlStateNormal];
+    [topBtn addTarget:self action:@selector(changeTheClass:) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:topBtn];
+    
+}
+
+- (void)changeTheClass:(UIButton *)button
+{
+    switch (button.tag) {
+        case 101:
+        {
+            
+        }
+            break;
+        case 102:
+        {
+            
+        }
+            break;
+        default:
+            break;
+    }
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+
+@end

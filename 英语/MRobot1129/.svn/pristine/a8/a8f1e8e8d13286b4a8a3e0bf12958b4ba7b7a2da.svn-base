@@ -1,0 +1,141 @@
+//
+//  FocusAnalysisViewController.m
+//  MRobot
+//
+//  Created by BaiYu on 15/8/24.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import "FocusAnalysisViewController.h"
+#import "FocusAnalysisTableViewCell.h"
+#import "DWCustomPlayerViewController.h"
+#import "ImportantAnalysiModel.h"
+#import "ImportantListModel.h"
+
+@interface FocusAnalysisViewController ()
+
+@end
+
+@implementation FocusAnalysisViewController
+
+-(void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    self.tabBarController.tabBar.hidden = YES;
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    [self base_changeNavigationTitleWithString:@"本周重点解题技巧视频"];
+    self.view.backgroundColor = [UIColor colorWithRed:224/255.0 green:224/255.0 blue:224/255.0 alpha:1];
+}
+
+-(void)_prepareUI
+{
+    analysisTable = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, MainScreenSize_W, MainScreenSize_H) style:UITableViewStylePlain];
+    analysisTable.separatorStyle = UITableViewCellSeparatorStyleNone;
+    analysisTable.delegate = self;
+    analysisTable.dataSource = self;
+    analysisTable.rowHeight = 135 * SIZE_TIMES;
+    [self.view addSubview:analysisTable];    
+}
+
+-(void)_prepareData
+{
+    //1.4.11 重点解析-综合训练
+    [self showAlertHUD:@"正在加载..."];
+    LearningPlanRequest *focusRequest = [[LearningPlanRequest alloc] init];
+    [focusRequest userImportantAnalysiWithWeekId:self.weekId success:^(id obj)
+    {
+        InfoResult *infoResult = (InfoResult *)obj;
+        if ([infoResult.code isEqualToString:@"0"]) {
+            ImportantAnalysiModel *importModel = [[ImportantAnalysiModel alloc] init];
+            importModel = (ImportantAnalysiModel *)[infoResult extraObj];
+
+            skillsArr = importModel.skillListArray;
+            
+            [analysisTable reloadData];
+        }else{
+            [aCommon iToast:@"加载失败!"];
+        }
+    } failed:^(id obj) {
+        [aCommon iToast:@"系统未知错误!"];
+    }];
+}
+
+#pragma mark- UITableViewDataSourcer
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    return [skillsArr count];
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    static NSString *identifier = @"FocusAnalysisTableViewCell";
+    
+    if ([tableView respondsToSelector:@selector(setSeparatorInset:)]) {
+        [tableView setSeparatorInset:UIEdgeInsetsZero];
+    }
+    
+    FocusAnalysisTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:identifier];
+    if (cell == nil) {
+        cell = [[FocusAnalysisTableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:identifier];
+        cell.selectionStyle = UITableViewCellSelectionStyleNone;
+    }
+    if (skillsArr) {
+        ImportantListModel *importantModel = [skillsArr objectAtIndex:indexPath.row];
+
+        cell.sNameLab.text = [NSString stringWithFormat:@" %ld. %@",(long)indexPath.row + 1,importantModel.sName];
+        cell.videoNameLab.text = importantModel.videoName;
+        [cell.videoCoverImg setImageWithURL:[NSURL URLWithString:importantModel.videoCoverUrl] placeholderImage:[UIImage imageNamed:@"video"]];
+        cell.videoBtn.tag = indexPath.row;
+        [cell.videoBtn addTarget:self action:@selector(playVideoClick:) forControlEvents:UIControlEventTouchUpInside];
+    }
+
+    return cell;
+}
+
+-(void)playVideoClick:(UIButton *)btn
+{
+    PLog(@"%ld重点解析视频按钮被点击",(long)btn.tag);
+    
+    ImportantListModel *importantModel = [skillsArr objectAtIndex:btn.tag];
+
+    DWCustomPlayerViewController *player = [[DWCustomPlayerViewController alloc] init];
+    player.videoId = importantModel.videoCCId;
+    player.videoTitle = importantModel.videoName;
+    player.imgUrlstring = importantModel.videoCoverUrl;
+    player.videoURL = importantModel.videoUrl;
+    player.hidesBottomBarWhenPushed = YES;
+    
+    [self.navigationController pushViewController:player animated:NO];
+    // 1.4.36 视频播放&再次训练 付费控制
+//    LearningPlanRequest * request = [[LearningPlanRequest alloc]init];
+//    [request userPayCCWithVideoId:player.videoId source:@"0" success:^(id obj)
+//     {
+//         InfoResult *infoResult = (InfoResult *)obj;
+//         if ([infoResult.code isEqualToString:@"0"]) {
+//             [self.navigationController pushViewController:player animated:NO];
+//         }
+//     } failed:^(id obj) {
+//         
+//     }];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+
+@end

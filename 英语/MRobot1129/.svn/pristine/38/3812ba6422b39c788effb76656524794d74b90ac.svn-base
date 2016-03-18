@@ -1,0 +1,96 @@
+//
+//  LoginViewController.m
+//  MRobot
+//
+//  Created by mac on 15/8/20.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import "LoginViewController.h"
+#import "MainViewController.h"
+@interface LoginViewController ()
+
+@end
+
+@implementation LoginViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    UITapGestureRecognizer * TapGesturRecognizer = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(tapGestureRecognizer)];
+    [self.view addGestureRecognizer:TapGesturRecognizer];
+    
+    _accountField = [[UITextField alloc]initWithFrame:CGRectMake(20, 50*SIZE_TIMES, MainScreenSize_W-40, 35*SIZE_TIMES)];
+    _accountField.borderStyle = UITextBorderStyleRoundedRect;
+    _accountField.placeholder = @"请输入您的账号";
+//    [self.view addSubview:_accountField];
+    
+    _telField = [[UITextField alloc]initWithFrame:CGRectMake(20, _accountField.bottom + 10, MainScreenSize_W-40, 35*SIZE_TIMES)];
+    _telField.borderStyle = UITextBorderStyleRoundedRect;
+    _telField.placeholder = @"请输入您的手机号码";
+    [self.view addSubview:_telField];
+    
+    _passwordField = [[UITextField alloc]initWithFrame:CGRectMake(20, _telField.bottom + 10, MainScreenSize_W-40, 35*SIZE_TIMES)];
+    _passwordField.borderStyle = UITextBorderStyleRoundedRect;
+    _passwordField.placeholder = @"请输入您的密码";
+    [self.view addSubview:_passwordField];
+    
+    UIButton *loginBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    loginBtn.frame = CGRectMake(20, _passwordField.bottom + 20, MainScreenSize_W- 40 , 40);
+    loginBtn.layer.masksToBounds = YES;
+    loginBtn.layer.cornerRadius = 4;
+    loginBtn.backgroundColor = [UIColor redColor];
+    loginBtn.titleLabel.font = [UIFont boldSystemFontOfSize:18];
+    [loginBtn setTitle:@"登  录" forState:UIControlStateNormal];
+    [loginBtn addTarget:self action:@selector(click:) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:loginBtn];
+}
+
+-(void)tapGestureRecognizer
+{
+    [self.view endEditing:YES];
+    [UIView animateWithDuration:0.10f delay:0.1 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+        self.view.frame =CGRectMake(0, 0, MainScreenSize_W, MainScreenSize_H);
+    } completion:^(BOOL finished)
+     {
+         
+     }];
+}
+
+- (void)click:(UIButton *)btn
+{
+    MainViewController *mainViewController = [[MainViewController alloc]init];
+    self.view.window.rootViewController = mainViewController;
+    
+    if ([aCommon isBlankString:_accountField.text]) {
+        [aCommon iToast:@"账号不能为空"];
+    }else if ([aCommon isBlankString:_telField.text]){
+        [aCommon iToast:@"密码不能为空"];
+    }else{
+        LearningPlanRequest *request = [[LearningPlanRequest alloc]init];
+        [request userUserLoginWithAccount:_accountField.text andTel:_telField.text andPassword:_passwordField.text success:^(id obj) {
+            
+        } failed:^(id obj) {
+            
+        }];
+    }
+    
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+
+@end

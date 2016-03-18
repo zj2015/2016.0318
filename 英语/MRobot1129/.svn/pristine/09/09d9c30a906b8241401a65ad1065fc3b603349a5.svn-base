@@ -1,0 +1,20 @@
+//
+//  AnalyticalKnowledgeViewController.h
+//  ERobot
+//
+//  Created by BaiYu on 15/6/30.
+//  Copyright (c) 2015年 BaiYu. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface AnalyticalKnowledgeViewController : BaseViewController<UITableViewDataSource,UITableViewDelegate>
+{
+    UITableView * analyticalTableView;
+    NSArray *kDataArr;//知识点列表
+}
+
+@property (strong, nonatomic) NSString *unitId;
+@property (strong, nonatomic) NSString *weekId;//周Id
+
+@end

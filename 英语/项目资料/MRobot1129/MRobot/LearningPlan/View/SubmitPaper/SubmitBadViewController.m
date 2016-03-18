@@ -1,0 +1,106 @@
+//
+//  SubmitBadViewController.m
+//  MRobot
+//
+//  Created by mac on 15/8/24.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import "SubmitBadViewController.h"
+
+@interface SubmitBadViewController ()
+
+@end
+
+@implementation SubmitBadViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    self.view.backgroundColor = [UIColor clearColor];
+    
+    self.bgView = [[UIView alloc]initWithFrame:CGRectMake(10, 0, MainScreenSize_W - 20, self.view.height)];
+    [self.bgView setBackgroundColor:[UIColor whiteColor]];
+    [self.view addSubview:_bgView];
+    
+    UILabel *lineLab = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, MainScreenSize_W-20, 0.5)];
+    lineLab.backgroundColor = [UIColor lightGrayColor];
+    [_bgView addSubview:lineLab];
+    
+    if (self.dataArr.count != 0) {
+        
+        UILabel *wrongTitleLabel = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, MainScreenSize_W-20, 30)];
+        wrongTitleLabel.text = @"The wrong question number";
+        [_bgView addSubview:wrongTitleLabel];
+        
+        
+            int totalColumns = 8;
+            CGFloat answerW = 30*SIZE_TIMES;
+            CGFloat answerH = 30*SIZE_TIMES;
+            CGFloat marginX = (MainScreenSize_W - 10 - totalColumns * answerW) / (totalColumns + 1)-2;
+            CGFloat marginY = 10;
+            
+            int i = 0;
+            UILabel *label = nil;
+            //选择题
+            for (; i < self.dataArr.count; i ++ ) {
+                int row=i/8;
+                int col=i%8;
+                CGFloat answerX = marginX+5 + col * (answerW + marginX);
+                CGFloat answerY = 40 + row * (answerH + marginY);
+                label = [[UILabel alloc]initWithFrame:CGRectMake( answerX, answerY, answerW,answerH)];
+                label.tag = i;
+                label.layer.cornerRadius = 5.0;
+                label.layer.masksToBounds = YES;
+                label.text = [NSString stringWithFormat:@"%d",i + 1];
+                label.textColor = [UIColor whiteColor];
+                label.font = [UIFont boldSystemFontOfSize:17];
+                label.backgroundColor = PView_RedColor;
+                label.textAlignment = NSTextAlignmentCenter;
+                label.userInteractionEnabled = YES;
+                [_bgView addSubview:label];
+                
+                UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc]initWithTarget:self.trainResultVC action:@selector(chooseBadQuestion:)];
+                [label addGestureRecognizer:tap];
+            }
+            
+        if (self.dataArr.count%8) {
+            CGRect viewFrame = self.view.frame;
+            viewFrame.size.height =  40+ (self.dataArr.count/8+1)*answerW+(self.dataArr.count/8+2)*marginY;
+            self.view.frame = viewFrame;
+            self.bgView.frame = CGRectMake(10, 0, MainScreenSize_W - 20, self.view.height);
+        }else{
+            CGRect viewFrame = self.view.frame;
+            viewFrame.size.height =  40+(self.dataArr.count/8)*answerW+(self.dataArr.count/8+1)*marginY;
+            self.view.frame = viewFrame;
+            self.bgView.frame = CGRectMake(10, 0, MainScreenSize_W - 20, self.view.height);
+        }
+    }else{
+        CGRect viewFrame = self.view.frame;
+        viewFrame.size.height =  0;
+        self.view.frame = viewFrame;
+    }
+    
+}
+
+- (void)chooseBadQuestion:(UITapGestureRecognizer *)tap
+{
+    
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+
+@end

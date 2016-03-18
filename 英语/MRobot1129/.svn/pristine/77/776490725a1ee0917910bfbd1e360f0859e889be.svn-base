@@ -1,0 +1,113 @@
+//
+//  SilyTabBar.m
+//  BaseDemo
+//
+//  Created by 张娇娇 on 15/7/1.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import "SilyTabBar.h"
+#import "SilyTabBarButton.h"
+@interface SilyTabBar()
+
+@property (nonatomic, weak) SilyTabBarButton *selectedButton;
+@property (nonatomic, strong) NSMutableArray *tabBarButtons;
+@property (nonatomic, weak) UIButton *plusButton;
+@end
+@implementation SilyTabBar
+
+- (NSMutableArray *)tabBarButtons
+{
+    if (_tabBarButtons == nil) {
+        _tabBarButtons = [NSMutableArray array];
+    }
+    return _tabBarButtons;
+}
+
+- (id)initWithFrame:(CGRect)frame
+{
+    self = [super initWithFrame:frame];
+    if (self) {
+        
+    }
+    return self;
+}
+- (void)plusButtonClick
+{
+    if ([self.delegate respondsToSelector:@selector(tabBarDidClickedPlusButton:)]) {
+        [self.delegate tabBarDidClickedPlusButton:self];
+    }
+}
+- (void)addTabBarButtonWithItem:(UITabBarItem *)item
+{
+    // 1.创建按钮
+    SilyTabBarButton *button = [[SilyTabBarButton alloc] init];
+    [self addSubview:button];
+    // 添加按钮到数组中
+    [self.tabBarButtons addObject:button];
+    // 2.设置数据
+    button.item = item;
+    
+    // 3.监听按钮点击
+    [button addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchDown];
+    
+    // 4.默认选中第0个按钮
+    if (self.tabBarButtons.count == 1) {
+        [self buttonClick:button];
+    }}
+
+/**
+ *  监听按钮点击
+ */
+- (void)buttonClick:(SilyTabBarButton *)button
+{
+    // 1.通知代理
+    if ([self.delegate respondsToSelector:@selector(tabBar:didSelectedButtonFrom:to:)]) {
+        [self.delegate tabBar:self didSelectedButtonFrom:(int)self.selectedButton.tag to:(int)button.tag];
+    }
+    
+    // 2.设置按钮的状态
+    self.selectedButton.selected = NO;
+    button.selected = YES;
+    self.selectedButton = button;
+}
+
+- (void)layoutSubviews
+{
+    [super layoutSubviews];
+    
+    // 调整加号按钮的位置
+    CGFloat h = self.frame.size.height;
+    CGFloat w = self.frame.size.width;
+    self.plusButton.center = CGPointMake(w * 0.5, h * 0.5);
+    
+    // 按钮的frame数据
+    CGFloat buttonH = h;
+    CGFloat buttonW = w / self.subviews.count;
+    CGFloat buttonY = 0;
+    
+    for (int index = 0; index<self.tabBarButtons.count; index++) {
+        // 1.取出按钮
+        SilyTabBarButton *button = self.tabBarButtons[index];
+        
+        // 2.设置按钮的frame
+        CGFloat buttonX = index * buttonW;
+
+        button.frame = CGRectMake(buttonX, buttonY, buttonW, buttonH);
+        
+        // 3.绑定tag
+        button.tag = index;
+        
+    }
+    
+}
+
+/*
+// Only override drawRect: if you perform custom drawing.
+// An empty implementation adversely affects performance during animation.
+- (void)drawRect:(CGRect)rect {
+    // Drawing code
+}
+*/
+
+@end

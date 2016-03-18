@@ -1,0 +1,43 @@
+//
+//  UserLoginModel.h
+//  MRobot
+//
+//  Created by mac on 15/8/20.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import "BaseEntity.h"
+/**
+ *  用户登录Model
+ */
+@interface UserLoginModel : BaseEntity
+
+@property (copy, nonatomic) NSString * uId; //用户id
+
+@property (copy, nonatomic) NSString * uName; //姓名/昵称
+
+@property (copy, nonatomic) NSString * uCampus; //校区
+
+@property (copy, nonatomic) NSString * uClass; //班级
+
+@property (copy, nonatomic) NSString * uAvatar; //头像地址
+
+@property (copy, nonatomic) NSString * token; //令牌
+
+@property (copy, nonatomic) NSString * expiresIn; //令牌过期时间  单位：毫秒
+
+@property (copy, nonatomic) NSString * schoolID;
+
+@property (copy, nonatomic) NSString * classID;
+
+@property (copy, nonatomic) NSString * sTime; //服务器当前时间戳  单位：毫秒
+
+@property (copy, nonatomic) NSString * ccAmount; //CC币数量
+
+@property (copy, nonatomic) NSString * vipStatus; //会员状态  0：非会员 1：正常 2：已过期
+
+@property (copy, nonatomic) NSString * vipEndDate;//会员截止时间
+
+@property (copy, nonatomic) NSString * level; // 0:中考普通班  1:中考进阶班  备注：只针对校外用户，没有返回空
+
+@end

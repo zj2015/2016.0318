@@ -1,0 +1,39 @@
+//
+//  TopicVideoViewController.m
+//  MRobot
+//
+//  Created by BaiYu on 15/9/6.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import "TopicVideoViewController.h"
+
+@interface TopicVideoViewController ()
+
+@end
+
+@implementation TopicVideoViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    [self base_changeNavigationTitleWithString:self.tName];
+    
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+
+@end

@@ -1,0 +1,227 @@
+//
+//  ErrorTianQuestionView.m
+//  ERobot
+//
+//  Created by mac on 15/7/13.
+//  Copyright (c) 2015年 BaiYu. All rights reserved.
+//
+
+#import "ErrorTianQuestionView.h"
+
+@implementation ErrorTianQuestionView
+
+
+-(id)initWithFrame:(CGRect)frame
+{
+    self = [super initWithFrame:frame];
+    if (self) {
+        _scrollView = [[UIScrollView alloc]initWithFrame:CGRectZero];
+        _scrollView.frame = CGRectMake(0, 0, self.width, self.height);
+        _scrollView.backgroundColor = PView_BGColor;
+        _scrollView.showsHorizontalScrollIndicator = NO;
+        _scrollView.showsVerticalScrollIndicator = NO;
+        [self addSubview:_scrollView];
+        
+        if (!_topBgView) {
+            _topBgView = [[UIView alloc]initWithFrame:CGRectZero];
+            _topBgView.backgroundColor = [UIColor whiteColor];
+            _topBgView.layer.cornerRadius = 4;
+            _topBgView.layer.borderWidth = 0.5;
+            _topBgView.layer.borderColor = [UIColor lightGrayColor].CGColor;
+            [_scrollView addSubview:_topBgView];
+        }
+        
+        if (!_answerLabel) {
+            _answerLabel = [[UILabel alloc]initWithFrame:CGRectZero];
+            _answerLabel.font = [UIFont systemFontOfSize:15];
+            _answerLabel.textColor = [UIColor grayColor];
+            [_scrollView addSubview:_answerLabel];
+        }
+        
+        if (!_contentLabel) {
+            _contentLabel = [[UILabel alloc]initWithFrame:CGRectZero];
+            _contentLabel.font = [UIFont systemFontOfSize:15];
+            _contentLabel.numberOfLines = 0;
+            _contentLabel.backgroundColor = [UIColor clearColor];
+            [_topBgView addSubview:_contentLabel];
+        }
+        
+        if (!_contentImageView) {
+            _contentImageView = [[UIImageView alloc]initWithFrame:CGRectZero];
+            _contentImageView.userInteractionEnabled = YES;
+            UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(clickTheTianImageBtn:)];
+            [_contentImageView addGestureRecognizer:tap];
+            [_topBgView addSubview:_contentImageView];
+        }
+        
+        if (!_bottomBgView) {
+            _bottomBgView = [[UIView alloc]initWithFrame:CGRectZero];
+            _bottomBgView.backgroundColor = [UIColor whiteColor];
+            _bottomBgView.layer.cornerRadius = 4;
+            _bottomBgView.layer.borderWidth = 0.5;
+            _bottomBgView.layer.borderColor = [UIColor lightGrayColor].CGColor;
+            [_scrollView addSubview:_bottomBgView];
+        }
+        
+        if (!_parsingView) {
+            _parsingView = [[ErrorParsingView alloc]initWithFrame:CGRectZero];
+            _parsingView.delegate = self;
+            [_scrollView addSubview:_parsingView];
+        }
+        
+    }
+    return self;
+}
+
+- (void)addTianKongData:(QuestionListModel *)data
+{
+    _qID = data.qId;
+    
+    
+    NSScanner * scanner = [NSScanner scannerWithString:data.qContent];
+    NSString * text = nil;
+    if([scanner isAtEnd]==NO){
+        
+        [scanner scanUpToString:@"<" intoString:nil];
+        //找到标签的结束位置
+        [scanner scanUpToString:@">" intoString:&text];
+        
+        if (text.length || [data.qContent rangeOfString:@"&nbsp;"].location !=NSNotFound) {
+            NSAttributedString * attrStr = [[NSAttributedString alloc] initWithData:[data.qContent dataUsingEncoding:NSUnicodeStringEncoding] options:@{ NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType,NSFontAttributeName:[UIFont systemFontOfSize:15] } documentAttributes:nil error:nil];
+            _contentLabel.attributedText = attrStr;
+        }else{
+            _contentLabel.text = data.qContent;
+        }
+        
+    }
+    
+//    _contentLabel.text = data.qContent;
+    CGFloat contentH = [BaseAPIManager base_getHeightByContent:_contentLabel.text andFontSize:15 andFixedWidth:self.width - 20];
+    _contentLabel.frame = CGRectMake(10, 5, self.width - 20, contentH + 10);
+    
+    if ((NSNull *)data.qContentPicUrl != [NSNull null]) {
+        [_contentImageView setImageWithURL:[NSURL URLWithString:data.qContentPicUrl] placeholderImage:[UIImage imageNamed:@"previewImage"]];
+        _contentImageView.frame = CGRectMake(10, _contentLabel.bottom + 10, self.width - 20, 60);
+        _topBgView.frame = CGRectMake(0, 0, self.width , _contentImageView.bottom + 10);
+    }else{
+        _topBgView.frame = CGRectMake(0, 0, self.width , _contentLabel.bottom + 10);
+    }
+    
+    _answerLabel.frame = CGRectMake(0, _topBgView.bottom + 10, self.width, 20);
+    _answerLabel.text = @"我的答案:";
+    
+    int temp = 0;
+    for (int i = 0; i < [data.options count]; i ++ ) {
+        FillBlanksModel *fillBlank = [[FillBlanksModel alloc]init];
+        fillBlank = data.options[i];
+        _answerView = [[ZJTextView alloc]initWithFrame:CGRectZero];
+        
+        _answerView.trueLabel.hidden = NO;
+        _answerView.trueLabel.text = fillBlank.optionContent;
+        CGFloat answerH = [BaseAPIManager base_getHeightByContent:fillBlank.optionContent andFontSize:13 andFixedWidth:MainScreenSize_W -140];
+        _answerView.trueLabel.frame = CGRectMake(80, 5, MainScreenSize_W -140, answerH+5);
+        _answerView.trueLabel.backgroundColor = [UIColor clearColor];
+        _answerView.answerLabel.hidden = NO;
+        
+        _answerView.textView.text = fillBlank.myOption;
+        CGFloat contentH = 0;
+        if (fillBlank.myOption) {
+            contentH = [BaseAPIManager base_getHeightByContent:fillBlank.myOption andFontSize:15 andFixedWidth:self.width - 80]+5;
+        }else{
+            contentH = 30;
+        }
+        
+        _answerView.textView.frame = CGRectMake(30, _answerView.trueLabel.bottom+5, self.width - 80, contentH + 5);
+        
+        _answerView.textView.userInteractionEnabled = NO;
+        
+        _answerView.frame = CGRectMake(10, 10+ temp, self.width -20, contentH + answerH + 20);
+        
+        _answerView.flagBtn.frame = CGRectMake(_answerView.width - 35, _answerView.height - 30, 30, 30);
+        _answerView.flagBtn.layer.cornerRadius = 15.0;
+        _answerView.flagBtn.layer.masksToBounds = YES;
+        [_answerView.flagBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        if ([fillBlank.myOption isEqualToString:fillBlank.optionContent]) {
+            [_answerView.flagBtn setTitle:@"√" forState:UIControlStateNormal];
+            [_answerView.flagBtn setBackgroundColor:PView_GreenColor];
+        }else if (fillBlank.myOption){
+            [_answerView.flagBtn setTitle:@"X" forState:UIControlStateNormal];
+            [_answerView.flagBtn setBackgroundColor:PView_RedColor];
+        }else{
+            _answerView.flagBtn.hidden = YES;
+        }
+        
+        
+        _answerView.placeLabel.text = [NSString stringWithFormat:@"%d .",i+1];
+        _answerView.placeLabel.frame = CGRectMake(10, _answerView.height - 20, 20, 20);
+        _answerView.lineView.frame = CGRectMake(30, _answerView.height -0.5, _answerView.width - 40, 0.5);
+        
+        [_bottomBgView addSubview:_answerView];
+        
+        temp += contentH+answerH+30;
+    }
+    
+    _bottomBgView.frame = CGRectMake(0, _topBgView.bottom + 40, self.width, _answerView.bottom + 20);
+    
+    NSScanner * scanners = [NSScanner scannerWithString:data.answerAnalysis];
+    NSString * texts = nil;
+    if([scanners isAtEnd]==NO){
+        
+        [scanners scanUpToString:@"<" intoString:nil];
+        //找到标签的结束位置
+        [scanners scanUpToString:@">" intoString:&texts];
+        
+        if (texts.length) {
+            NSAttributedString * attrStr = [[NSAttributedString alloc] initWithData:[data.answerAnalysis dataUsingEncoding:NSUnicodeStringEncoding] options:@{ NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType,NSFontAttributeName:[UIFont systemFontOfSize:15] } documentAttributes:nil error:nil];
+            _parsingView.answerLabel.attributedText = attrStr;
+        }else{
+            _parsingView.answerLabel.text = [data.answerAnalysis stringByReplacingOccurrencesOfString:@"&nbsp;" withString:@"  "];
+        }
+        
+    }
+    CGFloat anH = [BaseAPIManager base_getHeightByContent:data.answerAnalysis andFontSize:14 andFixedWidth:self.width - 20]+10;
+    _parsingView.delegate = self;
+    _parsingView.answerLabel.frame = CGRectMake(10, 5, self.width - 20, anH);
+    _parsingView.bgView.frame = CGRectMake(0, 30, self.width, anH+10);
+    _parsingView.titleLabel.frame = CGRectMake(0, 0, 100, 20);
+    _parsingView.masterBtn.frame = CGRectMake(0, _parsingView.bgView.bottom + 20, self.width, 35);
+    _parsingView.frame = CGRectMake(0, _bottomBgView.bottom +20, self.width, _parsingView.masterBtn.bottom + 20);
+    
+    _scrollView.contentSize= CGSizeMake(0, _parsingView.bottom+20);
+    
+    if ([_witchVC isEqualToString:@"我的错题库"]) {
+        _parsingView.masterBtn.hidden = YES;
+        _scrollView.contentSize= CGSizeMake(0, _bottomBgView.bottom+20);
+    }
+}
+
+- (void)clickTheTianImageBtn:(UITapGestureRecognizer *)tap
+{
+    if (self.delegate && [self.delegate respondsToSelector:@selector(tianQuestionViewDelegateWithBigImage:)]) {
+        [self.delegate tianQuestionViewDelegateWithBigImage:tap.view];
+    }
+}
+
+#pragma mark ---ErrorParsingViewDelegate---
+- (void)errorParsingViewDelegateWithMasterButton:(UIButton *)btn
+{
+    if (self.delegate && [self.delegate respondsToSelector:@selector(tianQuestionViewDelegateWithUnderStandard:andButton:)]) {
+        [self.delegate tianQuestionViewDelegateWithUnderStandard:_qID andButton:btn];
+    }
+}
+
+- (void)errorParsingViewDelegateWithPlayButton:(UIButton *)btn
+{
+    
+}
+
+
+/*
+// Only override drawRect: if you perform custom drawing.
+// An empty implementation adversely affects performance during animation.
+- (void)drawRect:(CGRect)rect {
+    // Drawing code
+}
+*/
+
+@end

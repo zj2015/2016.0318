@@ -1,0 +1,15 @@
+//
+//  SkillTrainingTableViewCell.h
+//  MRobot
+//
+//  Created by BaiYu on 15/8/25.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface SkillTrainingTableViewCell : UITableViewCell
+
+@property(nonatomic,strong)UILabel *skillNameLab;//技巧名称
+@property(nonatomic,strong)UIImageView *signImgView;//单元格右边箭头
+@end

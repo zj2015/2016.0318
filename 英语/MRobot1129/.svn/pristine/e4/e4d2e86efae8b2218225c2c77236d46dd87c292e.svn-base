@@ -1,0 +1,15 @@
+#import <UIKit/UIKit.h>
+#import "DWSDK.h"
+#import "UMSocialControllerService.h"
+#import "UMSocialShakeService.h"
+
+@interface DWCustomPlayerViewController : BaseViewController<UIActionSheetDelegate,UMSocialUIDelegate,
+UMSocialShakeDelegate>
+
+@property (copy, nonatomic)NSString *videoId;
+@property (copy, nonatomic)NSString *videoTitle;
+@property (copy, nonatomic)NSString *videoLocalPath;
+@property (copy, nonatomic)NSString *imgUrlstring;
+@property (copy, nonatomic)NSString *videoURL;
+@end
+

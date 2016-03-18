@@ -1,0 +1,38 @@
+//
+//  KnowledgeSelectViewController.h
+//  MRobot
+//
+//  Created by BaiYu on 15/9/9.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import "BaseViewController.h"
+#import "UIFolderTableView.h"
+
+@protocol PassSelestRowDelegate <NSObject>
+
+-(void)passSelectIndexPath:(NSIndexPath *)indexPath;
+
+@end
+
+@interface KnowledgeSelectViewController : BaseViewController<UITableViewDataSource,UITableViewDelegate,UIFolderTableViewDelegate>
+{
+    UITableView *kTableView;
+    UIFolderTableView *childTableView;
+    BOOL isClick;//单元格被点击
+    
+    NSIndexPath *selectIndexPath;
+    NSInteger selectChildRow;
+    NSInteger selectSecChildRow;
+    
+    NSArray *firChildArr;
+    NSArray *secChildArr;
+    
+    UIButton * headerBtn;
+    NSString *headerTitle;
+}
+@property (nonatomic ,weak) id <PassSelestRowDelegate>delegate;
+@property (nonatomic ,strong) NSArray *kNameArr;
+@property (nonatomic ,strong) NSString *kId;
+@property (nonatomic ,strong) NSIndexPath *selIndexPath;
+@end

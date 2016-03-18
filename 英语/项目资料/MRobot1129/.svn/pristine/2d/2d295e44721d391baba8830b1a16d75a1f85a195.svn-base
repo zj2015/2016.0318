@@ -1,0 +1,35 @@
+//
+//  ExerciseTrainViewController.h
+//  MRobot
+//
+//  Created by mac on 15/8/22.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import "BaseViewController.h"
+#import "QuestionAnswer.h"
+
+@interface ExerciseTrainViewController : BaseViewController<QuestionAnswerDelegate,UIScrollViewDelegate>
+
+@property (strong, nonatomic) QuestionAnswer *answerView;//答案对照
+@property (strong, nonatomic) NSMutableArray *answerArr;// 0 没写， 1正确   2错误
+
+@property (strong, nonatomic) UIScrollView *myScrollView;
+@property (assign, nonatomic)int page;
+@property (assign, nonatomic) int questionAccount;//题目数量
+@property (strong, nonatomic) UILabel *titleLabels;//试卷标题
+@property (strong, nonatomic) UILabel *topicLabel;//题型
+@property (strong, nonatomic) UILabel *timeLabel;//考试倒计时
+@property (strong, nonatomic) UIImageView *timeView;//时钟的图片
+@property (assign, nonatomic) long timeNumber;//总时间
+@property (assign, nonatomic) long time;
+
+@property (strong, nonatomic) NSArray *danArr;//单选题
+@property (strong, nonatomic) NSArray *tianArr;//填空题
+@property (strong, nonatomic) NSArray *yueArr;//阅读理解
+@property (strong, nonatomic) NSMutableArray *yuedanArr;
+
+@property (strong, nonatomic) NSArray *tingArr;//听力题
+@property (strong, nonatomic) NSMutableArray *tingdanArr;
+
+@end

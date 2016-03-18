@@ -1,0 +1,19 @@
+//
+//  CommonListModel.m
+//  MRobot
+//
+//  Created by mac on 15/8/20.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import "CommonListModel.h"
+
+@implementation CommonListModel
+
+@synthesize sId;
+@synthesize sName;
+@synthesize sVideoCoverUrl;
+@synthesize sVideoCCId;
+@synthesize sVideoUrl;
+
+@end

@@ -1,0 +1,15 @@
+//
+//  ErrorShowViewController.h
+//  ERobot
+//
+//  Created by BaiYu on 15/7/1.
+//  Copyright (c) 2015年 BaiYu. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "ErrorKnowledgeViewController.h"
+
+@interface ErrorShowViewController : UIViewController
+
+@property (strong, nonatomic) ErrorKnowledgeViewController *errorKnowledgeVC;
+@end

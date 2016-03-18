@@ -1,0 +1,31 @@
+//
+//  SubmitBadViewController.h
+//  MRobot
+//
+//  Created by mac on 15/8/24.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@protocol SubmitBadViewControllerDelegate <NSObject>
+
+- (void)submitBadViewControllerDelegateWithTap:(UIView *)tapView withIndexRow:(int)row withWrongID:(NSString *)wrongId;
+
+@end
+
+@interface SubmitBadViewController : UIViewController
+
+@property (strong, nonatomic) UIView *bgView;
+
+@property (strong, nonatomic) UILabel *wrongLabel;
+
+@property (strong, nonatomic) UIImageView *lineView;
+
+@property (strong, nonatomic) NSArray *wrongIdArr;
+
+@property (weak, nonatomic) id<SubmitBadViewControllerDelegate>delegate;
+
+- (void)addCellData:(NSArray *)cellData;
+
+@end

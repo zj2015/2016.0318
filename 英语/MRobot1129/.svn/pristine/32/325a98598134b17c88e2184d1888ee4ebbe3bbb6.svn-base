@@ -1,0 +1,22 @@
+//
+//  SkillTrainingViewController.h
+//  MRobot
+//
+//  Created by BaiYu on 15/8/25.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "UIFolderTableView.h"
+
+@interface SkillTrainingViewController : BaseViewController<UITableViewDelegate,UITableViewDataSource,UIFolderTableViewDelegate>
+{
+    UIFolderTableView *skillTrainTable;
+    BOOL isClick;//单元格被点击
+    NSInteger selectRow;//当前点击的单元格
+    
+    NSArray *skillArr;//技巧列表
+}
+@property (strong, nonatomic) NSString *weekId;//周Id
+
+@end

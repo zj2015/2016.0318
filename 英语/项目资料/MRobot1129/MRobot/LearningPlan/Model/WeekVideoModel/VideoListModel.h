@@ -1,0 +1,23 @@
+//
+//  VideoListModel.h
+//  MRobot
+//
+//  Created by mac on 15/8/20.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import "BaseEntity.h"
+/**
+ *  Videos
+ */
+@interface VideoListModel : BaseEntity
+
+@property (copy, nonatomic) NSString * kVideoCoverUrl;//知识点视频封面地址
+
+@property (copy, nonatomic) NSString * kVideoCCId;//知识点视频CC ID
+
+@property (copy, nonatomic) NSString * kVideoUrl;//视频地址
+
+@property (strong, nonatomic) NSMutableArray * cVideoList;
+
+@end

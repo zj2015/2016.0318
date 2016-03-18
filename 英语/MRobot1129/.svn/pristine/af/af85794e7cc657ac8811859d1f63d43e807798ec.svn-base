@@ -1,0 +1,13 @@
+//
+//  ThirdChildView.h
+//  MRobot
+//
+//  Created by BaiYu on 15/9/22.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface ThirdChildView : UIView
+
+@end

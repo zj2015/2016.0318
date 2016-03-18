@@ -1,0 +1,32 @@
+//
+//  VideoExplanationViewController.h
+//  MRobot
+//
+//  Created by BaiYu on 15/8/22.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import "BaseViewController.h"
+#import "KVideoView.h"
+#import "SVideoView.h"
+#import "CustomAlertView.h"
+
+@interface VideoExplanationViewController : BaseViewController<UITableViewDelegate,UITableViewDataSource,PassBtnTagDelegate,PassSkillBtnTagDelegate>
+{
+    UIButton *knowledgeBtn;
+    UIButton *solveBtn;
+    UITableView *videoTable;
+    
+    UIView *alertBgView;
+    CustomAlertView *customAlertView;//自定义alert
+    
+    NSMutableArray *openedInSectionArr;
+    NSInteger preHeaderIndex;//上一个被点击的区头
+    
+    NSArray *kVideosArr;//知识点视频列表
+    NSArray *sVideosArr;//技巧视频列表
+}
+@property (assign, nonatomic) NSInteger fromVC;//(0 代表视频讲解 1 代表通用解题技巧)
+@property (strong, nonatomic) NSString *weekId;//周Id
+
+@end

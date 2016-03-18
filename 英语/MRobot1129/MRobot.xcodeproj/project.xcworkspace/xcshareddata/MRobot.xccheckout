@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>B05B60F1-6FB5-43FC-B2CB-F2EDA5E3EFE9</string>
+	<key>IDESourceControlProjectName</key>
+	<string>MRobot</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>452e5c94-b62a-1b4f-b5fb-9ff99b9fcdb1++6261</key>
+		<string>https://172.16.0.201/svn/Project/APP/CC.E-Learn&amp;Exam/IOS/MRobot/trunk/MRobot</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>MRobot.xcodeproj</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>452e5c94-b62a-1b4f-b5fb-9ff99b9fcdb1++6261</key>
+		<string>../..</string>
+	</dict>
+	<key>IDESourceControlProjectRepositoryRootDictionary</key>
+	<dict>
+		<key>452e5c94-b62a-1b4f-b5fb-9ff99b9fcdb1++6261</key>
+		<string>https://172.16.0.201/svn/Project</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://172.16.0.201/svn/Project/APP/CC.E-Learn&amp;Exam/IOS/MRobot/trunk/MRobot/MRobot.xcodeproj</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>111</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>452e5c94-b62a-1b4f-b5fb-9ff99b9fcdb1++6261</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.subversion</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>452e5c94-b62a-1b4f-b5fb-9ff99b9fcdb1++6261</string>
+			<key>IDESourceControlWCCName</key>
+			<string>MRobot-svn</string>
+		</dict>
+	</array>
+</dict>
+</plist>

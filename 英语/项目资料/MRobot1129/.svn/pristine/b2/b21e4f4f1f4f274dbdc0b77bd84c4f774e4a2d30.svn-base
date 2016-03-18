@@ -1,0 +1,23 @@
+//
+//  SkillInfoModel.h
+//  MRobot
+//
+//  Created by mac on 15/8/20.
+//  Copyright (c) 2015年 silysolong. All rights reserved.
+//
+
+#import "BaseEntity.h"
+/**
+ *  技巧训练-知识点Model
+ */
+@interface SkillInfoModel : BaseEntity
+
+@property (copy, nonatomic) NSString * sId; //技巧ID
+
+@property (copy, nonatomic) NSString * sName; //技巧名称
+
+@property (copy, nonatomic) NSString * mainVideoCoverUrl; //重点解题技巧视频封面地址
+
+@property (copy, nonatomic) NSString * mainVideoCCId; //重点解题技巧视频CC ID
+
+@end

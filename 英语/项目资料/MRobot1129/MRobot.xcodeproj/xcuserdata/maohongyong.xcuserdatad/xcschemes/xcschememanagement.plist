@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>SchemeUserState</key>
+	<dict>
+		<key>HRobot-Out.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>3</integer>
+		</dict>
+		<key>HRobot.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>2</integer>
+		</dict>
+		<key>MRobot-Out.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>1</integer>
+		</dict>
+		<key>MRobot.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>0</integer>
+		</dict>
+	</dict>
+	<key>SuppressBuildableAutocreation</key>
+	<dict>
+		<key>044E81101B847152005256EC</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>044E81291B847152005256EC</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>6C04F8391BA7E514005C9EDD</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>6C158D4C1BD613610009BE5E</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>6C158E721BD6150D0009BE5E</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+	</dict>
+</dict>
+</plist>
